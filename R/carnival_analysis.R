@@ -9,8 +9,7 @@
 #' @return list of proteins
 #'
 #' @examples
-generateTFList <- function (df = df, top = 50, access_idx = 1)
-{
+generateTFList <- function (df = df, top = 50, access_idx = 1){
   if (top == "all") {
     top <- nrow(df)
   }
@@ -62,7 +61,6 @@ formatting_proteins_for_carnival <- function(proteins_df){
 #' @param carnival_result runCARNIVAL output
 #' @param proteins_df inferred proteins df
 #' @param organism string, 'mouse' or 'human'
-#' @param mode string, 'activatory' or 'all'
 #' @param prot_df proteomics data
 #'
 #' @return dataframe with nodes and attributes
@@ -72,29 +70,22 @@ formatting_proteins_for_carnival <- function(proteins_df){
 add_output_carnival_nodes_attributes <- function(carnival_result,
                                                  proteins_df,
                                                  organism,
-                                                 mode,
                                                  prot_df){
   # proteins_df <- toy_carnival_input
-  # db <- choose_database_for_building(organism, mode)
+  # db <- choose_database_for_building(organism)
   # carnival_result
   # prot_df <- prot_toy_df
 
   # get db and protein db for adding attributes
 
-  if(organism == 'mouse' & mode == 'activatory'){
-    PKN_proteins <- PKN_proteins_mouse_a
-    db <- db_mouse_a
-  }else if(organism == 'mouse' & mode == 'all'){
+  if(organism == 'mouse'){
     PKN_proteins <- PKN_proteins_mouse
     db <- db_mouse
-  }else if(organism == 'human' & mode == 'activatory'){
-    PKN_proteins <- PKN_proteins_human_a
-    db <- db_human_a
-  }else if(organism == 'human' & mode == 'all'){
+  }else if(organism == 'human'){
     PKN_proteins <- PKN_proteins_human
     db <- db_human
   }else{
-    error('Please provide a valide organism and mode')
+    error('Please provide a valide organism')
   }
 
   nodes <- tibble::as_tibble(carnival_result$nodesAttributes)
@@ -238,7 +229,6 @@ union_of_graphs <- function(graph_1, graph_2, proteins_df, files,
 #' @param solver name of solver
 #' @param proteins_df all inferred proteins df
 #' @param organism string, organism you are using
-#' @param mode string, type of interactions
 #' @param prot_df proteome df
 #' @param files boolean value, if you want or not files
 #' @param path_sif path of the sif output file of network
@@ -254,7 +244,6 @@ run_carnival_and_create_graph <- function(source_df,
                                           solver_path = NULL, solver = NULL,
                                           proteins_df,
                                           organism,
-                                          mode,
                                           prot_df,
                                           files = TRUE,
                                           path_sif = './optimized_network.sif',
@@ -284,12 +273,10 @@ run_carnival_and_create_graph <- function(source_df,
                                             betaWeight = 0.2)
 
   # organism <- 'mouse'
-  # mode <- 'all'
   # format result
   nodes_df <- add_output_carnival_nodes_attributes(carnival_result,
                                                    proteins_df,
                                                    organism,
-                                                   mode,
                                                    prot_df)
 
   edges_df <- add_output_carnival_edges_attributes(carnival_result)
@@ -323,21 +310,34 @@ convert_output_nodes_in_next_input <- function(carnival_result){
   return(formatted_nodes)
 }
 
-expand_and_map_edges <- function(opimized_graph_rds, optimized_graph_sif,
-                                 organism, mode, phospho_df, files, path_sif, path_rds){
+#' expand_and_map_edges
+#'
+#' @param optimized_graph_rds
+#' @param optimized_graph_sif
+#' @param organism
+#' @param phospho_df
+#' @param files
+#' @param path_sif
+#' @param path_rds
+#'
+#' @return
+#' @export
+#'
+#' @examples
+expand_and_map_edges <- function(optimized_graph_rds, optimized_graph_sif,
+                                 organism, phospho_df, files, path_sif, path_rds){
 
-  opimized_graph_rds <- toy_optimized_object_basic$network
+  optimized_graph_rds <- toy_optimized_object_basic$network
   optimized_graph_sif <- toy_optimized_object_basic$network_sif
 
-  organism <- 'mouse'
-  mode <- 'activatory'
+  #organism <- 'mouse'
 
-  db <- choose_database_for_building(organism, type_net = 'all', format = 'table')
+  db <- choose_database_for_building(organism, format = 'table')
 
   optimized_graph_sif <- optimized_graph_sif %>% dplyr::mutate_at('interaction', as.character)
   db <- db %>% dplyr::mutate_at('INTERACTION', as.character)
 
-  phospho_df <- phospho_toy_df
+  #phospho_df <- phospho_toy_df
   phospho_df <- phospho_df %>%
     dplyr::mutate_at('gene_name', toupper) %>%
     dplyr::mutate(phosphositeID = paste0(toupper(gene_name), '-', stringr::str_sub(sequence_window, 9, 23))) %>%
@@ -355,9 +355,9 @@ expand_and_map_edges <- function(opimized_graph_rds, optimized_graph_sif,
   # nodes are the one in optimized network, while edges become the expanded ones
 
   # ** NODES DATAFRAME **
-  nodes_df <- igraph::as_data_frame(opimized_graph_rds, what = 'vertice') %>%
+  nodes_df <- igraph::as_data_frame(optimized_graph_rds, what = 'vertice') %>%
     tibble::as_tibble()# nodes' dataframe already present
-  edges_df <- igraph::as_data_frame(opimized_graph_rds, what = 'edges') %>%
+  edges_df <- igraph::as_data_frame(optimized_graph_rds, what = 'edges') %>%
     tibble::as_tibble()
 
   # ** EDGES DATAFRAME **
