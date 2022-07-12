@@ -40,6 +40,7 @@ igraphToSif <- function(inGraph, outfile="output.sif", edgeLabel="label") {
 #' get all edge ids
 #'
 #' @param all_shortest_paths takes in input all shortest paths of igraph command
+#' @param db fb used for the analysis
 #'
 #' @return all edges id along the shortest path
 #'
@@ -127,36 +128,27 @@ concatenate_molecular_functions <- function(prediction_output_list){
 
 #' choose_database_for_building
 #'
-#' @param organism 'human' or 'mouse'
-#' @param type_net 'activatory' or 'all'
+#' @param organism 'human' or 'mouse''
 #' @param format 'igraph' or 'sif'
 #'
 #' @return the built in database you want
 #' @export
 #'
 #' @examples
-choose_database_for_building <- function(organism, type_net,format){
+choose_database_for_building <- function(organism ,format){
   # db choosing
   if(organism == 'mouse'){
-    if(type_net == 'all' & format == 'igraph'){
+    if(format == 'igraph'){
       pkn <- db_mouse
-    }else if(type_net == 'activatory'  & format == 'igraph'){
-      pkn <- db_mouse_a
-    }else if(type_net == 'all'  & format == 'table'){
+    }else if(format == 'table'){
       pkn <- PKN_mouse
-    }else if(type_net == 'activatory'  & format == 'table'){
-      pkn <- PKN_mouse_a
-    }else{error('Please provide a valid type of network among activatory or all or format among igraph or table')}
+    }else{error('Please provide a valid format among igraph or table')}
   }else if(organism == 'human'){
-    if(type_net == 'all'  & format == 'igraph'){
+    if(format == 'igraph'){
       pkn <- db_human
-    }else if(type_net == 'activatory'  & format == 'igraph'){
-      pkn <- db_human_a
-    }else if(type_net == 'all'  & format == 'table'){
+    }else if(format == 'table'){
       pkn <- PKN_human
-    }else if(type_net == 'activatory'  & format == 'table'){
-      pkn <- PKN_human_a
-    }else{error('Please provide a valid type of network among activatory or all or format among igraph or table')}
+    }else{error('Please provide a valid format among igraph or table')}
   }else{error('Please provide a valid organism')}
 
   return(pkn)
@@ -168,19 +160,17 @@ choose_database_for_building <- function(organism, type_net,format){
 #'
 #' @param prediction_output concatenation of inferred proteins from omics data
 #' @param organism 'human' or 'mouse'
-#' @param type_net 'activatory' or 'all'
 #' @param report ' report of coverage analysis
 #'
 #' @return print information about coverage or annotates them in a file
 #' @export
 #'
 #' @examples
-coverage_of_inferred_proteins_in_db <- function(prediction_output, organism, type_net, report){
+coverage_of_inferred_proteins_in_db <- function(prediction_output, organism, report){
 
   # organism <- 'mouse'
-  # type_net <- 'activatory'
   # report <- TRUE
-  pkn <- choose_database_for_building(organism, type_net, 'igraph')
+  pkn <- choose_database_for_building(organism, 'igraph')
 
   if(report == TRUE){sink('report.txt')}
 
@@ -257,7 +247,6 @@ get_all_shortest_path_custom <- function(start_nodes_gn, target_nodes_gn, db, pa
     }else{
       error('Please provide a valid type of analysis')
     }
-
   }
   return(all_edges_ids)
 }
@@ -305,9 +294,9 @@ one_layer_naive_network <- function(receptors_gn, targets_gn, db,
 two_layer_naive_network <- function(receptors_gn, kinphos_gn, tfs_gn, db,
                                     rds_path = 'two_layer_naive.RDS',
                                     sif_path = 'two_layer_naive.sif'){
-  receptors_gn <- c('FLT3')
-  kinphos_gn <- toy_kin$gene_name
-  tfs_gn <- toy_tf$gene_name
+  # receptors_gn <- c('FLT3')
+  # kinphos_gn <- toy_kin$gene_name
+  # tfs_gn <- toy_tf$gene_name
 
 
 
