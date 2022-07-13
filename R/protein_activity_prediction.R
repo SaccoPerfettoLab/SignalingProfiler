@@ -636,11 +636,11 @@ phospho_score_hybrid_computation <- function(phosphoproteomic_data,
                                              organism,
                                              path_fasta = './phospho.fasta', local){
 
-  phosphoproteomic_data <- readRDS('./data/TKD_phospho.RDS')
-  #   mutate_at('difference', as.numeric)
-  path_fasta = './phospho.fasta'
-  organism = 'hybrid'
-  local = TRUE
+  # phosphoproteomic_data <- readRDS('./data/TKD_phospho.RDS')
+  # #   mutate_at('difference', as.numeric)
+  # path_fasta = './phospho.fasta'
+  # organism = 'hybrid'
+  # local = TRUE
 
 
 
