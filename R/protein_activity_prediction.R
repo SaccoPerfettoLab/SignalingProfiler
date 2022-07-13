@@ -398,10 +398,10 @@ phosphoscore_computation <- function(phosphoproteomic_data,
                                     path_fasta = './phospho.fasta',
                                     local = FALSE){
   message('** RUNNING PHOSPHOSCORE ANALYSIS **')
-  # phosphoproteomic_data <- phospho_df
-  # path_fasta = './phospho.fasta'
-  # organism = 'hybrid'
-  # local = TRUE
+  phosphoproteomic_data <- readRDS('./data/JMD_phospho.RDS')
+  path_fasta = './phospho.fasta'
+  organism = 'hybrid'
+  local = TRUE
 
   if(organism == 'mouse' | organism =='human'){
     phosphoscore_df_output <- map_experimental_on_regulatory_phosphosites(phosphoproteomic_data,
@@ -576,6 +576,12 @@ generate_hybrid_db <- function(mh_alignment){
 map_experimental_on_regulatory_phosphosites <- function(phosphoproteomic_data,
                                                         organism,
                                                         path_fasta, local = FALSE){
+
+  phosphoproteomic_data <- readRDS('./data/JMD_phospho.RDS')
+  path_fasta = './phospho.fasta'
+  organism = 'mouse'
+  local = TRUE
+
   if(organism == 'human'){
     message('Mapping experimental phosphopeptides on human database of regulatory roles')
     reg_phos_db <- good_phos_df_human
@@ -622,6 +628,11 @@ map_experimental_on_regulatory_phosphosites <- function(phosphoproteomic_data,
 phospho_score_hybrid_computation <- function(phosphoproteomic_data,
                                              organism,
                                              path_fasta = './phospho.fasta', local){
+
+  phosphoproteomic_data <- readRDS('./data/JMD_phospho.RDS')
+  path_fasta = './phospho.fasta'
+  organism = 'hybrid'
+  local = TRUE
 
   phosphoscore_df_mouse_output <- map_experimental_on_regulatory_phosphosites(phosphoproteomic_data, 'mouse', local)
   phosphoscore_df_mouse <- phosphoscore_df_mouse_output$phosphoscore_df %>%
