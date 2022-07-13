@@ -344,7 +344,7 @@ run_footprint_based_analysis <- function(omic_data, analysis, organism,
   message(' ** RUNNING FOOTPRINT BASED ANALYSIS ** ')
 
   # omic_data <- readRDS('./data/JMD_phospho.RDS')
-  # omic_data <- phospho_toy_df
+  # # omic_data <- phospho_toy_df
   # analysis <- 'ksea'
   # organism <- 'mouse'
   # reg_minsize <- 1
