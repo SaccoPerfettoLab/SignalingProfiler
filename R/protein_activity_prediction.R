@@ -341,7 +341,7 @@ filter_VIPER_output <- function(inferred_proteins_mf, analysis){
 run_footprint_based_analysis <- function(omic_data, analysis, organism,
                                          reg_minsize, exp_sign,
                                          hypergeom_corr){
-  print('CIAO!')
+  message('CIAO!')
   message(' ** RUNNING FOOTPRINT BASED ANALYSIS ** ')
 
   # omic_data <- readRDS('./data/JMD_phospho.RDS')
