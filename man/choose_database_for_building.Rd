@@ -4,12 +4,10 @@
 \alias{choose_database_for_building}
 \title{choose_database_for_building}
 \usage{
-choose_database_for_building(organism, type_net, format)
+choose_database_for_building(organism, format)
 }
 \arguments{
-\item{organism}{'human' or 'mouse'}
-
-\item{type_net}{'activatory' or 'all'}
+\item{organism}{'human' or 'mouse''}
 
 \item{format}{'igraph' or 'sif'}
 }

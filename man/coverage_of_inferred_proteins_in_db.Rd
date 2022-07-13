@@ -4,19 +4,12 @@
 \alias{coverage_of_inferred_proteins_in_db}
 \title{coverage_of_inferred_proteins_in_db}
 \usage{
-coverage_of_inferred_proteins_in_db(
-  prediction_output,
-  organism,
-  type_net,
-  report
-)
+coverage_of_inferred_proteins_in_db(prediction_output, organism, report)
 }
 \arguments{
 \item{prediction_output}{concatenation of inferred proteins from omics data}
 
 \item{organism}{'human' or 'mouse'}
-
-\item{type_net}{'activatory' or 'all'}
 
 \item{report}{' report of coverage analysis}
 }

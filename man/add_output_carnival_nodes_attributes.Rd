@@ -8,7 +8,6 @@ add_output_carnival_nodes_attributes(
   carnival_result,
   proteins_df,
   organism,
-  mode,
   prot_df
 )
 }
@@ -18,8 +17,6 @@ add_output_carnival_nodes_attributes(
 \item{proteins_df}{inferred proteins df}
 
 \item{organism}{string, 'mouse' or 'human'}
-
-\item{mode}{string, 'activatory' or 'all'}
 
 \item{prot_df}{proteomics data}
 }

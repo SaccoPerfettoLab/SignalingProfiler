@@ -8,6 +8,8 @@ get_all_edge_ids(all_shortest_paths, db)
 }
 \arguments{
 \item{all_shortest_paths}{takes in input all shortest paths of igraph command}
+
+\item{db}{fb used for the analysis}
 }
 \value{
 all edges id along the shortest path

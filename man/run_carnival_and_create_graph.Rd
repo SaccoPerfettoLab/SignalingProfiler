@@ -12,7 +12,6 @@ run_carnival_and_create_graph(
   solver = NULL,
   proteins_df,
   organism,
-  mode,
   prot_df,
   files = TRUE,
   path_sif = "./optimized_network.sif",
@@ -33,8 +32,6 @@ run_carnival_and_create_graph(
 \item{proteins_df}{all inferred proteins df}
 
 \item{organism}{string, organism you are using}
-
-\item{mode}{string, type of interactions}
 
 \item{prot_df}{proteome df}
 

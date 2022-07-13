@@ -343,13 +343,13 @@ run_footprint_based_analysis <- function(omic_data, analysis, organism,
                                          hypergeom_corr){
   message(' ** RUNNING FOOTPRINT BASED ANALYSIS ** ')
 
-  # omic_data <- phospho_df
+  # omic_data <- readRDS('./data/JMD_phospho.RDS')
+  # omic_data <- phospho_toy_df
   # analysis <- 'ksea'
-  # organism <- 'human'
+  # organism <- 'mouse'
   # reg_minsize <- 1
   # exp_sign <- FALSE
   # hypergeom_corr <- TRUE
-
 
   # run viper analysis
   viper_format <- create_viper_format(omic_data, analysis, significance = exp_sign)
@@ -365,7 +365,11 @@ run_footprint_based_analysis <- function(omic_data, analysis, organism,
   }else{
     output_uniprot <- convert_gene_name_in_uniprotid(output$sign, organism)
   }
+
+  #output_uniprot$UNIPROT
+
   message('GO molecular function annotation')
+
   output_uni_mf <- molecular_function_annotation(output_uniprot)
 
   output_final <- filter_VIPER_output(output_uni_mf, analysis) %>% dplyr::distinct()

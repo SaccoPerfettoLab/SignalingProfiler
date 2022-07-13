@@ -10,7 +10,7 @@
 #' @examples
 molecular_function_annotation <- function(inferred_proteins_dataset){
 
-  #inferred_proteins_dataset <- output
+  #inferred_proteins_dataset <- output_uniprot
   # ADD A CHECK FOR UNIPROT COLUMN PRESENCE
   inferred_proteins_dataset <- inferred_proteins_dataset %>%
     dplyr::filter(!is.na(UNIPROT)) %>%
@@ -18,10 +18,10 @@ molecular_function_annotation <- function(inferred_proteins_dataset){
     dplyr::distinct()
 
   #get uniprot annotation
-  annotation <- UniprotR::GetProteinGOInfo(inferred_proteins_dataset$UNIPROT)
+  annotation <- UniprotR::GetProteinGOInfo(output_uniprot$UNIPROT)
 
   # extract GO term for each protein
-  ovl <- annotation$Gene.ontology..molecular.function.
+  ovl <- annotation$Gene.Ontology..molecular.function.
   pattern <- "(\\[.*?\\])"
   matches <- gregexpr(pattern, ovl)
   overlap <- regmatches(ovl, matches)
@@ -35,6 +35,7 @@ molecular_function_annotation <- function(inferred_proteins_dataset){
 
   inferred_proteins_dataset$MF <- NA
   for(i in c(1:length(inferred_proteins_dataset$gene_name))){
+
     # transcription factor
     if(sum(unlist(lapply(GOterm[[i]], function(x){'GO:0140110' %in% GOanc[[x]] |
         'GO:0140110' == x})))>=1){
