@@ -398,7 +398,7 @@ phosphoscore_computation <- function(phosphoproteomic_data,
                                     path_fasta = './phospho.fasta',
                                     local = FALSE){
   message('** RUNNING PHOSPHOSCORE ANALYSIS **')
-  # phosphoproteomic_data <- readRDS('./data/JMD_phospho.RDS')
+  # phosphoproteomic_data <- readRDS('./data/TKD_phospho.RDS')
   # path_fasta = './phospho.fasta'
   # organism = 'hybrid'
   # local = TRUE
@@ -410,6 +410,8 @@ phosphoscore_computation <- function(phosphoproteomic_data,
   }else if(organism == 'hybrid'){
     phosphoscore_df_output <- phospho_score_hybrid_computation(phosphoproteomic_data,
                                                         organism, path_fasta, local)
+
+
     phosphoscore_df <- phosphoscore_df_output$phosphoscore_df
   }else{
     stop('please provide a valid organism')
@@ -578,9 +580,9 @@ map_experimental_on_regulatory_phosphosites <- function(phosphoproteomic_data,
                                                         organism,
                                                         path_fasta, local = FALSE){
 
-  # phosphoproteomic_data <- readRDS('./data/JMD_phospho.RDS')
+  # phosphoproteomic_data <- readRDS('./data/TKD_phospho.RDS')
   # path_fasta = './phospho.fasta'
-  # organism = 'hybrid'
+  # organism = 'mouse'
   # local = TRUE
 
   if(organism == 'human'){
@@ -589,7 +591,6 @@ map_experimental_on_regulatory_phosphosites <- function(phosphoproteomic_data,
   }else if(organism == 'mouse'){
     message('Mapping experimental phosphopeptides on mouse database of regulatory roles')
     reg_phos_db <- good_phos_df_mouse
-
   }else if(organism == 'hybrid'){
     message('Mapping mouse experimental phosphopeptides on human database of regulatory roles to enhance coverage')
     create_fasta(phosphoproteomic_data, path_fasta)
@@ -604,16 +605,21 @@ map_experimental_on_regulatory_phosphosites <- function(phosphoproteomic_data,
                                               stringr::str_sub(sequence_window, 9, 23))) %>%
     dplyr::filter(PHOSPHO_KEY_GN_SEQ %in% reg_phos_db$PHOSPHO_KEY_GN_SEQ)
 
-  phosphoscore_df <- dplyr::left_join(exp_fc, reg_phos_db, by = 'PHOSPHO_KEY_GN_SEQ') %>%
-    dplyr::select(PHOSPHO_KEY_GN_SEQ, ACTIVATION, difference) %>%
-    dplyr::arrange(PHOSPHO_KEY_GN_SEQ) %>%
-    dplyr::mutate(gene_name  = unlist(lapply(PHOSPHO_KEY_GN_SEQ,
-                                             function(x){stringr::str_split(x, '-')[[1]][1]})),
-                  inferred_activity = as.numeric(ACTIVATION) * as.numeric(difference)) %>%
-    dplyr::distinct()
+  if(nrow(exp_fc) == 0){
+    stop('No annotated regulatory phosphosites significantly modulated in your dataset')
+  }else{
+    phosphoscore_df <- dplyr::left_join(exp_fc, reg_phos_db, by = 'PHOSPHO_KEY_GN_SEQ') %>%
+      dplyr::select(PHOSPHO_KEY_GN_SEQ, ACTIVATION, difference) %>%
+      dplyr::arrange(PHOSPHO_KEY_GN_SEQ) %>%
+      dplyr::mutate(gene_name  = unlist(lapply(PHOSPHO_KEY_GN_SEQ,
+                                               function(x){stringr::str_split(x, '-')[[1]][1]})),
+                    inferred_activity = as.numeric(ACTIVATION) * as.numeric(difference)) %>%
+      dplyr::distinct()
 
-  return(list(used_exp_data = exp_fc,
-              phosphoscore_df = phosphoscore_df))
+    return(list(used_exp_data = exp_fc,
+                phosphoscore_df = phosphoscore_df))
+
+  }
 }
 
 #' Title
@@ -630,7 +636,7 @@ phospho_score_hybrid_computation <- function(phosphoproteomic_data,
                                              organism,
                                              path_fasta = './phospho.fasta', local){
 
-  # phosphoproteomic_data <- readRDS('./data/JMD_phospho.RDS') %>%
+  # phosphoproteomic_data <- readRDS('./data/TKD_phospho.RDS') %>%
   #   mutate_at('difference', as.numeric)
   # path_fasta = './phospho.fasta'
   # organism = 'hybrid'
@@ -641,6 +647,9 @@ phospho_score_hybrid_computation <- function(phosphoproteomic_data,
     dplyr::select(PHOSPHO_KEY_GN_SEQ, inferred_activity, gene_name)
 
   phosphoscore_df_hybrid_output <- map_experimental_on_regulatory_phosphosites(phosphoproteomic_data, 'hybrid', path_fasta, local)
+
+  phosphoscore_df_hybrid_output <- list(used_exp_data = exp_fc,
+       phosphoscore_df = phosphoscore_df)
   phosphoscore_df_hybrid <- phosphoscore_df_hybrid_output$phosphoscore_df %>%
     dplyr::select(PHOSPHO_KEY_GN_SEQ, inferred_activity, gene_name)
 
