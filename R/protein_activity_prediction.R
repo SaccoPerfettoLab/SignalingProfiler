@@ -547,8 +547,9 @@ run_blast <- function(path_experimental_fasta_file, all = FALSE, local = FALSE){
 generate_hybrid_db <- function(mh_alignment){
   # regulatory role of phosphosites in human
   hreg_phos <- good_phos_df_human
-  #mh_alignment <- sure
-  good_phos_df_hybrid <- dplyr::left_join(mh_alignment,
+  #mh_alignment = run_blast(path_fasta, local = local)$mapped
+
+  good_phos_df_hybrid <- dplyr::inner_join(mh_alignment,
                                           hreg_phos,
                                           by = c('s_ID' = 'PHOSPHO_KEY_GN_SEQ')) %>%
     dplyr::select(PHOSPHO_KEY_GN_SEQ = q_ID, PHOSPHO_KEY_GN_SEQ_human = s_ID, UNIPROT, ACTIVATION) %>%
@@ -579,7 +580,7 @@ map_experimental_on_regulatory_phosphosites <- function(phosphoproteomic_data,
 
   # phosphoproteomic_data <- readRDS('./data/JMD_phospho.RDS')
   # path_fasta = './phospho.fasta'
-  # organism = 'mouse'
+  # organism = 'hybrid'
   # local = TRUE
 
   if(organism == 'human'){
@@ -629,7 +630,8 @@ phospho_score_hybrid_computation <- function(phosphoproteomic_data,
                                              organism,
                                              path_fasta = './phospho.fasta', local){
 
-  # phosphoproteomic_data <- readRDS('./data/JMD_phospho.RDS')
+  # phosphoproteomic_data <- readRDS('./data/JMD_phospho.RDS') %>%
+  #   mutate_at('difference', as.numeric)
   # path_fasta = './phospho.fasta'
   # organism = 'hybrid'
   # local = TRUE
@@ -638,7 +640,7 @@ phospho_score_hybrid_computation <- function(phosphoproteomic_data,
   phosphoscore_df_mouse <- phosphoscore_df_mouse_output$phosphoscore_df %>%
     dplyr::select(PHOSPHO_KEY_GN_SEQ, inferred_activity, gene_name)
 
-  phosphoscore_df_hybrid_output <- map_experimental_on_regulatory_phosphosites(phosphoproteomic_data, 'hybrid',path_fasta, local)
+  phosphoscore_df_hybrid_output <- map_experimental_on_regulatory_phosphosites(phosphoproteomic_data, 'hybrid', path_fasta, local)
   phosphoscore_df_hybrid <- phosphoscore_df_hybrid_output$phosphoscore_df %>%
     dplyr::select(PHOSPHO_KEY_GN_SEQ, inferred_activity, gene_name)
 
