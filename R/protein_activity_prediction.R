@@ -636,49 +636,54 @@ phospho_score_hybrid_computation <- function(phosphoproteomic_data,
                                              organism,
                                              path_fasta = './phospho.fasta', local){
 
-  # phosphoproteomic_data <- readRDS('./data/TKD_phospho.RDS') %>%
+  phosphoproteomic_data <- readRDS('./data/TKD_phospho.RDS')
   #   mutate_at('difference', as.numeric)
-  # path_fasta = './phospho.fasta'
-  # organism = 'hybrid'
-  # local = TRUE
+  path_fasta = './phospho.fasta'
+  organism = 'hybrid'
+  local = TRUE
+
+
 
   phosphoscore_df_mouse_output <- map_experimental_on_regulatory_phosphosites(phosphoproteomic_data, 'mouse', local)
-  phosphoscore_df_mouse <- phosphoscore_df_mouse_output$phosphoscore_df %>%
-    dplyr::select(PHOSPHO_KEY_GN_SEQ, inferred_activity, gene_name)
 
-  phosphoscore_df_hybrid_output <- map_experimental_on_regulatory_phosphosites(phosphoproteomic_data, 'hybrid', path_fasta, local)
+  if(is.list(phosphoscore_df_mouse_output)){
+    phosphoscore_df_mouse <- phosphoscore_df_mouse_output$phosphoscore_df %>%
+      dplyr::select(PHOSPHO_KEY_GN_SEQ, inferred_activity, gene_name)
 
-  phosphoscore_df_hybrid_output <- list(used_exp_data = exp_fc,
-       phosphoscore_df = phosphoscore_df)
-  phosphoscore_df_hybrid <- phosphoscore_df_hybrid_output$phosphoscore_df %>%
-    dplyr::select(PHOSPHO_KEY_GN_SEQ, inferred_activity, gene_name)
+    phosphoscore_df_hybrid_output <- map_experimental_on_regulatory_phosphosites(phosphoproteomic_data, 'hybrid', path_fasta, local)
 
-  message('Computing Phosphoscore')
-  joined_tables <- dplyr::full_join(phosphoscore_df_mouse, phosphoscore_df_hybrid,
-                             by = c('PHOSPHO_KEY_GN_SEQ', 'gene_name'),
-                             suffix = c('.m', '.h')) %>%
-    dplyr::distinct() %>%
-    dplyr::arrange(PHOSPHO_KEY_GN_SEQ)
+    phosphoscore_df_hybrid_output <- list(used_exp_data = exp_fc,
+                                          phosphoscore_df = phosphoscore_df)
+    phosphoscore_df_hybrid <- phosphoscore_df_hybrid_output$phosphoscore_df %>%
+      dplyr::select(PHOSPHO_KEY_GN_SEQ, inferred_activity, gene_name)
 
-  joined_tables$source_org <- 'both'
-  joined_tables$source_org[is.na(joined_tables$inferred_activity.m)] <- 'human'
-  joined_tables$source_org[is.na(joined_tables$inferred_activity.h)] <- 'mouse'
+    message('Computing Phosphoscore')
+    joined_tables <- dplyr::full_join(phosphoscore_df_mouse, phosphoscore_df_hybrid,
+                                      by = c('PHOSPHO_KEY_GN_SEQ', 'gene_name'),
+                                      suffix = c('.m', '.h')) %>%
+      dplyr::distinct() %>%
+      dplyr::arrange(PHOSPHO_KEY_GN_SEQ)
 
-  joined_tables$inferred_activity <- NA
-  joined_tables$inferred_activity[joined_tables$source_org == 'both'] <- joined_tables$inferred_activity.m[joined_tables$source_org == 'both']
-  joined_tables$inferred_activity[joined_tables$source_org == 'human'] <- joined_tables$inferred_activity.h[joined_tables$source_org == 'human']
-  joined_tables$inferred_activity[joined_tables$source_org == 'mouse'] <- joined_tables$inferred_activity.m[joined_tables$source_org == 'mouse']
+    joined_tables$source_org <- 'both'
+    joined_tables$source_org[is.na(joined_tables$inferred_activity.m)] <- 'human'
+    joined_tables$source_org[is.na(joined_tables$inferred_activity.h)] <- 'mouse'
 
-  phosphoscore_df_flag <- joined_tables %>%
-    dplyr::select(PHOSPHO_KEY_GN_SEQ, gene_name,source_org, inferred_activity)
+    joined_tables$inferred_activity <- NA
+    joined_tables$inferred_activity[joined_tables$source_org == 'both'] <- joined_tables$inferred_activity.m[joined_tables$source_org == 'both']
+    joined_tables$inferred_activity[joined_tables$source_org == 'human'] <- joined_tables$inferred_activity.h[joined_tables$source_org == 'human']
+    joined_tables$inferred_activity[joined_tables$source_org == 'mouse'] <- joined_tables$inferred_activity.m[joined_tables$source_org == 'mouse']
 
-  # experimental used data
-  used_exp_data_both <- dplyr::bind_rows(phosphoscore_df_mouse_output$used_exp_data,
-            phosphoscore_df_hybrid_output$used_exp_data) %>%
-    dplyr::distinct()
+    phosphoscore_df_flag <- joined_tables %>%
+      dplyr::select(PHOSPHO_KEY_GN_SEQ, gene_name,source_org, inferred_activity)
 
-  return(list(used_exp_data = used_exp_data_both,
-         phosphoscore_df = phosphoscore_df_flag))
+    # experimental used data
+    used_exp_data_both <- dplyr::bind_rows(phosphoscore_df_mouse_output$used_exp_data,
+                                           phosphoscore_df_hybrid_output$used_exp_data) %>%
+      dplyr::distinct()
+
+    return(list(used_exp_data = used_exp_data_both,
+                phosphoscore_df = phosphoscore_df_flag))
+  }
 }
 
 #' Title
