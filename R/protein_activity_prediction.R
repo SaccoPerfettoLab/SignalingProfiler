@@ -606,7 +606,7 @@ map_experimental_on_regulatory_phosphosites <- function(phosphoproteomic_data,
     dplyr::filter(PHOSPHO_KEY_GN_SEQ %in% reg_phos_db$PHOSPHO_KEY_GN_SEQ)
 
   if(nrow(exp_fc) == 0){
-    stop('No annotated regulatory phosphosites significantly modulated in your dataset')
+    warning('No annotated regulatory phosphosites significantly modulated in your dataset')
   }else{
     phosphoscore_df <- dplyr::left_join(exp_fc, reg_phos_db, by = 'PHOSPHO_KEY_GN_SEQ') %>%
       dplyr::select(PHOSPHO_KEY_GN_SEQ, ACTIVATION, difference) %>%
