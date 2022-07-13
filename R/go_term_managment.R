@@ -18,7 +18,7 @@ molecular_function_annotation <- function(inferred_proteins_dataset){
     dplyr::distinct()
 
   #get uniprot annotation
-  annotation <- UniprotR::GetProteinGOInfo(output_uniprot$UNIPROT)
+  annotation <- UniprotR::GetProteinGOInfo(inferred_proteins_dataset$UNIPROT)
 
   # extract GO term for each protein
   ovl <- annotation$Gene.Ontology..molecular.function.
