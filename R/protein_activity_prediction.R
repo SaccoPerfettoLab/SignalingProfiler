@@ -385,6 +385,7 @@ run_footprint_based_analysis <- function(omic_data, analysis, organism,
 #'
 #' @param phosphoproteomic_data dataset of phosphoproteomics measurments
 #' @param organism string human or mouse
+#' @param activatory boolean value
 #' @param path_fasta optional
 #' @param local DEVELOPMENTAL PURPOSES
 #'
@@ -395,22 +396,24 @@ run_footprint_based_analysis <- function(omic_data, analysis, organism,
 #' @examples
 phosphoscore_computation <- function(phosphoproteomic_data,
                                     organism,
+                                    activatory,
                                     path_fasta = './phospho.fasta',
                                     local = FALSE){
   message('** RUNNING PHOSPHOSCORE ANALYSIS **')
 
   # phosphoproteomic_data <- readRDS('./data/TKD_phospho.RDS')
   # path_fasta = './phospho.fasta'
-  # organism = 'hybrid'
+  # organism = 'mouse'
+  # activatory = FALSE
   # local = TRUE
 
   if(organism == 'mouse' | organism =='human'){
     phosphoscore_df_output <- map_experimental_on_regulatory_phosphosites(phosphoproteomic_data,
-                                                                   organism, path_fasta)
+                                                                   organism, activatory, path_fasta)
     phosphoscore_df <- phosphoscore_df_output$phosphoscore_df
   }else if(organism == 'hybrid'){
     phosphoscore_df_output <- phospho_score_hybrid_computation(phosphoproteomic_data,
-                                                        organism, path_fasta, local)
+                                                        organism, activatory, path_fasta, local)
 
     phosphoscore_df <- phosphoscore_df_output$phosphoscore_df
   }else{
@@ -541,14 +544,21 @@ run_blast <- function(path_experimental_fasta_file, all = FALSE, local = FALSE){
 #' Generates hybrid regulatory db
 #'
 #' @param mh_alignment blastp output alignment among mouse and human
+#' @param activatory boolean value
 #'
 #' @return hybrid database
 #' @export
 #'
 #' @examples
-generate_hybrid_db <- function(mh_alignment){
+generate_hybrid_db <- function(mh_alignment, activatory){
+
+  if(activatory == TRUE){
+    hreg_phos <- good_phos_df_human_act
+  }else{
+    hreg_phos <- good_phos_df_human_all
+  }
   # regulatory role of phosphosites in human
-  hreg_phos <- good_phos_df_human
+
   #mh_alignment = run_blast(path_fasta, local = local)$mapped
 
   good_phos_df_hybrid <- dplyr::inner_join(mh_alignment,
@@ -568,6 +578,8 @@ generate_hybrid_db <- function(mh_alignment){
 #'
 #' @param phosphoproteomic_data dataset of phosphoproteomics data
 #' @param organism string, human mouse or hybrid
+#' @param activatory boolean value, if relation activatory or all
+#' @param organism string, human mouse or hybrid
 #' @param local DEVELOPMENTAL PURPOSES TRUE OR FALSE
 #'
 #'
@@ -578,6 +590,7 @@ generate_hybrid_db <- function(mh_alignment){
 #' @examples
 map_experimental_on_regulatory_phosphosites <- function(phosphoproteomic_data,
                                                         organism,
+                                                        activatory,
                                                         path_fasta, local = FALSE){
 
   # phosphoproteomic_data <- readRDS('./data/TKD_phospho.RDS')
@@ -587,14 +600,23 @@ map_experimental_on_regulatory_phosphosites <- function(phosphoproteomic_data,
 
   if(organism == 'human'){
     message('Mapping experimental phosphopeptides on human database of regulatory roles')
-    reg_phos_db <- good_phos_df_human
+    if(activatory == TRUE){
+      reg_phos_db <- good_phos_df_human_act
+    }else{
+      reg_phos_db <- good_phos_df_human_all
+    }
   }else if(organism == 'mouse'){
     message('Mapping experimental phosphopeptides on mouse database of regulatory roles')
-    reg_phos_db <- good_phos_df_mouse
+    if(activatory == TRUE){
+      reg_phos_db <- good_phos_df_mouse_act
+    }else{
+      reg_phos_db <- good_phos_df_mouse_all
+    }
   }else if(organism == 'hybrid'){
     message('Mapping mouse experimental phosphopeptides on human database of regulatory roles to enhance coverage')
     create_fasta(phosphoproteomic_data, path_fasta)
-    reg_phos_db <- generate_hybrid_db(mh_alignment = run_blast(path_fasta, local = local)$mapped)
+    reg_phos_db <- generate_hybrid_db(mh_alignment = run_blast(path_fasta, local = local)$mapped,
+                                      activatory)
   }else{
     stop('please provide a valid organism')
   }
@@ -626,6 +648,7 @@ map_experimental_on_regulatory_phosphosites <- function(phosphoproteomic_data,
 #'
 #' @param phosphoproteomic_data dataset containing experimental data
 #' @param organism string specifying human, mouse or hybrid
+#' @param organism boolean value, if activatory or all interactions
 #' @param path_fasta optional, path of phosphoproteomic fasta file
 #'
 #' @return list containing used experimental data and phosphoscore dataframe
@@ -634,6 +657,7 @@ map_experimental_on_regulatory_phosphosites <- function(phosphoproteomic_data,
 #' @examples
 phospho_score_hybrid_computation <- function(phosphoproteomic_data,
                                              organism,
+                                             activatory,
                                              path_fasta = './phospho.fasta', local){
 
   # phosphoproteomic_data <- readRDS('./data/TKD_phospho.RDS')
@@ -642,8 +666,11 @@ phospho_score_hybrid_computation <- function(phosphoproteomic_data,
   # organism = 'hybrid'
   # local = TRUE
 
-  phosphoscore_df_mouse_output <- map_experimental_on_regulatory_phosphosites(phosphoproteomic_data, 'mouse', local)
-  phosphoscore_df_hybrid_output <- map_experimental_on_regulatory_phosphosites(phosphoproteomic_data, 'hybrid', path_fasta, local)
+  phosphoscore_df_mouse_output <- map_experimental_on_regulatory_phosphosites(phosphoproteomic_data, 'mouse',
+                                                                              activatory = activatory, local)
+
+  phosphoscore_df_hybrid_output <- map_experimental_on_regulatory_phosphosites(phosphoproteomic_data, 'hybrid',
+                                                                               activatory = activatory, path_fasta, local)
 
 
   if(is.list(phosphoscore_df_mouse_output) & !is.list(phosphoscore_df_hybrid_output)){
