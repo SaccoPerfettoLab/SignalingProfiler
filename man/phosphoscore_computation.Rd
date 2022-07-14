@@ -7,6 +7,7 @@
 phosphoscore_computation(
   phosphoproteomic_data,
   organism,
+  activatory,
   path_fasta = "./phospho.fasta",
   local = FALSE
 )
@@ -15,6 +16,8 @@ phosphoscore_computation(
 \item{phosphoproteomic_data}{dataset of phosphoproteomics measurments}
 
 \item{organism}{string human or mouse}
+
+\item{activatory}{boolean value}
 
 \item{path_fasta}{optional}
 

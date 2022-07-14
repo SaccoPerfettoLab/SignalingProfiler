@@ -7,6 +7,7 @@
 map_experimental_on_regulatory_phosphosites(
   phosphoproteomic_data,
   organism,
+  activatory,
   path_fasta,
   local = FALSE
 )
@@ -15,6 +16,8 @@ map_experimental_on_regulatory_phosphosites(
 \item{phosphoproteomic_data}{dataset of phosphoproteomics data}
 
 \item{organism}{string, human mouse or hybrid}
+
+\item{activatory}{boolean value, if relation activatory or all}
 
 \item{local}{DEVELOPMENTAL PURPOSES TRUE OR FALSE}
 }

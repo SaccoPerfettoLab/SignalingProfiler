@@ -4,10 +4,12 @@
 \alias{generate_hybrid_db}
 \title{Generates hybrid regulatory db}
 \usage{
-generate_hybrid_db(mh_alignment)
+generate_hybrid_db(mh_alignment, activatory)
 }
 \arguments{
 \item{mh_alignment}{blastp output alignment among mouse and human}
+
+\item{activatory}{boolean value}
 }
 \value{
 hybrid database

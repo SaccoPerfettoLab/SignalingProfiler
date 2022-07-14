@@ -746,12 +746,70 @@ combine_footprint_and_phosphoscore <- function(footprint_output, phosphoscore_df
   comp <- dplyr::full_join(footprint_output, phosphoscore_df, by = c('gene_name', 'UNIPROT', 'MF'))
 
   comp$final_score <- NA
+  comp$method <- NA
+
   comp$final_score[!is.na(comp$weightedNES) & !is.na(comp$phosphoscore)] <- rowMeans(comp[!is.na(comp$weightedNES) & !is.na(comp$phosphoscore), c('weightedNES', 'phosphoscore')])
+  comp$method[!is.na(comp$weightedNES) & !is.na(comp$phosphoscore)] <- 'VIPER+PhosphoScore'
+
   comp$final_score[!is.na(comp$weightedNES) & is.na(comp$phosphoscore)] <- comp$weightedNES[!is.na(comp$weightedNES) & is.na(comp$phosphoscore)]
+  comp$method[!is.na(comp$weightedNES) & is.na(comp$phosphoscore)] <- 'VIPER'
+
   comp$final_score[is.na(comp$weightedNES) & !is.na(comp$phosphoscore)] <- comp$phosphoscore[is.na(comp$weightedNES) & !is.na(comp$phosphoscore)]
+  comp$method[is.na(comp$weightedNES) & !is.na(comp$phosphoscore)] <- 'PhosphoScore'
 
   return(comp)
 }
 
+
+#' Title
+#'
+#' @param prot_df proteomic dataframe
+#' @param organism string, 'human' or 'mouse'
+#'
+#' @return
+#' @export
+#'
+#' @examples
+activity_from_proteomics <- function(prot_df, organism){
+
+  prot_df <- prot_df %>%
+    dplyr::filter(significant == '+') %>%
+    dplyr::mutate_at('gene_name', toupper) %>%
+    dplyr::select(gene_name, difference)
+
+  prot_df <- convert_gene_name_in_uniprotid(prot_df, 'mouse')
+
+  prot_df <- molecular_function_annotation(prot_df)
+
+  return(prot_df)
+}
+
+#' Title
+#'
+#' @param activity_score df with activity measures derived from phosphoproteomics
+#' @param proteo_score df with activity measures derived from proteomics
+#'
+#' @return df with combined activity measures
+#' @export
+#'
+#' @examples
+combine_activityscore_proteoscore <- function(activity_score, proteo_score){
+
+  combined_score <- dplyr::full_join(activity_score,
+                              proteo_score, by = c('gene_name', 'UNIPROT', 'mf' = 'MF')) %>%
+    dplyr::rename(activity_score = final_score,
+                  proteo_score = difference)
+
+  combined_score$final_score <- combined_score$activity_score
+  combined_score$final_score[is.na(combined_score$activity_score)] <- combined_score$proteo_score[is.na(combined_score$activity_score)]
+  combined_score$final_score[is.na(combined_score$activity_score)] <- combined_score$proteo_score[is.na(combined_score$activity_score)]
+  combined_score$method[is.na(combined_score$activity_score)] <- 'proteoscore'
+
+  combined_score <- combined_score %>%
+    dplyr::select(-c(activity_score, proteo_score)) %>%
+    dplyr::arrange(gene_name)
+
+  return(combined_score)
+}
 
 

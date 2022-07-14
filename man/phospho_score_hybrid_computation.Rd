@@ -7,6 +7,7 @@
 phospho_score_hybrid_computation(
   phosphoproteomic_data,
   organism,
+  activatory,
   path_fasta = "./phospho.fasta",
   local
 )
@@ -14,7 +15,7 @@ phospho_score_hybrid_computation(
 \arguments{
 \item{phosphoproteomic_data}{dataset containing experimental data}
 
-\item{organism}{string specifying human, mouse or hybrid}
+\item{organism}{boolean value, if activatory or all interactions}
 
 \item{path_fasta}{optional, path of phosphoproteomic fasta file}
 }
