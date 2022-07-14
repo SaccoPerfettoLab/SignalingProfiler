@@ -398,6 +398,7 @@ phosphoscore_computation <- function(phosphoproteomic_data,
                                     path_fasta = './phospho.fasta',
                                     local = FALSE){
   message('** RUNNING PHOSPHOSCORE ANALYSIS **')
+
   # phosphoproteomic_data <- readRDS('./data/TKD_phospho.RDS')
   # path_fasta = './phospho.fasta'
   # organism = 'hybrid'
@@ -410,7 +411,6 @@ phosphoscore_computation <- function(phosphoproteomic_data,
   }else if(organism == 'hybrid'){
     phosphoscore_df_output <- phospho_score_hybrid_computation(phosphoproteomic_data,
                                                         organism, path_fasta, local)
-
 
     phosphoscore_df <- phosphoscore_df_output$phosphoscore_df
   }else{
@@ -434,7 +434,7 @@ phosphoscore_computation <- function(phosphoproteomic_data,
 
   output <- dplyr::left_join(raw_output, exp_fc_sub, by = 'gene_name')
 
-  if(organism == 'hybrid'){
+  if(organism == 'hybrid' & 'source_org' %in% colnames(output)){
     genes <- phosphoscore_df %>%
       dplyr::select(gene_name, source_org) %>%
       dplyr::distinct() %>%
@@ -642,18 +642,22 @@ phospho_score_hybrid_computation <- function(phosphoproteomic_data,
   # organism = 'hybrid'
   # local = TRUE
 
-
-
   phosphoscore_df_mouse_output <- map_experimental_on_regulatory_phosphosites(phosphoproteomic_data, 'mouse', local)
+  phosphoscore_df_hybrid_output <- map_experimental_on_regulatory_phosphosites(phosphoproteomic_data, 'hybrid', path_fasta, local)
 
-  if(is.list(phosphoscore_df_mouse_output)){
+
+  if(is.list(phosphoscore_df_mouse_output) & !is.list(phosphoscore_df_hybrid_output)){
+    warning('No mapped mouse phosphosites on human, proceeding with mouse analysis only')
+    return(phosphoscore_df_mouse_output)
+
+  }else if(!is.list(phosphoscore_df_mouse_output) & is.list(phosphoscore_df_hybrid_output)){
+    warning('No mouse phosphosites found, proceeding with mouse phosphosites analysis mapping on human')
+    return(phosphoscore_df_hybrid_output)
+
+  }else if(is.list(phosphoscore_df_mouse_output) & is.list(phosphoscore_df_hybrid_output)){
     phosphoscore_df_mouse <- phosphoscore_df_mouse_output$phosphoscore_df %>%
       dplyr::select(PHOSPHO_KEY_GN_SEQ, inferred_activity, gene_name)
 
-    phosphoscore_df_hybrid_output <- map_experimental_on_regulatory_phosphosites(phosphoproteomic_data, 'hybrid', path_fasta, local)
-
-    phosphoscore_df_hybrid_output <- list(used_exp_data = exp_fc,
-                                          phosphoscore_df = phosphoscore_df)
     phosphoscore_df_hybrid <- phosphoscore_df_hybrid_output$phosphoscore_df %>%
       dplyr::select(PHOSPHO_KEY_GN_SEQ, inferred_activity, gene_name)
 
@@ -683,6 +687,8 @@ phospho_score_hybrid_computation <- function(phosphoproteomic_data,
 
     return(list(used_exp_data = used_exp_data_both,
                 phosphoscore_df = phosphoscore_df_flag))
+  }else{
+    stop('No regulatory phosphosites found')
   }
 }
 
