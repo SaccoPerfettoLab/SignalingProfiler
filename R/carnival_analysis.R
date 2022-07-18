@@ -277,7 +277,7 @@ run_carnival_and_create_graph <- function(source_df,
   nodes_df <- add_output_carnival_nodes_attributes(carnival_result,
                                                    proteins_df,
                                                    organism,
-                                                   prot_df)
+                                                   prot_df) %>% dplyr::distinct()
 
   edges_df <- add_output_carnival_edges_attributes(carnival_result)
 
