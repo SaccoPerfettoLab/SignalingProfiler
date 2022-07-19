@@ -336,9 +336,6 @@ convert_output_nodes_in_next_input <- function(carnival_result){
 expand_and_map_edges <- function(optimized_graph_rds, optimized_graph_sif,
                                  organism, phospho_df, files, path_sif, path_rds){
 
-  optimized_graph_rds <- toy_optimized_object_basic$network
-  optimized_graph_sif <- toy_optimized_object_basic$network_sif
-
   #organism <- 'mouse'
 
   db <- choose_database_for_building(organism, format = 'table')
