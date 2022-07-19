@@ -97,7 +97,8 @@ add_output_carnival_nodes_attributes <- function(carnival_result,
   optimal_nodes <- nodes %>%
     dplyr::filter(gsub('_', '-', Node) %in% nodes_igraph_ids) %>%
     dplyr::select(Node, AvgAct) %>%
-    dplyr::mutate_at('AvgAct', as.numeric)
+    dplyr::mutate_at('AvgAct', as.numeric) %>%
+    dplyr::mutate(Node = gsub('_', '-', Node))
 
   nodes_df <- dplyr::left_join(optimal_nodes, PKN_proteins, by = c('Node' = 'ID')) %>%
     dplyr::rename('UNIPROT' = 'Node','GeneName' = 'ENTITY')
