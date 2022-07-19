@@ -258,6 +258,14 @@ run_carnival_and_create_graph <- function(source_df,
   # naive_network <- toy_naive_network_sif
   # solver_path = NULL
   # solver = NULL
+  #
+  # # CYTA PROBLEM
+  # source_df <- readRDS('./data-raw/source_df.RDS')
+  # target_df <- readRDS('./data-raw/target_df.RDS')
+  # naive_network <- readr::read_tsv('./data-raw/naive_network_cyta.sif',
+  #                                  col_names = c('source', 'interaction', 'target'))
+  # proteins_df <- readRDS('./data-raw/proteins.RDS')
+  # organism <- 'mouse'
 
   # discretize initiators
   source_df_disc <- create_discretized_initiators_for_carnival(source_df)
