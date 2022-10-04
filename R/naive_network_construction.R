@@ -91,7 +91,7 @@ get_all_edge_ids <- function(all_shortest_paths, db){
 #'
 #' @param prediction_output output of activity prediction pipeline
 #' @param mf molecular function of the proteins in proteins' table
-#'
+#' @export
 #' @return output of activity prediction pipeline with just activity
 #'
 #' @examples
