@@ -484,12 +484,23 @@ create_fasta <- function(phospho_df, path){
     dplyr::mutate(gene_name = toupper(unlist(lapply(stringr::str_split(gene_name, ';'),
                                              function(x){x[1]})))) %>%
     dplyr::arrange(gene_name)
+
+  # if it is not a 15mer then convert it
+  if(nchar(phospho_df$sequence_window[1]) != 15){
+    center <- (nchar(phospho_df$sequence_window[1])+1)/2
+    phospho_df <- phospho_df %>%
+      dplyr::mutate(sequence_window_sub = stringr::str_sub(sequence_window, center - 7, center + 7))
+  }else{ #if it is rename the column just to have a homogeneous variable
+    phospho_df <- phospho_df %>%
+      dplyr::rename(sequence_window_sub = sequence_window)
+  }
+
   fasta <- ''
   for(i in c(1:length(phospho_df$UNIPROT))){
     write(paste0('>', phospho_df$gene_name[i], '-',
-                 stringr::str_sub(phospho_df$sequence_window[i], 9, 23), '-', phospho_df$aminoacid[i],
+                 phospho_df$sequence_window_sub, '-', phospho_df$aminoacid[i],
                  '-', phospho_df$position[i], '-mouse\n',
-                 gsub('_', '', stringr::str_sub(phospho_df$sequence_window[i], 9, 23))),
+                 gsub('_', '', phospho_df$sequence_window_sub)),
           path, append = TRUE)
   }
   return(NULL)
@@ -608,7 +619,7 @@ map_experimental_on_regulatory_phosphosites <- function(phosphoproteomic_data,
                                                         activatory,
                                                         path_fasta, local = FALSE){
 
-  # phosphoproteomic_data <- readRDS('./data/TKD_phospho.RDS')
+  phosphoproteomic_data <- readRDS('./data/TKD_phospho.RDS')
   # path_fasta = './phospho.fasta'
   # organism = 'mouse'
   # local = TRUE
@@ -636,10 +647,20 @@ map_experimental_on_regulatory_phosphosites <- function(phosphoproteomic_data,
     stop('please provide a valid organism')
   }
 
+  phosphoproteomic_data$sequence_window[1]
+  if(nchar(phosphoproteomic_data$sequence_window[1]) != 15){
+    center <- (nchar(phosphoproteomic_data$sequence_window[1])+1)/2
+    phosphoproteomic_data <- phosphoproteomic_data %>%
+      dplyr::mutate(sequence_window_sub = stringr::str_sub(sequence_window, center - 7, center + 7))
+  }else{
+    phosphoproteomic_data <- phosphoproteomic_data %>%
+      dplyr::rename(sequence_window_sub = sequence_window)
+  }
+
+
   exp_fc <- phosphoproteomic_data %>%
     dplyr::filter(significant == '+') %>%
-    dplyr::mutate(PHOSPHO_KEY_GN_SEQ = paste0(toupper(gene_name), '-',
-                                              stringr::str_sub(sequence_window, 9, 23))) %>%
+    dplyr::mutate(PHOSPHO_KEY_GN_SEQ = paste0(toupper(gene_name), '-', sequence_window_sub)) %>%
     dplyr::filter(PHOSPHO_KEY_GN_SEQ %in% reg_phos_db$PHOSPHO_KEY_GN_SEQ)
 
   if(nrow(exp_fc) == 0){
