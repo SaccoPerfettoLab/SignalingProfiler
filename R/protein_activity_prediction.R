@@ -688,7 +688,6 @@ map_experimental_on_regulatory_phosphosites <- function(phosphoproteomic_data,
 #' @param path_fasta optional, path of phosphoproteomic fasta file
 #'
 #' @return list containing used experimental data and phosphoscore dataframe
-#' @export
 #'
 #' @examples
 phospho_score_hybrid_computation <- function(phosphoproteomic_data,
