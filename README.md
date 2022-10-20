@@ -1,4 +1,4 @@
-# Signaling Profiler <img src="./img/signaling_profiler_new.png" align="right" width="120" height="120"/>
+# Signaling Profiler <img src="./img/signaling_profiler_new.png" align="right" width="150" height="120"/>
 
 ## Overview
 
