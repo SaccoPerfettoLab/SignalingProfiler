@@ -21,7 +21,7 @@ create_viper_format <- function(omic_data, analysis, significance){
     if(analysis == 'tfea'){
 
       VIPER_format <- omic_filtered %>%
-        dplyr::select(ID = gene_name, logFC = difference, t = tstat, adj.P = logpval) %>%
+        dplyr::select(ID = gene_name, logFC = difference, t = difference, adj.P = logpval) %>%
         dplyr::mutate(ID = toupper(ID))
 
     }else if(analysis == 'ksea'){
@@ -33,7 +33,7 @@ create_viper_format <- function(omic_data, analysis, significance){
                                  omic_filtered$position)
 
       VIPER_format <- omic_filtered %>%
-        dplyr::select(ID, logFC = difference, t = tstat, adj.P = logpval)
+        dplyr::select(ID, logFC = difference, t = difference, adj.P = logpval)
 
     }else{
       stop('please provide a valid analysis name')
@@ -43,7 +43,7 @@ create_viper_format <- function(omic_data, analysis, significance){
     if(analysis == 'tfea'){
 
       VIPER_format <- omic_data %>%
-        dplyr::select(ID = gene_name, logFC = difference, t = tstat, adj.P = logpval)
+        dplyr::select(ID = gene_name, logFC = difference, t = difference, adj.P = logpval)
     }else if(analysis == 'ksea'){
 
       omic_data$ID <- paste0(omic_data$UNIPROT,
@@ -53,7 +53,7 @@ create_viper_format <- function(omic_data, analysis, significance){
                              omic_data$position)
 
       VIPER_format <- omic_data %>%
-        dplyr::select(ID, logFC = difference, t = tstat, adj.P = logpval)
+        dplyr::select(ID, logFC = difference, t = difference, adj.P = logpval)
     }else{
       stop('please provide a valid analysis name')
     }
