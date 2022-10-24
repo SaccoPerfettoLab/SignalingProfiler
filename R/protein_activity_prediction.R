@@ -22,7 +22,6 @@ create_viper_format <- function(omic_data, analysis, significance){
 
       VIPER_format <- omic_filtered %>%
         dplyr::select(ID = gene_name, logFC = difference, t = difference, adj.P = logpval) %>%
-        dplyr::mutate(ID = toupper(ID)) %>%
         dplyr::mutate_at(c('logFC', 't'), as.numeric)
 
     }else if(analysis == 'ksea'){
@@ -100,7 +99,7 @@ run_viper <- function(viper_format, analysis, organism, reg_minsize){
     if(organism == 'human'){
       regulons <- ksea_db_human
     }else if(organism == 'mouse'){
-      regulons <- ksea_db_mouse %>% dplyr::mutate(tf = toupper(tf))
+      regulons <- ksea_db_mouse
     }else{
       stop('please provide a valid organism name')
     }
@@ -210,7 +209,7 @@ run_hypergeometric_test <- function(omic_data, viper_output,
   # from viper analysis get all measured analytes
   all_enriched_matrix <- create_matrix_from_VIPER_format(create_viper_format(omic_data, analysis, significance = FALSE))
 
-  pho_in_reg <- df_regulons[df_regulons$target %in% toupper(rownames(all_enriched_matrix)),] %>%
+  pho_in_reg <- df_regulons[df_regulons$target %in% (rownames(all_enriched_matrix)),] %>%
     dplyr::arrange(tf) %>%
     plyr::count('tf') %>%
     dplyr::rename(n = freq)
@@ -218,7 +217,7 @@ run_hypergeometric_test <- function(omic_data, viper_output,
   # from viper analysis get all significant analytes
   all_significant_matrix <- create_matrix_from_VIPER_format(create_viper_format(omic_data, analysis, significance = TRUE))
 
-  pho_in_reg_sign <- df_regulons[df_regulons$target %in% toupper(rownames(all_significant_matrix)),] %>%
+  pho_in_reg_sign <- df_regulons[df_regulons$target %in% (rownames(all_significant_matrix)),] %>%
     dplyr::arrange(tf) %>%
     plyr::count('tf') %>%
     dplyr::rename(n = freq)
@@ -235,12 +234,12 @@ run_hypergeometric_test <- function(omic_data, viper_output,
   pr_joined$pWeight <- NA
 
   for(protein in proteins){
-    significant_members <- df_regulons[df_regulons$target %in% toupper(rownames(all_significant_matrix)),] %>%
+    significant_members <- df_regulons[df_regulons$target %in% (rownames(all_significant_matrix)),] %>%
       dplyr::arrange(tf) %>%
       dplyr::filter(tf == protein) %>%
       dplyr::select(target) %>% unlist() %>% as.character
 
-    regulon_members <- df_regulons[df_regulons$target %in% toupper(rownames(all_enriched_matrix)),] %>%
+    regulon_members <- df_regulons[df_regulons$target %in% (rownames(all_enriched_matrix)),] %>%
       dplyr::arrange(tf) %>%
       dplyr::filter(tf == protein) %>%
       dplyr::select(target) %>% unlist() %>% as.character
@@ -446,7 +445,7 @@ phosphoscore_computation <- function(phosphoproteomic_data,
 
   exp_fc_sub <- exp_fc_sub %>%
     dplyr::mutate(aa = paste0(aminoacid, position),
-                  gene_name = toupper(gene_name)) %>%
+                  gene_name = (gene_name)) %>%
     dplyr::group_by(gene_name) %>%
     dplyr::summarise(n_sign_phos = dplyr::n(),
                      phos = paste0(aa, collapse = ';'))
@@ -665,7 +664,7 @@ map_experimental_on_regulatory_phosphosites <- function(phosphoproteomic_data,
 
   exp_fc <- phosphoproteomic_data %>%
     dplyr::filter(significant == '+') %>%
-    dplyr::mutate(PHOSPHO_KEY_GN_SEQ = paste0(toupper(gene_name), '-', sequence_window_sub)) %>%
+    dplyr::mutate(PHOSPHO_KEY_GN_SEQ = paste0((gene_name), '-', sequence_window_sub)) %>%
     dplyr::filter(PHOSPHO_KEY_GN_SEQ %in% reg_phos_db$PHOSPHO_KEY_GN_SEQ)
 
   if(nrow(exp_fc) == 0){
@@ -821,7 +820,7 @@ activity_from_proteomics <- function(prot_df, organism){
 
   prot_df <- prot_df %>%
     dplyr::filter(significant == '+') %>%
-    dplyr::mutate_at('gene_name', toupper) %>%
+    dplyr::mutate_at('gene_name') %>%
     dplyr::select(gene_name, difference)
 
   prot_df <- convert_gene_name_in_uniprotid(prot_df, 'mouse')
