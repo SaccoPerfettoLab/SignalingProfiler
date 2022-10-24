@@ -619,7 +619,7 @@ map_experimental_on_regulatory_phosphosites <- function(phosphoproteomic_data,
                                                         activatory,
                                                         path_fasta, local = FALSE){
 
-  phosphoproteomic_data <- readRDS('./data/TKD_phospho.RDS')
+  #phosphoproteomic_data <- readRDS('./data/TKD_phospho.RDS')
   # path_fasta = './phospho.fasta'
   # organism = 'mouse'
   # local = TRUE
