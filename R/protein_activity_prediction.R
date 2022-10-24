@@ -22,7 +22,8 @@ create_viper_format <- function(omic_data, analysis, significance){
 
       VIPER_format <- omic_filtered %>%
         dplyr::select(ID = gene_name, logFC = difference, t = difference, adj.P = logpval) %>%
-        dplyr::mutate(ID = toupper(ID))
+        dplyr::mutate(ID = toupper(ID)) %>%
+        dplyr::mutate_at(c('logFC', 't'), as.numeric)
 
     }else if(analysis == 'ksea'){
 
@@ -33,7 +34,8 @@ create_viper_format <- function(omic_data, analysis, significance){
                                  omic_filtered$position)
 
       VIPER_format <- omic_filtered %>%
-        dplyr::select(ID, logFC = difference, t = difference, adj.P = logpval)
+        dplyr::select(ID, logFC = difference, t = difference, adj.P = logpval) %>%
+        dplyr::mutate_at(c('logFC', 't'), as.numeric)
 
     }else{
       stop('please provide a valid analysis name')
@@ -43,7 +45,8 @@ create_viper_format <- function(omic_data, analysis, significance){
     if(analysis == 'tfea'){
 
       VIPER_format <- omic_data %>%
-        dplyr::select(ID = gene_name, logFC = difference, t = difference, adj.P = logpval)
+        dplyr::select(ID = gene_name, logFC = difference, t = difference, adj.P = logpval) %>%
+        dplyr::mutate_at(c('logFC', 't'), as.numeric)
     }else if(analysis == 'ksea'){
 
       omic_data$ID <- paste0(omic_data$UNIPROT,
@@ -53,7 +56,8 @@ create_viper_format <- function(omic_data, analysis, significance){
                              omic_data$position)
 
       VIPER_format <- omic_data %>%
-        dplyr::select(ID, logFC = difference, t = difference, adj.P = logpval)
+        dplyr::select(ID, logFC = difference, t = difference, adj.P = logpval) %>%
+        dplyr::mutate_at(c('logFC', 't'), as.numeric)
     }else{
       stop('please provide a valid analysis name')
     }
@@ -355,6 +359,7 @@ run_footprint_based_analysis <- function(omic_data, analysis, organism,
   # hypergeom_corr <- TRUE
   # GO_annotation = TRUE
 
+  library(tidyverse)
   # run viper analysis
   viper_format <- create_viper_format(omic_data, analysis, significance = exp_sign)
 
