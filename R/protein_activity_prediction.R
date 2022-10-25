@@ -415,12 +415,12 @@ phosphoscore_computation <- function(phosphoproteomic_data,
                                     GO_annotation = FALSE){
   message('** RUNNING PHOSPHOSCORE ANALYSIS **')
 
-  # phosphoproteomic_data <- readRDS('./data/JMD_phospho.RDS')
+  # phosphoproteomic_data <- readRDS('./data/TKD_phospho.RDS') %>% mutate_at('gene_name', str_to_title)
   # path_fasta = './phospho.fasta'
-  # organism = 'mouse'
+  # organism = 'hybrid'
   # activatory = FALSE
   # local = TRUE
-  # GO_annotation = TRUE
+  # GO_annotation = FALSE
 
   if(organism == 'mouse' | organism =='human'){
     phosphoscore_df_output <- map_experimental_on_regulatory_phosphosites(phosphoproteomic_data,
@@ -436,12 +436,15 @@ phosphoscore_computation <- function(phosphoproteomic_data,
   }
 
   raw_output <- phosphoscore_df %>%
+    #tidyr::separate(PHOSPHO_KEY_GN_SEQ, into = c('h_gene_name', 'phosphoseq'), sep = '-') %>%
+    #dplyr::select(-c('h_gene_name')) %>%
     dplyr::group_by(gene_name) %>%
     dplyr::summarize(phosphoscore = mean(inferred_activity))
 
 
   exp_fc_sub <- phosphoscore_df_output$used_exp_data %>%
-    dplyr::select(gene_name, PHOSPHO_KEY_GN_SEQ, aminoacid, position)
+    dplyr::mutate_at('PHOSPHO_KEY_GN_SEQ', toupper) %>%
+    dplyr::select(gene_name, PHOSPHO_KEY_GN_SEQ, aminoacid, position) %>% dplyr::distinct()
 
   exp_fc_sub <- exp_fc_sub %>%
     dplyr::mutate(aa = paste0(aminoacid, position),
@@ -484,6 +487,7 @@ phosphoscore_computation <- function(phosphoproteomic_data,
 #'
 #' @examples
 create_fasta <- function(phospho_df, path){
+  message('Creating fasta file from phosphoproteomics')
   phospho_df <- phospho_df %>%
     dplyr::mutate(gene_name = toupper(unlist(lapply(stringr::str_split(gene_name, ';'),
                                              function(x){x[1]})))) %>%
@@ -502,9 +506,10 @@ create_fasta <- function(phospho_df, path){
   fasta <- ''
   for(i in c(1:length(phospho_df$UNIPROT))){
     write(paste0('>', phospho_df$gene_name[i], '-',
-                 phospho_df$sequence_window_sub, '-', phospho_df$aminoacid[i],
-                 '-', phospho_df$position[i], '-mouse\n',
-                 gsub('_', '', phospho_df$sequence_window_sub)),
+                 phospho_df$sequence_window_sub[i], '-',
+                 phospho_df$aminoacid[i], '-',
+                 phospho_df$position[i], '-mouse\n',
+                 gsub('_', '', phospho_df$sequence_window_sub[i])),
           path, append = TRUE)
   }
   return(NULL)
@@ -536,8 +541,12 @@ run_blast <- function(path_experimental_fasta_file, all = FALSE, local = FALSE){
   }else{ path_package <- paste0(.libPaths(), '/SignalingProfiler/')}
 
   blastp <- paste0('blastp -query ', path_experimental_fasta_file,
-                   ' -subject ', paste0(path_package, 'data/human_phosphosites_db.fasta '), '-out map2.out -outfmt 7 -evalue 0.05')
+                   ' -subject ', paste0(path_package, 'data/human_phosphosites_db.fasta '),
+                   '-out map2.out -outfmt 7 -evalue 0.05')
+
   system(blastp)
+
+  message('blastp finished')
   mapped <- readr::read_tsv('./map2.out',
                            comment = '#',
                            col_names = c('q_ID', 's_ID', 'pid', 'length',
@@ -651,7 +660,6 @@ map_experimental_on_regulatory_phosphosites <- function(phosphoproteomic_data,
     stop('please provide a valid organism')
   }
 
-  phosphoproteomic_data$sequence_window[1]
   if(nchar(phosphoproteomic_data$sequence_window[1]) != 15){
     center <- (nchar(phosphoproteomic_data$sequence_window[1])+1)/2
     phosphoproteomic_data <- phosphoproteomic_data %>%
@@ -662,10 +670,19 @@ map_experimental_on_regulatory_phosphosites <- function(phosphoproteomic_data,
   }
 
 
-  exp_fc <- phosphoproteomic_data %>%
-    dplyr::filter(significant == '+') %>%
-    dplyr::mutate(PHOSPHO_KEY_GN_SEQ = paste0((gene_name), '-', sequence_window_sub)) %>%
-    dplyr::filter(PHOSPHO_KEY_GN_SEQ %in% reg_phos_db$PHOSPHO_KEY_GN_SEQ)
+  #
+  if(organism == 'hybrid'){
+    exp_fc <- phosphoproteomic_data %>%
+      dplyr::filter(significant == '+') %>%
+      dplyr::mutate(PHOSPHO_KEY_GN_SEQ = paste0(toupper(gene_name), '-', sequence_window_sub)) %>%
+      dplyr::filter(PHOSPHO_KEY_GN_SEQ %in% reg_phos_db$PHOSPHO_KEY_GN_SEQ)
+  }else{
+    exp_fc <- phosphoproteomic_data %>%
+      dplyr::filter(significant == '+') %>%
+      dplyr::mutate(PHOSPHO_KEY_GN_SEQ = paste0((gene_name), '-', sequence_window_sub)) %>%
+      dplyr::filter(PHOSPHO_KEY_GN_SEQ %in% reg_phos_db$PHOSPHO_KEY_GN_SEQ)
+  }
+
 
   if(nrow(exp_fc) == 0){
     warning('No annotated regulatory phosphosites significantly modulated in your dataset')
@@ -699,7 +716,7 @@ phospho_score_hybrid_computation <- function(phosphoproteomic_data,
                                              activatory,
                                              path_fasta = './phospho.fasta', local){
 
-  # phosphoproteomic_data <- readRDS('./data/TKD_phospho.RDS')
+  # phosphoproteomic_data <- JMD_phospho_r
   # #   mutate_at('difference', as.numeric)
   # path_fasta = './phospho.fasta'
   # organism = 'hybrid'
@@ -726,7 +743,8 @@ phospho_score_hybrid_computation <- function(phosphoproteomic_data,
       dplyr::select(PHOSPHO_KEY_GN_SEQ, inferred_activity, gene_name)
 
     phosphoscore_df_hybrid <- phosphoscore_df_hybrid_output$phosphoscore_df %>%
-      dplyr::select(PHOSPHO_KEY_GN_SEQ, inferred_activity, gene_name)
+      dplyr::select(PHOSPHO_KEY_GN_SEQ, inferred_activity, gene_name) %>%
+      dplyr::mutate_at('gene_name', str_to_title)
 
     message('Computing Phosphoscore')
     joined_tables <- dplyr::full_join(phosphoscore_df_mouse, phosphoscore_df_hybrid,
