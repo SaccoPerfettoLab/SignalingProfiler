@@ -653,7 +653,14 @@ map_experimental_on_regulatory_phosphosites <- function(phosphoproteomic_data,
     }
   }else if(organism == 'hybrid'){
     message('Mapping mouse experimental phosphopeptides on human database of regulatory roles to enhance coverage')
-    create_fasta(phosphoproteomic_data, path_fasta)
+
+    if(exists(path_fasta)){
+     command <- paste0('rm ', path_fasta)
+     system(command)
+    }else{
+      create_fasta(phosphoproteomic_data, path_fasta)
+    }
+
     reg_phos_db <- generate_hybrid_db(mh_alignment = run_blast(path_fasta, local = local)$mapped,
                                       activatory)
   }else{
