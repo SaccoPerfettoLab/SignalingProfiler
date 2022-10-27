@@ -55,7 +55,8 @@ molecular_function_annotation <- function(inferred_proteins_dataset){
   }
   inferred_proteins_dataset <- inferred_proteins_dataset %>%
     dplyr::group_by(gene_name) %>%
-    dplyr::mutate(UNIPROT = paste0(UNIPROT, collapse = ';'))
+    dplyr::mutate(UNIPROT = paste0(UNIPROT, collapse = ';')) %>%
+    dplyr::ungroup()
 
   return(inferred_proteins_dataset)
 }

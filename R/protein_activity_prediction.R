@@ -846,7 +846,6 @@ activity_from_proteomics <- function(prot_df, organism){
 
   prot_df <- prot_df %>%
     dplyr::filter(significant == '+') %>%
-    dplyr::mutate_at('gene_name') %>%
     dplyr::select(gene_name, difference)
 
   prot_df <- convert_gene_name_in_uniprotid(prot_df, 'mouse')
@@ -868,7 +867,7 @@ activity_from_proteomics <- function(prot_df, organism){
 combine_activityscore_proteoscore <- function(activity_score, proteo_score){
 
   combined_score <- dplyr::full_join(activity_score,
-                              proteo_score, by = c('gene_name', 'UNIPROT', 'mf' = 'MF')) %>%
+                              proteo_score, by = c('gene_name', 'UNIPROT', 'MF')) %>%
     dplyr::rename(activity_score = final_score,
                   proteo_score = difference)
 
