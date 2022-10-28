@@ -9,10 +9,10 @@ choose_database_for_building(organism, format)
 \arguments{
 \item{organism}{'human' or 'mouse''}
 
-\item{format}{'igraph' or 'sif'}
+\item{format}{'igraph', 'table'}
 }
 \value{
-the built in database you want
+built-in database as igraph object or tibble
 }
 \description{
 choose_database_for_building

@@ -309,18 +309,18 @@ weight_viper_score <- function(ea_output){
 
 #' Filter VIPER output for molecular function
 #'
-#' @param inferred_proteins_mf dataset of inferred proteins with MF column
+#' @param inferred_proteins_mf dataset of inferred proteins with mf column
 #' @param analysis string type of analysis
 #'
-#' @return dataset of inferred proteins with only the specific MF
+#' @return dataset of inferred proteins with only the specific mf
 #' @export
 #'
 #' @examples
 filter_VIPER_output <- function(inferred_proteins_mf, analysis){
   if(analysis == 'tfea'){
-    inferred_proteins_mf <- inferred_proteins_mf %>% dplyr::filter(MF == 'tf')
+    inferred_proteins_mf <- inferred_proteins_mf %>% dplyr::filter(mf == 'tf')
   }else if(analysis == 'ksea'){
-    inferred_proteins_mf <- inferred_proteins_mf %>% dplyr::filter(MF == 'kin' | MF == 'phos')
+    inferred_proteins_mf <- inferred_proteins_mf %>% dplyr::filter(mf == 'kin' | mf == 'phos')
   }
 
   return(inferred_proteins_mf)
@@ -801,17 +801,17 @@ combine_footprint_and_phosphoscore <- function(footprint_output, phosphoscore_df
   # phosphoscore_df <- phosphoscore_output
   # analysis <- 'tfea'
 
-  # if MF exists
-  if('MF' %in% colnames(footprint_output) & 'MF' %in% colnames(phosphoscore_df)){
+  # if mf exists
+  if('mf' %in% colnames(footprint_output) & 'mf' %in% colnames(phosphoscore_df)){
     if(analysis == 'tfea'){
       phosphoscore_df <- phosphoscore_df %>%
-        dplyr::filter(MF == 'tf')
+        dplyr::filter(mf == 'tf')
     }else if(analysis == 'ksea'){
       phosphoscore_df <- phosphoscore_df %>%
-        dplyr::filter(MF == 'kin' | MF == 'phos')
+        dplyr::filter(mf == 'kin' | mf == 'phos')
     }else{stop('please provide valid analysis type')}
 
-    comp <- dplyr::full_join(footprint_output, phosphoscore_df, by = c('gene_name', 'UNIPROT', 'MF'))
+    comp <- dplyr::full_join(footprint_output, phosphoscore_df, by = c('gene_name', 'UNIPROT', 'mf'))
   }else{
     comp <- dplyr::full_join(footprint_output, phosphoscore_df, by = c('gene_name', 'UNIPROT'))
   }
@@ -867,7 +867,7 @@ activity_from_proteomics <- function(prot_df, organism){
 combine_activityscore_proteoscore <- function(activity_score, proteo_score){
 
   combined_score <- dplyr::full_join(activity_score,
-                              proteo_score, by = c('gene_name', 'UNIPROT', 'MF')) %>%
+                              proteo_score, by = c('gene_name', 'UNIPROT', 'mf')) %>%
     dplyr::rename(activity_score = final_score,
                   proteo_score = difference)
 

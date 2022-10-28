@@ -7,12 +7,12 @@
 filter_VIPER_output(inferred_proteins_mf, analysis)
 }
 \arguments{
-\item{inferred_proteins_mf}{dataset of inferred proteins with MF column}
+\item{inferred_proteins_mf}{dataset of inferred proteins with mf column}
 
 \item{analysis}{string type of analysis}
 }
 \value{
-dataset of inferred proteins with only the specific MF
+dataset of inferred proteins with only the specific mf
 }
 \description{
 Filter VIPER output for molecular function

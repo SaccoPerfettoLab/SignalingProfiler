@@ -11,7 +11,8 @@ coverage_of_inferred_proteins_in_db(prediction_output, organism, report)
 
 \item{organism}{'human' or 'mouse'}
 
-\item{report}{' report of coverage analysis}
+\item{report}{boolean value, if TRUE returns a file containing
+the report of the proteins' coverage analysis, if FALSE print it}
 }
 \value{
 print information about coverage or annotates them in a file

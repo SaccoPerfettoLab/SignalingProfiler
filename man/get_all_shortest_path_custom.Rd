@@ -11,7 +11,10 @@ get_all_shortest_path_custom(start_nodes_gn, target_nodes_gn, db, path_length)
 
 \item{target_nodes_gn}{vector of gene names of target nodes}
 
-\item{db}{igraph object representing chosen built in database}
+\item{db}{igraph object representing chosen built in databas}
+
+\item{path_length}{'one' or 'shortest' to choose the length of the path connecting
+proteins: 1 step or the shortest}
 }
 \value{
 a vector with edges ids along the shortest paths
