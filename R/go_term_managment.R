@@ -27,30 +27,30 @@ molecular_function_annotation <- function(inferred_proteins_dataset){
   overlap <- regmatches(ovl, matches)
   GOterm <- lapply(overlap, function(x){stringr::str_sub(x, 2,-2)})
 
-  # set ontology as MF
+  # set ontology as mf
   GOSim::setOntology(ont = "MF", loadIC=TRUE, DIR=NULL)
 
   # get ancestors for each GO term
   GOanc <- GOSim::getAncestors()
 
-  inferred_proteins_dataset$MF <- NA
+  inferred_proteins_dataset$mf <- NA
   for(i in c(1:length(inferred_proteins_dataset$gene_name))){
 
     # transcription factor
     if(sum(unlist(lapply(GOterm[[i]], function(x){'GO:0140110' %in% GOanc[[x]] |
         'GO:0140110' == x})))>=1){
-      inferred_proteins_dataset$MF[i] <- 'tf'
+      inferred_proteins_dataset$mf[i] <- 'tf'
       # kinase
     }else if(sum(unlist(lapply(GOterm[[i]], function(x){'GO:0016301' %in% GOanc[[x]] |
         'GO:0016301' == x})))>=1){
-      inferred_proteins_dataset$MF[i] <- 'kin'
+      inferred_proteins_dataset$mf[i] <- 'kin'
       # phosphatase
     }else if(sum(unlist(lapply(GOterm[[i]], function(x){'GO:0004725' %in% GOanc[[x]] |
         'GO:0004725' == x})))>=1){
-      inferred_proteins_dataset$MF[i] <- 'phos'
+      inferred_proteins_dataset$mf[i] <- 'phos'
       # other types
     }else{
-      inferred_proteins_dataset$MF[i] <- 'other'
+      inferred_proteins_dataset$mf[i] <- 'other'
     }
   }
   inferred_proteins_dataset <- inferred_proteins_dataset %>%
