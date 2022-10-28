@@ -8,7 +8,6 @@
 #' @param edgeLabel label to use as edge
 #'
 #' @return igraph object in sif format
-#' @export
 #'
 #' @examples
 igraphToSif <- function(inGraph, outfile="output.sif", edgeLabel="label") {
@@ -235,6 +234,7 @@ one_layer_naive_network <- function(receptors_gn, targets_gn, db,
   igraph::V(network)[ENTITY %in% targets_gn]$mf <- 'target'
 
   # save files
+  message(paste0('Writing in ', getwd(), 'sif and RDS file of the naive network'))
   saveRDS(network, rds_path)
   igraphToSif(network, outfile = sif_path, edgeLabel = 'SIGN')
 
@@ -273,6 +273,7 @@ two_layer_naive_network <- function(receptors_gn, kinphos_gn, tfs_gn, db,
   igraph::V(network)[ENTITY %in% tfs_gn]$mf <- 'tf'
 
   # save files
+  message(paste0('Writing in ', getwd(), 'sif and RDS file of the naive network'))
   saveRDS(network, rds_path)
   igraphToSif(network, outfile = sif_path, edgeLabel = 'SIGN')
 
@@ -316,6 +317,7 @@ three_layer_naive_network <- function(receptors_gn, kinphos_gn, subs_gn, tfs_gn,
   igraph::V(network)[ENTITY %in% tfs_gn]$mf <- 'tf'
 
   # save files
+  message(paste0('Writing in ', getwd(), 'sif and RDS file of the naive network'))
   saveRDS(network, rds_path)
   igraphToSif(network, outfile = sif_path, edgeLabel = 'SIGN')
 
