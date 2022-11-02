@@ -40,7 +40,6 @@ generateTFList <- function (df = df, top = 50, access_idx = 1){
 #' @param proteins_df dataframe with inferred proteins with specific mf
 #'
 #' @return a list of proteins as desired by CARNIVAL
-#' @export
 #'
 #' @examples
 formatting_proteins_for_carnival <- function(proteins_df){
@@ -223,9 +222,9 @@ union_of_graphs <- function(graph_1, graph_2, proteins_df, files,
 
 #' Title
 #'
-#' @param source_df df with source nodes discretized among 1 and -1
-#' @param target_df df with target nodes in a continous range of activity
-#' @param naive_network df with naive network interaction
+#' @param source_df tibble with source nodes discretized among 1 and -1
+#' @param target_df tibble with target nodes in a continuous range of activity
+#' @param naive_network tibble with naive network in SIF format
 #' @param solver_path path of the solver you use in CARNIVAL
 #' @param solver name of solver
 #' @param proteins_df all inferred proteins df
@@ -249,6 +248,18 @@ run_carnival_and_create_graph <- function(source_df,
                                           files = TRUE,
                                           path_sif = './optimized_network.sif',
                                           path_rds = './optimized_network.RDS'){
+#
+#   source_df = source_df
+#   target_df = target_df
+#   naive_network = one_layer_toy_df
+#   proteins_df = toy_carnival_input
+#   organism = 'mouse'
+#   prot_df = prot_toy_df
+#   solver_path = NULL # /usr/bin/cplex
+#   solver = NULL # 'cplex'
+#   files = TRUE
+#   path_sif = './optimized_network.sif'
+#   path_rds = './optimized_network.RDS'
 
   # flt3_row <- dplyr::add_row(toy_carnival_input,
   #                            UNIPROT = 'Q00342', gene_name = 'FLT3', final_score = 1, mf = 'rec')%>%
@@ -288,21 +299,29 @@ run_carnival_and_create_graph <- function(source_df,
                                                    organism,
                                                    prot_df) %>% dplyr::distinct()
 
-  edges_df <- add_output_carnival_edges_attributes(carnival_result)
+  if(nrow(nodes_df) == 0){
+    message('No network found for your experiment')
+    return(NULL)
+  }else{
 
-  CARNIVAL_igraph_network <- igraph::graph_from_data_frame(edges_df,
-                                                           nodes_df,
-                                                           directed = TRUE)
+    edges_df <- add_output_carnival_edges_attributes(carnival_result)
 
-  if(files == TRUE){
-    igraphToSif(CARNIVAL_igraph_network, path_sif, 'Sign')
-    saveRDS(CARNIVAL_igraph_network, path_rds)
+    CARNIVAL_igraph_network <- igraph::graph_from_data_frame(edges_df,
+                                                             nodes_df,
+                                                             directed = TRUE)
+
+    if(files == TRUE){
+      igraphToSif(CARNIVAL_igraph_network, path_sif, 'Sign')
+      sink()
+      saveRDS(CARNIVAL_igraph_network, path_rds)
+    }
+
+    # create carnival output as graph
+    return(list(igraph_network = CARNIVAL_igraph_network,
+                nodes_df = nodes_df,
+                edges_df = edges_df))
+
   }
-
-  # create carnival output as graph
-  return(list(igraph_network = CARNIVAL_igraph_network,
-              nodes_df = nodes_df,
-              edges_df = edges_df))
 }
 
 #' convert_output_nodes_in_next_input
