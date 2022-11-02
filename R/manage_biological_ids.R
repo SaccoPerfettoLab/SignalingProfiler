@@ -34,7 +34,8 @@ convert_gene_name_in_uniprotid <- function(bio_dataset, organism){
     dplyr::distinct() %>%
     dplyr::group_by(gene_name) %>%
     dplyr::mutate(UNIPROT = paste0(UNIPROT, collapse = ';')) %>%
-    dplyr::distinct()
+    dplyr::distinct() %>%
+    dplyr::ungroup()
 
   return(bio_dataset_with_id)
 }

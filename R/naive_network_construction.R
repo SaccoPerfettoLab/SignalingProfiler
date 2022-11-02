@@ -12,8 +12,6 @@
 #' @examples
 igraphToSif <- function(inGraph, outfile="output.sif", edgeLabel="label") {
 
-  sink(outfile)
-
   singletons <- as.list(igraph::get.vertex.attribute(inGraph, "name"))
   edgeList <- igraph::get.edgelist(inGraph, names=FALSE)
   nodeNames <- igraph::get.vertex.attribute(inGraph, "name")
@@ -25,14 +23,14 @@ igraphToSif <- function(inGraph, outfile="output.sif", edgeLabel="label") {
     node2 <- edgeList[i,2]
     singletons <- singletons[which(singletons != nodeNames[node1])]
     singletons <- singletons[which(singletons != nodeNames[node2])]
-    cat(nodeNames[node1], "\t", edgeAttribute[i], "\t", nodeNames[node2], "\n")
+    write(paste0(nodeNames[node1], "\t", edgeAttribute[i], "\t", nodeNames[node2], "\n"),
+          outfile, append = TRUE)
   }
 
   for (single in singletons) {
-    cat(single, "\n")
+    write(paste0(single, "\n"),
+          outfile, append = TRUE)
   }
-
-  sink()
 }
 
 ##### --------- #####
@@ -328,16 +326,38 @@ three_layer_naive_network <- function(receptors_gn, kinphos_gn, subs_gn, tfs_gn,
 #'
 #' @param naive_network naive network connecting inferred proteins
 #' @param prediction_output inferred proteins from experimental data
+#' @param recept_list list of receptors with their desired activity
 #'
 #' @return inferred protein filtered for presence in naive network
 #' @export
 #'
 #' @examples
-filter_inferred_protein_for_presence_in_naive_network <- function(naive_network, prediction_output){
+filter_inferred_protein_for_presence_in_naive_network <- function(naive_network, prediction_output, recept_list){
+
+
+  # create receptors tibble
+  # recept_list <- list('Flt3' = 1)
+  # prediction_output <- toy_prot_activity_df
+  # naive_network <- one_layer_toy
+
+  # create receptor list
+  recept_df <- tibble::tibble(gene_name = names(recept_list),
+                 mf = 'rec',
+                 method = 'user',
+                 final_score = unlist(recept_list))
+
+  recept_df <- convert_gene_name_in_uniprotid(recept_df, 'mouse') %>%
+    dplyr::relocate('UNIPROT')
+
+  # filter prediction
   prediction_output_filt <- prediction_output %>%
     dplyr::filter(gene_name %in% igraph::V(naive_network)$ENTITY) %>%
     dplyr::arrange(gene_name)
-  return(prediction_output_filt)
+
+  # unify elements
+  prediction_output_filt_rec <- dplyr::bind_rows(recept_df, prediction_output_filt)
+
+  return(prediction_output_filt_rec)
 }
 
 
