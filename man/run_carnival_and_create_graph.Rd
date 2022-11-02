@@ -19,11 +19,11 @@ run_carnival_and_create_graph(
 )
 }
 \arguments{
-\item{source_df}{df with source nodes discretized among 1 and -1}
+\item{source_df}{tibble with source nodes discretized among 1 and -1}
 
-\item{target_df}{df with target nodes in a continous range of activity}
+\item{target_df}{tibble with target nodes in a continuous range of activity}
 
-\item{naive_network}{df with naive network interaction}
+\item{naive_network}{tibble with naive network in SIF format}
 
 \item{solver_path}{path of the solver you use in CARNIVAL}
 

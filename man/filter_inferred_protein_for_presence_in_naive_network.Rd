@@ -6,13 +6,16 @@
 \usage{
 filter_inferred_protein_for_presence_in_naive_network(
   naive_network,
-  prediction_output
+  prediction_output,
+  recept_list
 )
 }
 \arguments{
 \item{naive_network}{naive network connecting inferred proteins}
 
 \item{prediction_output}{inferred proteins from experimental data}
+
+\item{recept_list}{list of receptors with their desired activity}
 }
 \value{
 inferred protein filtered for presence in naive network
