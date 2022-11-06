@@ -1,6 +1,13 @@
 ---
 title: "SignalingProfiler vignette"
-output: rmarkdown::html_vignette
+output: 
+  html_document:
+    theme: united
+    highlight: tango
+    toc: true
+    toc_float: true
+    toc_depth: 2
+         
 vignette: >
   %\VignetteIndexEntry{SignalingProfiler vignette}
   %\VignetteEngine{knitr::rmarkdown}
