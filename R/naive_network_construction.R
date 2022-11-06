@@ -12,6 +12,11 @@
 #' @examples
 igraphToSif <- function(inGraph, outfile="output.sif", edgeLabel="label") {
 
+  if(file.exists(outfile)){
+    command1 <- paste0('rm ', outfile)
+    system(command1)
+  }
+
   singletons <- as.list(igraph::get.vertex.attribute(inGraph, "name"))
   edgeList <- igraph::get.edgelist(inGraph, names=FALSE)
   nodeNames <- igraph::get.vertex.attribute(inGraph, "name")
