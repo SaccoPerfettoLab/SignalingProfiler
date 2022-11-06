@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>SignalingProfiler vignette</title>
+
+<script src="data:application/javascript;base64,Ly8gUGFuZG9jIDIuOSBhZGRzIGF0dHJpYnV0ZXMgb24gYm90aCBoZWFkZXIgYW5kIGRpdi4gV2UgcmVtb3ZlIHRoZSBmb3JtZXIgKHRvCi8vIGJlIGNvbXBhdGlibGUgd2l0aCB0aGUgYmVoYXZpb3Igb2YgUGFuZG9jIDwgMi44KS4KZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignRE9NQ29udGVudExvYWRlZCcsIGZ1bmN0aW9uKGUpIHsKICB2YXIgaHMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCJkaXYuc2VjdGlvbltjbGFzcyo9J2xldmVsJ10gPiA6Zmlyc3QtY2hpbGQiKTsKICB2YXIgaSwgaCwgYTsKICBmb3IgKGkgPSAwOyBpIDwgaHMubGVuZ3RoOyBpKyspIHsKICAgIGggPSBoc1tpXTsKICAgIGlmICghL15oWzEtNl0kL2kudGVzdChoLnRhZ05hbWUpKSBjb250aW51ZTsgIC8vIGl0IHNob3VsZCBiZSBhIGhlYWRlciBoMS1oNgogICAgYSA9IGguYXR0cmlidXRlczsKICAgIHdoaWxlIChhLmxlbmd0aCA+IDApIGgucmVtb3ZlQXR0cmlidXRlKGFbMF0ubmFtZSk7CiAgfQp9KTsK"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<link rel="stylesheet" href="data:text/css,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" type="text/css" />
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">SignalingProfiler vignette</h1>
+
+
+
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>Signaling Profiler is a modelling pipeline described in <a href="https://www.biorxiv.org/content/10.1101/2022.05.16.492070v1">Massacci, Venafra et al. (2022)</a> that combines transcriptomics, proteomics and phosphoproteomics with prior knowledge annotated in public databases, such as SIGNOR and PhosphoSitePlus.</p>
+<p>Briefly, <strong>Signaling Profiler allows to build a mechanistic model representing the signal remodeling upon a treatment or in a disease condition</strong>. The model starts with receptor(s) and ends with proteins whose activity is modulated (up- or down-regulated) among your two conditions (e.g. treated vs untreated, disease vs healthy).</p>
+<p>It takes advantage of previously developed algorithms (e.g. VIPER, CARNIVAL, REF) and complements them with novel additional features that allow a more exhaustive integration of phosphoproteomics data (<strong>phosphoSCORE</strong>) and <em>in silico</em> validation results (<strong>phenoSCORE</strong>).</p>
+</div>
+<div id="installation" class="section level1">
+<h1>Installation</h1>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;https://github.com/SaccoPerfettoLab/SignalingProfiler/&#39;</span>)</span></code></pre></div>
+<div id="prerequisites" class="section level2">
+<h2>Prerequisites</h2>
+<p>The two most important prerequisites for the usage are:</p>
+<ul>
+<li><p><strong>blastp</strong> to exhaustively compute the <em>phosphoSCORE</em>;</p></li>
+<li><p><strong>ILP solver</strong> required by CARNIVAL algorithm to optimize your model against experimental data;</p></li>
+</ul>
+<div id="install-blastp" class="section level3">
+<h3>Install blastp</h3>
+<ol style="list-style-type: decimal">
+<li><p>Go to where the installers and source code are available <a href="https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/">here</a></p></li>
+<li><p>Download the “.tar.gz’ file. All the commands/binaries are in the <em>bin</em> sub-directory.</p></li>
+<li><p>Add to $PATH variable the bin blast sub-directory.</p></li>
+</ol>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>export PATH<span class="ot">=</span><span class="st">&quot;$PATH:/Users/[YOUR_USERNAME]/bin/ncbi-blast-2.13.0+/bin&quot;</span></span></code></pre></div>
+</div>
+<div id="install-ilp-solver" class="section level3">
+<h3>Install ILP Solver</h3>
+<p>CARNIVAL algorithm relies on a <strong>solver of integer linear programming (ILP) problems</strong>, that you must install. An exhaustive guide about installation can be found in <em>Prerequistes</em> section of CARNIVAL github page <a href="https://saezlab.github.io/CARNIVAL/">here</a>.</p>
+</div>
+</div>
+</div>
+<div id="running-signaling-profiler" class="section level1">
+<h1>Running Signaling Profiler</h1>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(SignalingProfiler)</span></code></pre></div>
+<p>The Signaling Profiler package provides a flexible way to create signaling networks integrating transcriptomics, proteomics and phosphoproteomics data. The pipeline is divided in three main steps:</p>
+<ul>
+<li><p>inference of key signaling proteins activity from multi-omics data;</p></li>
+<li><p>building a naive network connecting receptor(s) to key signaling proteins through the molecular interactions annotated in SIGNOR and PhosphoSitePlus databases;</p></li>
+<li><p>optimization of the naive network on proteins activity through CARNIVAL algorithm;</p></li>
+</ul>
+<p>In the Signaling Profiler package there are <em>toy datasets</em> to show the format of omic data tables and to perform some tests.</p>
+<div id="input-data-tables" class="section level2">
+<h2>Input data tables</h2>
+<p>Signaling Profiler requires a very processed table derived from your multi-omics data. Here, we describe the information needed by the package.</p>
+<div id="transcriptomics-and-proteomics" class="section level3">
+<h3>Transcriptomics and Proteomics</h3>
+<p>Your transcriptomics and proteomics tables should contain the following columns:</p>
+<ul>
+<li><p><strong>gene_ID</strong>/<strong>UNIPROT</strong> and <strong>gene_name</strong>: reporting the gene ID and gene name respectively; we suggest to choose only one gene name for each gene since it will be used for matching data in the next steps;</p></li>
+<li><p><strong>difference</strong>: representing the fold-change in gene expression among two conditions; e.g. the difference between treated and control sample;</p></li>
+</ul>
+<p>The next columns regards parameters linked to the statistical test performed among your conditions:</p>
+<ul>
+<li><p><strong>logpval</strong>: the p-value associated to your T statistic;</p></li>
+<li><p><strong>significant</strong>: a column containing a ‘+’ if the gene is significantly modulated, NA otherwise;</p></li>
+</ul>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(tr_toy_df)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">#   gene_ID     gene_name difference    tstat  logpval significant</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 1   67885 1500011k16rik  -0.421473 -1.23578 0.851379        &lt;NA&gt;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 2   69770 1600002k03rik   1.165320  2.03449 1.244950           +</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 3   72254 1700030k09rik  -0.670346 -2.36317 1.831190           +</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 4   73261 1700037c18rik   0.320893  0.64720 0.342586        &lt;NA&gt;</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 5   67350 1700084e18rik  -0.864310 -1.20845 0.659485        &lt;NA&gt;</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 6   69549 2310009b15rik  -0.986081 -3.54818 2.580910           +</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(prot_toy_df)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">#   UNIPROT gene_name difference significant logpval</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 1  P06339    H2-T23   1.354690        &lt;NA&gt;       0</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 2  Q9D114     Hddc3   0.469630        &lt;NA&gt;       0</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 3  Q60778    Nfkbib   0.188525        &lt;NA&gt;       0</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 4  Q6VN19   Ranbp10   0.336731        &lt;NA&gt;       0</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 5  Q8VBV3    Exosc2   0.259619        &lt;NA&gt;       0</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 6  P97762       Rp9  -0.165707        &lt;NA&gt;       0</span></span></code></pre></div>
+</div>
+<div id="phosphoproteomics" class="section level3">
+<h3>Phosphoproteomics</h3>
+<p>Before using Signaling Profiler, you have to really process you phosphoproteomics data set. The most important step is to have <strong>ONLY ONE OCCURENCE OF EACH PHOSPHOSITE</strong>. If you have a phosphosite quantified more than once, you have to choose the most reliable quantification (usually the lowest multiplicity).</p>
+<p>Your phosphoproteomics table should contain:</p>
+<ul>
+<li><p><strong>UNIPROT</strong> and <strong>gene_name</strong>: reporting the UNIPROT ID and the gene name respectively; again, choose just one gene name.</p></li>
+<li><p><strong>aminoacid</strong> and <strong>position</strong>: reporting the phosphosite with the single letter notation and the position in the protein sequence;</p></li>
+<li><p><strong>sequence window</strong>: the phosphopeptide centered on the modified residue; it should be at least a 15-mer, compatible with SIGNOR and PsP database notation;</p></li>
+<li><p><strong>difference</strong>: representing the fold-change in gene expression among two conditions; e.g. the difference between treated and control sample;</p></li>
+<li><p><strong>logpval</strong>: the p-value associated to the statistical test assessing the significance of your comparisons;</p></li>
+<li><p><strong>significant</strong>: a column containing a ‘+’ if the gene is significantly modulated, NA otherwise;</p></li>
+</ul>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(phospho_toy_df)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">#   UNIPROT gene_name aminoacid position                 sequence_window</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 1  Q9QYC0      Add1         S       12 ____MNGDTRAAVVTSPPPTTAPHKERYFDR</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 2  Q9QYC0      Add1         S      464 HSGRGDDASEEGQNGSSPKSKTKVWTNITHD</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 3  Q9QYC0      Add1         S      465 SGRGDDASEEGQNGSSPKSKTKVWTNITHDH</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 4  Q9QYC0      Add1         S      586 ELEEYRREVERKQKGSEENLDETREQKEKSP</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 5  Q9QYC0      Add1         S      364 YKAKSRSPGTPAGEGSGSPPKWQIGEQEFEA</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 6  Q9QYC0      Add1         S      600 GSEENLDETREQKEKSPPDQSAVPNTPPSTP</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co">#   difference  logpval significant</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 1   0.202763 0.800363        &lt;NA&gt;</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co"># 2   0.962744 0.000000        &lt;NA&gt;</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="co"># 3   0.881112 0.000000        &lt;NA&gt;</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="co"># 4   1.961710 3.064440           +</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 5   0.846948 3.256100           +</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="co"># 6   1.534680 2.365200           +</span></span></code></pre></div>
+</div>
+</div>
+<div id="step-1-infer-protein-activities-from-multi-omics-data" class="section level2">
+<h2>Step 1) Infer protein activities from multi-omics data</h2>
+<p>Signaling Profiler allows to infer protein activities from omic data through different strategies:</p>
+<ul>
+<li><p><strong>Footprint-based analysis</strong>: you infer the activity of a transcription factor (or kinases and phosphatases) from the modulation of its targets;</p></li>
+<li><p><strong>Phosphoscore analysis</strong>: you infer the activity of phosphoproteins from the modulation of its regulatory phosphosites;</p></li>
+<li><p><strong>Proteoscore analysis</strong>: you infer the activity of proteins from the modulation of their quantity in the proteomic data set;</p></li>
+</ul>
+<p>If multiple scores are available for a protein, you can combine them. For example, if you have a transcription factor you can infer its activity from both (i) its target genes (transcriptomics) and its regulatory phosphosites (phosphoproteomics) and then you average the scores.</p>
+<div id="step-1a-footprint-based-analysis" class="section level3">
+<h3>Step 1A) Footprint based analysis</h3>
+<p>Footprint-based analysis derives protein activity <em>from the modulation of its downstream targets</em> using the VIPER statistical tool. The set of regulated analytes of a protein is called <em>regulon</em>. Transcription factors’ activity is calculated from transcriptomic data whereas kinases and phosphatases’ activity from phosphoproteomic data.</p>
+<div id="signaling-profiler-regulons" class="section level4">
+<h4>Signaling Profiler regulons</h4>
+<ul>
+<li>Transcription factors - target genes collection (<code>tfea_db</code>) was retrieved from DoRothEA R Package (confidence: A) and from SIGNOR.</li>
+<li>Kinases/phosphatases - target phosphosites collection (<code>ksea_db</code>) was derived from OmniPath;</li>
+</ul>
+<p>You can see the collections printing the built-in variables:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>tfea_db_human</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>tfea_db_mouse</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>ksea_db_human</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>ksea_db_mouse</span></code></pre></div>
+</div>
+<div id="important-parameters" class="section level4">
+<h4>Important parameters</h4>
+<p>The <code>reg_minsize</code> parameter is important to choose the number of targets in the protein’s regulon overlapping with your experimental data. Setting <code>reg_minsize = 1</code> means deciding you infer the activity of a protein if you find one modulated protein target in your dataset.</p>
+<p>The <code>exp_sign</code> parameter allow you to choose if you want to use the whole omic data (<code>exp_sign = FALSE</code>) or only the significant analytes (<code>exp_sign = TRUE</code>).</p>
+<p>The <code>hypergeom_corr</code> parameter should be TRUE if you want to correct VIPER output with an hypergeometric test, that gives less important to proteins with fewer significantly modulated targets in experimental data.</p>
+</div>
+<div id="infer-the-activity-of-transcription-factors-from-transcriptomics" class="section level4">
+<h4>Infer the activity of transcription factors from transcriptomics</h4>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>tf_activity_foot <span class="ot">&lt;-</span> <span class="fu">run_footprint_based_analysis</span>(<span class="at">omic_data =</span> tr_toy_df, </span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">analysis =</span> <span class="st">&#39;tfea&#39;</span>, </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>, </span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">reg_minsize =</span> <span class="dv">1</span>, </span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">exp_sign =</span> <span class="cn">FALSE</span>, </span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">hypergeom_corr =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">GO_annotation =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+</div>
+<div id="infer-the-activity-of-kinases-and-phosphatases-from-phosphoproteomics" class="section level4">
+<h4>Infer the activity of kinases and phosphatases from phosphoproteomics</h4>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>kin_phos_activity_foot <span class="ot">&lt;-</span> <span class="fu">run_footprint_based_analysis</span>(<span class="at">omic_data =</span> phospho_toy_df, </span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">analysis =</span> <span class="st">&#39;ksea&#39;</span>, </span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>, </span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">reg_minsize=</span> <span class="dv">1</span>, </span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">exp_sign =</span> <span class="cn">FALSE</span>, </span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">hypergeom_corr =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">GO_annotation =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+</div>
+</div>
+<div id="step-1b-phosphoscore" class="section level3">
+<h3>Step 1B) PhosphoSCORE</h3>
+<p>PhosphoSCORE computation exploits:</p>
+<ul>
+<li><p>the experimental fold-change of the phosphosites;</p></li>
+<li><p>the regulatory role of phosphosites annotated in SIGNOR and PsP databases;</p></li>
+</ul>
+<p>You can vary the analysis choosing the type of regulatory phosphosites used. In fact you can:</p>
+<ul>
+<li><p>set the <code>activatory = TRUE</code>: to select only phosphosites modulating the activity of proteins;</p></li>
+<li><p>set the <code>activatory = FALSE</code>: to select all phosphosites, so the ones modulating the activity, the quantity, etc.;</p></li>
+</ul>
+<p>If you are working on <strong>mouse dataset</strong>, you can use known regulatory phosphosites in mouse. However, the coverage is lower than human knowledge. As such, we developed a strategy exploiting <strong>blastp</strong> which maps mouse phosphopeptides on human ones, and exploits the regulatory role in human. As such, you can enlarge the coverage setting the <code>organism = &#39;hybrid&#39;</code>.</p>
+<div id="activatory-analysis-in-mouse-regulatory-phosphosites" class="section level4">
+<h4>Activatory analysis in mouse regulatory phosphosites</h4>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>phosphoscore_mouse <span class="ot">&lt;-</span> <span class="fu">phosphoscore_computation</span>(<span class="at">phosphoproteomic_data =</span> phospho_toy_df, </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>, </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">activatory =</span> <span class="cn">TRUE</span> , </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">GO_annotation=</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+</div>
+<div id="activatory-analysis-in-hybrid-regulatory-phosphosites" class="section level4">
+<h4>Activatory analysis in hybrid regulatory phosphosites</h4>
+<p><strong>THIS ANALYSIS REQUIRES BLASTP INSTALLED</strong></p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>phosphoscore_hybrid <span class="ot">&lt;-</span> <span class="fu">phosphoscore_computation</span>(<span class="at">phosphoproteomic_data =</span> phospho_toy_df, </span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">organism =</span> <span class="st">&#39;hybrid&#39;</span>, </span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">activatory =</span> <span class="cn">TRUE</span> , </span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">GO_annotation=</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+</div>
+</div>
+<div id="step-1ab-combine-footprint-and-phosphoscore" class="section level3">
+<h3>Step 1A+B) Combine Footprint and PhosphoSCORE</h3>
+<p>Once you have computed the proteins’ activity with footprint-based approaches and PhosphoSCORE you can average the scores. This should be done separately for transcription factors and kinases and phosphatases.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co"># for transcription factors</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>combined_tf <span class="ot">&lt;-</span> <span class="fu">combine_footprint_and_phosphoscore</span>(<span class="at">footprint_output =</span> tf_activity_foot,</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>                                                  <span class="at">phosphoscore_df =</span>  phosphoscore_mouse, </span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>                                                  <span class="at">analysis =</span>  <span class="st">&#39;tfea&#39;</span>)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co"># for kinases and phosphatases</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>combined_kin_phos <span class="ot">&lt;-</span> <span class="fu">combine_footprint_and_phosphoscore</span>(<span class="at">footprint_output =</span> kin_phos_activity_foot,</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>                                                  <span class="at">phosphoscore_df =</span>  phosphoscore_mouse, </span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>                                                  <span class="at">analysis =</span>  <span class="st">&#39;ksea&#39;</span>)</span></code></pre></div>
+</div>
+<div id="step-1c-proteoscore" class="section level3">
+<h3>Step 1C) ProteoSCORE</h3>
+<p>If you want to consider the significant modulation of proteins’ abundance as a proxy of activity, you can use the <em>ProteoSCORE</em> analysis. For example, if a protein is down-regulated in its quantity, it will be considered down-regulated in its activity.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>proteoscore_df <span class="ot">&lt;-</span> <span class="fu">activity_from_proteomics</span>(<span class="at">prot_df =</span> prot_toy_df, </span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>)</span></code></pre></div>
+<p>You can combine the activity inferred from the previous methods with ProteoScore output.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>activity_proteo_combined_df <span class="ot">&lt;-</span> <span class="fu">combine_activityscore_proteoscore</span>(<span class="at">activity_score =</span> combined_tf, </span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>                                                                 <span class="at">proteo_score =</span> proteoscore_df)</span></code></pre></div>
+</div>
+<div id="discussion-about-the-first-step" class="section level3">
+<h3>Discussion about the first step</h3>
+<p>As you may notice, there are a lot of techniques to derive the activity of proteins in this package. It is up to you and the data you have the choice of the methods and the combination of methods to use.</p>
+<p>The end of this first step should be a single table containing all the proteins for which you inferred the activity with their molecular function.</p>
+<p>You can assess the proteins molecular function setting <code>GO_annotation = TRUE</code> in the previous analyses.</p>
+<p>You can find an example in a built-in object.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>toy_activity_df</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co">#    UNIPROT gene_name    mf final_score             method</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 1   P53762      Arnt    tf  3.49554640              VIPER</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 2   P16951      Atf2    tf -3.57760170              VIPER</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 3   P53566     Cebpa    tf -2.20881897              VIPER</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 4   P28033     Cebpb    tf -2.35547354              VIPER</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 5   P56931      E2f2    tf -2.39387242              VIPER</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 6   Q60775      Elf1    tf -1.66315386              VIPER</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 7   P81270       Erg    tf -3.30248905              VIPER</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 8   O08537      Esr2    tf -2.16574598              VIPER</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="co"># 9   P15037      Ets2    tf -3.90448301              VIPER</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="co"># 10  P26323      Fli1    tf -1.73144957              VIPER</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="co"># 11  O88470     Foxl2    tf -3.09054651              VIPER</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 12  Q0VGT2      Gli2    tf -1.14316127              VIPER</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="co"># 13  Q9ESZ8     Gtf2i    tf -1.73144957              VIPER</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a><span class="co"># 14  P63158     Hmgb1    tf -1.66315386              VIPER</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a><span class="co"># 15  P49698     Hnf4a    tf -2.08342880              VIPER</span></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a><span class="co"># 16  P56477      Irf5    tf -1.62753348              VIPER</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a><span class="co"># 17  P05627       Jun    tf -1.64342250 VIPER+PhosphoScore</span></span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a><span class="co"># 18  Q6P1G2     Kdm2b    tf  1.50840503              VIPER</span></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a><span class="co"># 19  Q08874      Mitf    tf -2.64079277              VIPER</span></span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a><span class="co"># 20  A1L358      Mzf1    tf  1.50293698              VIPER</span></span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a><span class="co"># 21  P25799     Nfkb1    tf -2.17706185              VIPER</span></span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a><span class="co"># 22  P23708      Nfya    tf -1.29922038              VIPER</span></span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a><span class="co"># 23  P63139      Nfyb    tf -1.29922038              VIPER</span></span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a><span class="co"># 24  P70353      Nfyc    tf -1.29922038              VIPER</span></span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a><span class="co"># 25  P23204     Ppara    tf  2.39018627              VIPER</span></span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a><span class="co"># 26  P15307       Rel    tf -1.91979914              VIPER</span></span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a><span class="co"># 27  P42230    Stat5a    tf -2.47065429              VIPER</span></span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a><span class="co"># 28  P52633     Stat6    tf -2.25052305              VIPER</span></span>
+<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a><span class="co"># 29  Q61312    Tfap2c    tf -2.08613654              VIPER</span></span>
+<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a><span class="co"># 30  Q08639     Tfdp1    tf -2.67584154              VIPER</span></span>
+<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a><span class="co"># 31  Q61937      Npm1    tf  1.13593000       PhosphoScore</span></span>
+<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a><span class="co"># 32  P11440      Cdk1   kin -0.55362027 VIPER+PhosphoScore</span></span>
+<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a><span class="co"># 33  P97377      Cdk2   kin -1.99446400              VIPER</span></span>
+<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a><span class="co"># 34  P31938    Map2k1   kin  0.01442238 VIPER+PhosphoScore</span></span>
+<span id="cb15-37"><a href="#cb15-37" aria-hidden="true" tabindex="-1"></a><span class="co"># 35  Q63932    Map2k2   kin -2.47614209              VIPER</span></span>
+<span id="cb15-38"><a href="#cb15-38" aria-hidden="true" tabindex="-1"></a><span class="co"># 36  P53349    Map3k1   kin -2.59593753              VIPER</span></span>
+<span id="cb15-39"><a href="#cb15-39" aria-hidden="true" tabindex="-1"></a><span class="co"># 37  O08605     Mknk1   kin -1.29914268              VIPER</span></span>
+<span id="cb15-40"><a href="#cb15-40" aria-hidden="true" tabindex="-1"></a><span class="co"># 38  Q9JLN9      Mtor   kin -3.92132185              VIPER</span></span>
+<span id="cb15-41"><a href="#cb15-41" aria-hidden="true" tabindex="-1"></a><span class="co"># 39  Q8CIN4      Pak2   kin -2.60919906              VIPER</span></span>
+<span id="cb15-42"><a href="#cb15-42" aria-hidden="true" tabindex="-1"></a><span class="co"># 40  P42337    Pik3ca   kin -1.33392589              VIPER</span></span>
+<span id="cb15-43"><a href="#cb15-43" aria-hidden="true" tabindex="-1"></a><span class="co"># 41  P06803      Pim1   kin -2.20754303              VIPER</span></span>
+<span id="cb15-44"><a href="#cb15-44" aria-hidden="true" tabindex="-1"></a><span class="co"># 42  Q62070      Pim2   kin -2.14776843              VIPER</span></span>
+<span id="cb15-45"><a href="#cb15-45" aria-hidden="true" tabindex="-1"></a><span class="co"># 43  Q9ESG9    Pkmyt1   kin -2.22856519              VIPER</span></span>
+<span id="cb15-46"><a href="#cb15-46" aria-hidden="true" tabindex="-1"></a><span class="co"># 44  Q60806      Plk3   kin -2.13894566              VIPER</span></span>
+<span id="cb15-47"><a href="#cb15-47" aria-hidden="true" tabindex="-1"></a><span class="co"># 45  P20444     Prkca   kin -3.09343708              VIPER</span></span>
+<span id="cb15-48"><a href="#cb15-48" aria-hidden="true" tabindex="-1"></a><span class="co"># 46  P28867     Prkcd   kin -3.94003000              VIPER</span></span>
+<span id="cb15-49"><a href="#cb15-49" aria-hidden="true" tabindex="-1"></a><span class="co"># 47  Q99N57      Raf1   kin -2.78312740              VIPER</span></span>
+<span id="cb15-50"><a href="#cb15-50" aria-hidden="true" tabindex="-1"></a><span class="co"># 48  P18653   Rps6ka1   kin -2.96854691              VIPER</span></span>
+<span id="cb15-51"><a href="#cb15-51" aria-hidden="true" tabindex="-1"></a><span class="co"># 49  Q9Z2B9   Rps6ka4   kin -1.15080874              VIPER</span></span>
+<span id="cb15-52"><a href="#cb15-52" aria-hidden="true" tabindex="-1"></a><span class="co"># 50  Q8C050   Rps6ka5   kin -2.18139775              VIPER</span></span>
+<span id="cb15-53"><a href="#cb15-53" aria-hidden="true" tabindex="-1"></a><span class="co"># 51  Q8BSK8   Rps6kb1   kin -4.98484000              VIPER</span></span>
+<span id="cb15-54"><a href="#cb15-54" aria-hidden="true" tabindex="-1"></a><span class="co"># 52  Q9Z1M4   Rps6kb2   kin -3.84218753              VIPER</span></span>
+<span id="cb15-55"><a href="#cb15-55" aria-hidden="true" tabindex="-1"></a><span class="co"># 53  Q60670      Sik1   kin  1.15610166              VIPER</span></span>
+<span id="cb15-56"><a href="#cb15-56" aria-hidden="true" tabindex="-1"></a><span class="co"># 54  Q8CFH6      Sik2   kin  1.15610166              VIPER</span></span>
+<span id="cb15-57"><a href="#cb15-57" aria-hidden="true" tabindex="-1"></a><span class="co"># 55  Q6P4S6      Sik3   kin  1.15610166              VIPER</span></span>
+<span id="cb15-58"><a href="#cb15-58" aria-hidden="true" tabindex="-1"></a><span class="co"># 56  O54781     Srpk2   kin -2.47336975              VIPER</span></span>
+<span id="cb15-59"><a href="#cb15-59" aria-hidden="true" tabindex="-1"></a><span class="co"># 57  Q7TSE6    Stk38l   kin -1.66150254              VIPER</span></span>
+<span id="cb15-60"><a href="#cb15-60" aria-hidden="true" tabindex="-1"></a><span class="co"># 58  Q6ZQ29     Taok2   kin -1.70316853              VIPER</span></span>
+<span id="cb15-61"><a href="#cb15-61" aria-hidden="true" tabindex="-1"></a><span class="co"># 59  P97343     Uhmk1   kin  1.25046432              VIPER</span></span>
+<span id="cb15-62"><a href="#cb15-62" aria-hidden="true" tabindex="-1"></a><span class="co"># 60  P63085     Mapk1   kin -1.98206000       PhosphoScore</span></span>
+<span id="cb15-63"><a href="#cb15-63" aria-hidden="true" tabindex="-1"></a><span class="co"># 61  P47811    Mapk14   kin -1.32050000       PhosphoScore</span></span>
+<span id="cb15-64"><a href="#cb15-64" aria-hidden="true" tabindex="-1"></a><span class="co"># 62  Q63844     Mapk3   kin -1.98369000       PhosphoScore</span></span>
+<span id="cb15-65"><a href="#cb15-65" aria-hidden="true" tabindex="-1"></a><span class="co"># 63  P18654   Rps6ka3   kin -1.00122000       PhosphoScore</span></span>
+<span id="cb15-66"><a href="#cb15-66" aria-hidden="true" tabindex="-1"></a><span class="co"># 64  Q60876  Eif4ebp1 other  1.46293000       PhosphoScore</span></span>
+<span id="cb15-67"><a href="#cb15-67" aria-hidden="true" tabindex="-1"></a><span class="co"># 65  Q9CQW9    Ifitm3 other -1.75318000       PhosphoScore</span></span>
+<span id="cb15-68"><a href="#cb15-68" aria-hidden="true" tabindex="-1"></a><span class="co"># 66  P48678      Lmna other -0.35583600       PhosphoScore</span></span>
+<span id="cb15-69"><a href="#cb15-69" aria-hidden="true" tabindex="-1"></a><span class="co"># 67  Q61183    Papola other -0.67034000       PhosphoScore</span></span>
+<span id="cb15-70"><a href="#cb15-70" aria-hidden="true" tabindex="-1"></a><span class="co"># 68  Q8VDM4     Psmd2 other -0.81335500       PhosphoScore</span></span>
+<span id="cb15-71"><a href="#cb15-71" aria-hidden="true" tabindex="-1"></a><span class="co"># 69  P62754      Rps6 other -2.66547000       PhosphoScore</span></span>
+<span id="cb15-72"><a href="#cb15-72" aria-hidden="true" tabindex="-1"></a><span class="co"># 70  Q8VDQ8     Sirt2 other  0.60150900       PhosphoScore</span></span></code></pre></div>
+</div>
+<div id="a-simple-inference-workflow" class="section level3">
+<h3>A simple inference workflow</h3>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ** STEP 1A **</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co"># infer the activity of transcription factors from transcriptomics data</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>tf_activity_f <span class="ot">&lt;-</span> <span class="fu">run_footprint_based_analysis</span>(<span class="at">omic_data =</span> tr_toy_df, </span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">analysis =</span> <span class="st">&#39;tfea&#39;</span>, </span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>, </span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">reg_minsize=</span> <span class="dv">1</span>, </span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">exp_sign =</span> <span class="cn">FALSE</span>, </span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">hypergeom_corr =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">GO_annotation =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="co"># infer the activity of kinases and phosphatases from phosphoproteomics data</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>kin_phos_activity_f <span class="ot">&lt;-</span> <span class="fu">run_footprint_based_analysis</span>(<span class="at">omic_data =</span> phospho_toy_df, </span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">analysis =</span> <span class="st">&#39;ksea&#39;</span>, </span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>, </span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">reg_minsize=</span> <span class="dv">1</span>, </span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">exp_sign =</span> <span class="cn">FALSE</span>, </span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">hypergeom_corr =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">GO_annotation =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a><span class="co"># ** STEP 1B **</span></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a><span class="co"># compute hybrid phosphoscre to get the largest coverage of regulatory phosphosites</span></span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>phosphoscore_hybrid <span class="ot">&lt;-</span> <span class="fu">phosphoscore_computation</span>(<span class="at">phosphoproteomic_data =</span> phospho_toy_df, </span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">organism =</span> <span class="st">&#39;hybrid&#39;</span>, </span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">activatory =</span> <span class="cn">TRUE</span> , </span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">GO_annotation=</span> <span class="cn">TRUE</span>)</span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a><span class="co"># ** STEP 1AB **</span></span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a><span class="co"># combine footprint analysis and phosphoscore anlaysis</span></span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>combined_tf <span class="ot">&lt;-</span> <span class="fu">combine_footprint_and_phosphoscore</span>(<span class="at">footprint_output =</span> tf_activity_foot,</span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a>                                                  <span class="at">phosphoscore_df =</span>  phosphoscore_hybrid, </span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a>                                                  <span class="at">analysis =</span>  <span class="st">&#39;tfea&#39;</span>)</span>
+<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-36"><a href="#cb16-36" aria-hidden="true" tabindex="-1"></a>combined_kin_phos <span class="ot">&lt;-</span> <span class="fu">combine_footprint_and_phosphoscore</span>(<span class="at">footprint_output =</span> kin_phos_activity_foot,</span>
+<span id="cb16-37"><a href="#cb16-37" aria-hidden="true" tabindex="-1"></a>                                                  <span class="at">phosphoscore_df =</span>  phosphoscore_hybrid, </span>
+<span id="cb16-38"><a href="#cb16-38" aria-hidden="true" tabindex="-1"></a>                                                  <span class="at">analysis =</span>  <span class="st">&#39;ksea&#39;</span>)</span>
+<span id="cb16-39"><a href="#cb16-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-40"><a href="#cb16-40" aria-hidden="true" tabindex="-1"></a><span class="co"># divide tables according to molecular functions</span></span>
+<span id="cb16-41"><a href="#cb16-41" aria-hidden="true" tabindex="-1"></a>toy_tf <span class="ot">&lt;-</span> combined_tf</span>
+<span id="cb16-42"><a href="#cb16-42" aria-hidden="true" tabindex="-1"></a>toy_kin <span class="ot">&lt;-</span> combined_kin_phos</span>
+<span id="cb16-43"><a href="#cb16-43" aria-hidden="true" tabindex="-1"></a>toy_other <span class="ot">&lt;-</span> phosphoscore_hybrid <span class="sc">%&gt;%</span></span>
+<span id="cb16-44"><a href="#cb16-44" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">==</span> <span class="st">&#39;other&#39;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb16-45"><a href="#cb16-45" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="at">final_score =</span> phosphoscore) <span class="sc">%&gt;%</span></span>
+<span id="cb16-46"><a href="#cb16-46" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">method =</span> <span class="st">&#39;PhosphoScore&#39;</span>)</span>
+<span id="cb16-47"><a href="#cb16-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-48"><a href="#cb16-48" aria-hidden="true" tabindex="-1"></a><span class="co"># create a unified &#39;activity modulation&#39; table for the next steps</span></span>
+<span id="cb16-49"><a href="#cb16-49" aria-hidden="true" tabindex="-1"></a>toy_activity_df <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">bind_rows</span>(toy_tf, toy_kin, toy_other) <span class="sc">%&gt;%</span></span>
+<span id="cb16-50"><a href="#cb16-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(UNIPROT, gene_name, mf, final_score, method)</span>
+<span id="cb16-51"><a href="#cb16-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-52"><a href="#cb16-52" aria-hidden="true" tabindex="-1"></a><span class="co"># ** STEP 1C **</span></span>
+<span id="cb16-53"><a href="#cb16-53" aria-hidden="true" tabindex="-1"></a><span class="co"># if you want to enlarge the list of proteins you can use proteomics data</span></span>
+<span id="cb16-54"><a href="#cb16-54" aria-hidden="true" tabindex="-1"></a><span class="co"># infer activity of protein from its abundance modulation</span></span>
+<span id="cb16-55"><a href="#cb16-55" aria-hidden="true" tabindex="-1"></a>proteoscore_df <span class="ot">&lt;-</span> <span class="fu">activity_from_proteomics</span>(<span class="at">prot_df =</span> prot_toy_df,</span>
+<span id="cb16-56"><a href="#cb16-56" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>)</span>
+<span id="cb16-57"><a href="#cb16-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-58"><a href="#cb16-58" aria-hidden="true" tabindex="-1"></a>toy_prot_activity_df <span class="ot">&lt;-</span> <span class="fu">combine_activityscore_proteoscore</span>(toy_activity_df, proteoscore_df)</span></code></pre></div>
+</div>
+</div>
+</div>
+<div id="step2-naive-network-creation" class="section level1">
+<h1>Step2) Naive network creation</h1>
+<p>In this step, Signaling Profiler connects the proteins of Step1 to user-specified receptor(s). These receptor(s) could represent:</p>
+<ul>
+<li>target of a treatment;</li>
+<li>some mutated genes in your biological process;</li>
+</ul>
+<p>Here, we create what we call a <strong>naive network</strong>, a graph connecting your proteins through ALL the possible SHORTEST causal paths. We don’t consider the causality of the edges, just distance. As such, in this naive network there may be two paths with same length, but different causal meaning.</p>
+<p>In this step, you are building the skeleton of the signal in your cellular model, looking across all the possible routes available in SIGNOR and PsP databases. These databases are available as built-in object in the package, in tabular and igraph object format.</p>
+<p>So the first step here is choosing the database for your organism:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>db <span class="ot">&lt;-</span> <span class="fu">choose_database_for_building</span>(<span class="at">organism =</span><span class="st">&#39;mouse&#39;</span>,</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">format =</span> <span class="st">&#39;igraph&#39;</span>)</span></code></pre></div>
+<p>Even if you inferred the activity of a protein, it may be absent in the naive network. So a good practice is to check for database coverage of your inferred proteins dataset.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coverage_of_inferred_proteins_in_db</span>(toy_prot_activity_df, <span class="st">&#39;mouse&#39;</span>, <span class="at">report =</span> <span class="cn">FALSE</span>) </span></code></pre></div>
+<p>You can build the naive network in three ways:</p>
+<ul>
+<li><p>one layer network: from receptor(s) to all the inferred proteins;</p></li>
+<li><p>two layer network:</p>
+<ul>
+<li><p>first layer: from receptor(s) to kinases, phosphatases, other molecular functions (phosphoproteins):</p></li>
+<li><p>second layer: from kinases, phosphatases, other molecular functions to transcription factors;</p></li>
+</ul></li>
+<li><p>three layer network;</p>
+<ul>
+<li><p>first layer: from receptor(s) to kinases and phosphatases;</p></li>
+<li><p>second layer: from kinases and phosphatases to other molecular function (phosphoproteins);</p></li>
+<li><p>third layer: from all second layer proteins to transcription factors;</p></li>
+</ul></li>
+</ul>
+<p>The choice of the layout depends on how deep in the molecular mechanisms you want to dive. In fact, it is true that the cells prefer the shortest paths (3-5 steps), but it is not always known and being to peaky means to loose some relevant connections.</p>
+<div id="one-layer-network" class="section level2">
+<h2>One layer network</h2>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>one_layer_toy <span class="ot">&lt;-</span> <span class="fu">one_layer_naive_network</span>(<span class="at">receptors_gn =</span> <span class="fu">c</span>(<span class="st">&#39;Flt3&#39;</span>),</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>                             <span class="at">targets_gn =</span> toy_prot_activity_df<span class="sc">$</span>gene_name,</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>                             <span class="at">db =</span> db)</span></code></pre></div>
+</div>
+<div id="two-layers-network" class="section level2">
+<h2>Two layers network</h2>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="co"># divide proteins according to the molecular function</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>kin_phos_other <span class="ot">&lt;-</span> toy_prot_activity_df <span class="sc">%&gt;%</span> </span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&#39;kin&#39;</span>, <span class="st">&#39;phos&#39;</span>, <span class="st">&#39;other&#39;</span>))</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>tfs <span class="ot">&lt;-</span> toy_prot_activity_df <span class="sc">%&gt;%</span> </span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">==</span> <span class="st">&#39;tf&#39;</span>)</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="co"># create the naive network</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>two_layers_toy <span class="ot">&lt;-</span> <span class="fu">two_layer_naive_network</span>(<span class="at">receptors_gn =</span> <span class="fu">c</span>(<span class="st">&#39;Flt3&#39;</span>),</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>                             <span class="at">kinphos_gn =</span> kin_phos_other<span class="sc">$</span>gene_name,</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>                             <span class="at">tfs_gn =</span> tfs<span class="sc">$</span>gene_name, </span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>                             db)</span></code></pre></div>
+</div>
+<div id="three-layers-network" class="section level2">
+<h2>Three layers network</h2>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="co"># divide proteins according to the molecular function</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>kin_phos <span class="ot">&lt;-</span> toy_prot_activity_df <span class="sc">%&gt;%</span> </span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&#39;kin&#39;</span>, <span class="st">&#39;phos&#39;</span>))</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>other <span class="ot">&lt;-</span> toy_prot_activity_df <span class="sc">%&gt;%</span> </span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">==</span> <span class="st">&#39;other&#39;</span>)</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>tfs <span class="ot">&lt;-</span> toy_prot_activity_df <span class="sc">%&gt;%</span> </span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">==</span> <span class="st">&#39;tf&#39;</span>)</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="co"># create the naive network</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>three_layers_toy <span class="ot">&lt;-</span> <span class="fu">three_layer_naive_network</span>(<span class="at">receptors_gn =</span> <span class="fu">c</span>(<span class="st">&#39;FLT3&#39;</span>),</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">kinphos_gn =</span> kin_phos<span class="sc">$</span>gene_name,</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">subs_gn =</span> other<span class="sc">$</span>gene_name,</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">tfs_gn =</span> tfs<span class="sc">$</span>gene_name,</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">db =</span> db)</span></code></pre></div>
+<p>You will not be able to connect all the proteins for which you inferred the activity. As such, the last step is to filter our inferred protein table only for proteins connected in the naive network. Moreover, in this step, we add a list of receptor with their estimated change of activity upon our perturbation. This will represent the input for the third step of Signaling Profiler.</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>receptor_list <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="st">&#39;Flt3&#39;</span> <span class="ot">=</span> <span class="sc">-</span><span class="dv">1</span>)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>carnival_input <span class="ot">&lt;-</span> <span class="fu">filter_inferred_protein_for_presence_in_naive_network</span>(one_layer_toy, </span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>                                                                        toy_prot_activity_df,</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>                                                                        receptor_list)                                       </span></code></pre></div>
+<p>An example of the result is in this built-in object</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>carnival_input_toy</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="co"># # A tibble: 15 × 5</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="co">#    UNIPROT gene_name mf    method             final_score</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="co">#    &lt;chr&gt;   &lt;chr&gt;     &lt;chr&gt; &lt;chr&gt;                    &lt;dbl&gt;</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="co">#  1 Q00342  Flt3      rec   user                    -1    </span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="co">#  2 P53762  Arnt      tf    VIPER                    3.50 </span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="co">#  3 P28658  Atxn10    other proteoscore             -0.576</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="co">#  4 P11440  Cdk1      kin   VIPER+PhosphoScore      -0.554</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="co">#  5 O08537  Esr2      tf    VIPER                   -2.17 </span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a><span class="co">#  6 P19096  Fasn      other proteoscore             -0.601</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a><span class="co">#  7 P26323  Fli1      tf    VIPER                   -1.73 </span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a><span class="co">#  8 Q80X90  Flnb      other proteoscore             -0.508</span></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a><span class="co">#  9 Q63844  Mapk3     kin   PhosphoScore            -1.98 </span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 10 Q61183  Papola    other PhosphoScore            -0.670</span></span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a><span class="co"># 11 Q8VDM4  Psmd2     other PhosphoScore            -0.813</span></span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a><span class="co"># 12 Q60864  Stip1     other proteoscore             -0.329</span></span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a><span class="co"># 13 Q7TSE6  Stk38l    kin   VIPER                   -1.66 </span></span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a><span class="co"># 14 P24604  Tec       kin   proteoscore              1.04 </span></span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a><span class="co"># 15 Q08639  Tfdp1     tf    VIPER                   -2.68</span></span></code></pre></div>
+</div>
+</div>
+<div id="step-3-optimization-of-naive-network-and-creation-of-a-context-specific-model" class="section level1">
+<h1>Step 3) Optimization of naive network and creation of a context-specific model</h1>
+<p>This step optimizes the naive network in a context-specific model through CARNIVAL algorithm. It is crucial to install the ILP solver required by CARNIVAL and to know its name and path.</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>solver <span class="ot">=</span> <span class="st">&#39;cplex&#39;</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>solver_path <span class="ot">=</span> <span class="st">&#39;/Applications/CPLEX_Studio221/cplex/bin/x86-64_osx/cplex&#39;</span> <span class="co">#for macOS</span></span></code></pre></div>
+<p>The naive network contains all the shortest paths among two proteins: this means that you may have two paths with same length but different causal meaning. CARNIVAL chooses the paths with causal effect coherent with proteins’ activities along the path.</p>
+<p>To run CARNIVAL algorithm you need to:</p>
+<ul>
+<li><p>Create a tibble with the starting point(s) of the model (<strong>source_df</strong>);</p></li>
+<li><p>Create a tibble with the ending points of the model (<strong>target_df</strong>);</p></li>
+<li><p>Provide the <em>naive network</em> in SIF format (Step 2 creates the file in your working directory) (<strong>naive_network</strong>);</p></li>
+<li><p>Provide the whole inferred proteins tibble (<strong>proteins_df</strong>);</p></li>
+<li><p>If you use a ILP solver different than the default one you have to specify its name and path (it’s highly recommended to choose CPLEX);</p></li>
+</ul>
+<p>It is important to stress that CARNIVAL will find the SMALLEST model connecting your inferred proteins with causal edges coherent with their activity. As such, you may loose some proteins. To keep the largest number of proteins and a greater number of mechanistic hypotheses, you can perform a two- or three-steps CARNIVAL.</p>
+<div id="one-step-carnival" class="section level3">
+<h3>One step CARNIVAL</h3>
+<p>The simplest analysis is <em>connecting the receptor(s) to all the inferred protein</em>.</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>source_df <span class="ot">&lt;-</span> carnival_input_toy <span class="sc">%&gt;%</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">==</span> <span class="st">&#39;rec&#39;</span>)</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>target_df <span class="ot">&lt;-</span> carnival_input_toy <span class="sc">%&gt;%</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">!=</span> <span class="st">&#39;rec&#39;</span>)</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>one_layer_toy <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_tsv</span>(<span class="st">&#39;./one_layer_naive.sif&#39;</span>)</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>output <span class="ot">&lt;-</span> <span class="fu">run_carnival_and_create_graph</span>(<span class="at">source_df =</span> source_df,</span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">target_df =</span> target_df,</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">naive_network =</span> one_layer_toy,</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">proteins_df =</span> carnival_input_toy,</span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">solver_path =</span> solver_path, </span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">solver =</span> solver, </span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">path_sif =</span> <span class="st">&#39;./optimized_network.sif&#39;</span>,</span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">path_rds =</span> <span class="st">&#39;./optimized_network.RDS&#39;</span>)</span></code></pre></div>
+<p>After CARNIVAL optimization, we can map on the causal edges found by CARNIVAL the phosphosites significantly modulated in our phosphoproteomic dataset.</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>optimized_graph_rds <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&#39;./optimized_network.RDS&#39;</span>)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>optimized_graph_sif <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_tsv</span>(<span class="st">&#39;./optimized_network.sif&#39;</span>,</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">&#39;source&#39;</span>, <span class="st">&#39;interaction&#39;</span>, <span class="st">&#39;target&#39;</span>))</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>output_final <span class="ot">&lt;-</span> <span class="fu">expand_and_map_edges</span>(<span class="at">optimized_graph_rds =</span> optimized_graph_rds, </span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>                     <span class="at">optimized_graph_sif =</span> optimized_graph_sif,</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>                     <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>                     <span class="at">phospho_df =</span> phospho_toy_df,</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>                     <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>                     <span class="at">path_sif =</span> <span class="st">&#39;optimized_network_validated.sif&#39;</span>,</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>                     <span class="at">path_rds =</span> <span class="st">&#39;optimized_network_validated.rds&#39;</span>)</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a><span class="co"># get the optimized network as igraph object</span></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>output_final<span class="sc">$</span>igraph_network</span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a><span class="co"># get nodes in the optimized model</span></span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>output_final<span class="sc">$</span>nodes_df</span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a><span class="co"># get edges in the optimized model</span></span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a>output_final<span class="sc">$</span>edges_df</span></code></pre></div>
+<p>If you want to visualize the network in Cytoscape, we suggest the usage of RCy3 package. You have to open Cytoscape on your laptop and then run the following command.</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>RCy3<span class="sc">::</span><span class="fu">createNetworkFromIgraph</span>(output_final<span class="sc">$</span>igraph_network, </span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>                              <span class="at">collection =</span> <span class="st">&#39;one_step_analysis&#39;</span>)</span></code></pre></div>
+</div>
+<div id="two-steps-carnival" class="section level3">
+<h3>Two steps CARNIVAL</h3>
+<p>Another type of analysis is to perform a two-steps CARNIVAL:</p>
+<ol style="list-style-type: decimal">
+<li>connect the RECEPTOR(S) to KINASES, PHOSPHATASES and PHOSPHOPROTEINS;</li>
+<li>connect the KINASES, PHOSPHATASES and PHOSPHOPROTEINS connected in the previous step to TRANSCRIPTION FACTORS;</li>
+</ol>
+<p>Finally, you perform the <em>union</em> of the two graphs.</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="co"># FIRST RUN: RECEPTOR to KIN, PHOS, OTHERS</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>receptors_df <span class="ot">&lt;-</span> carnival_input_toy <span class="sc">%&gt;%</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">==</span> <span class="st">&#39;rec&#39;</span>)</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>target1_df <span class="ot">&lt;-</span> carnival_input_toy <span class="sc">%&gt;%</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&#39;kin&#39;</span>, <span class="st">&#39;phos&#39;</span>, <span class="st">&#39;other&#39;</span>))</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>one_layer_toy_df <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_tsv</span>(<span class="st">&#39;./one_layer_naive.sif&#39;</span>,</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">&#39;source&#39;</span>, <span class="st">&#39;interaction&#39;</span>, <span class="st">&#39;target&#39;</span>))</span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>output1 <span class="ot">&lt;-</span> <span class="fu">run_carnival_and_create_graph</span>(<span class="at">source_df =</span> receptors_df,</span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">target_df =</span> target1_df,</span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">naive_network =</span> one_layer_toy_df,</span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">proteins_df =</span> carnival_input_toy,</span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">solver_path =</span> solver_path, </span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">solver =</span> solver, </span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_sif =</span> <span class="st">&#39;./optimized_network1.sif&#39;</span>,</span>
+<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_rds =</span> <span class="st">&#39;./optimized_network1.RDS&#39;</span>)</span>
+<span id="cb28-22"><a href="#cb28-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-23"><a href="#cb28-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-24"><a href="#cb28-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-25"><a href="#cb28-25" aria-hidden="true" tabindex="-1"></a><span class="co"># SECOND RUN: from KIN, PHOS, OTHERS to TFs</span></span>
+<span id="cb28-26"><a href="#cb28-26" aria-hidden="true" tabindex="-1"></a>run1_output_nodes <span class="ot">&lt;-</span> <span class="fu">convert_output_nodes_in_next_input</span>(output1)</span>
+<span id="cb28-27"><a href="#cb28-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-28"><a href="#cb28-28" aria-hidden="true" tabindex="-1"></a>source_df <span class="ot">&lt;-</span> run1_output_nodes <span class="sc">%&gt;%</span></span>
+<span id="cb28-29"><a href="#cb28-29" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&#39;kin&#39;</span>, <span class="st">&#39;phos&#39;</span>, <span class="st">&#39;other&#39;</span>))</span>
+<span id="cb28-30"><a href="#cb28-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-31"><a href="#cb28-31" aria-hidden="true" tabindex="-1"></a>target2_df <span class="ot">&lt;-</span> carnival_input_toy <span class="sc">%&gt;%</span></span>
+<span id="cb28-32"><a href="#cb28-32" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">==</span> <span class="st">&#39;tf&#39;</span>)</span>
+<span id="cb28-33"><a href="#cb28-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-34"><a href="#cb28-34" aria-hidden="true" tabindex="-1"></a>output2 <span class="ot">&lt;-</span> <span class="fu">run_carnival_and_create_graph</span>(<span class="at">source_df =</span> source_df,</span>
+<span id="cb28-35"><a href="#cb28-35" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">target_df =</span> target2_df,</span>
+<span id="cb28-36"><a href="#cb28-36" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">naive_network =</span> one_layer_toy_df,</span>
+<span id="cb28-37"><a href="#cb28-37" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">proteins_df =</span> carnival_input_toy,</span>
+<span id="cb28-38"><a href="#cb28-38" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
+<span id="cb28-39"><a href="#cb28-39" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">solver_path =</span> solver_path, </span>
+<span id="cb28-40"><a href="#cb28-40" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">solver =</span> solver, </span>
+<span id="cb28-41"><a href="#cb28-41" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb28-42"><a href="#cb28-42" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_sif =</span> <span class="st">&#39;./optimized_network2.sif&#39;</span>,</span>
+<span id="cb28-43"><a href="#cb28-43" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_rds =</span> <span class="st">&#39;./optimized_network2.RDS&#39;</span>)</span>
+<span id="cb28-44"><a href="#cb28-44" aria-hidden="true" tabindex="-1"></a><span class="co"># UNION OF RUN1 and RUN2 graphs </span></span>
+<span id="cb28-45"><a href="#cb28-45" aria-hidden="true" tabindex="-1"></a>union <span class="ot">&lt;-</span> <span class="fu">union_of_graphs</span>(<span class="at">graph_1 =</span> output1<span class="sc">$</span>igraph_network, </span>
+<span id="cb28-46"><a href="#cb28-46" aria-hidden="true" tabindex="-1"></a>                         <span class="at">graph_2 =</span> output2<span class="sc">$</span>igraph_network, </span>
+<span id="cb28-47"><a href="#cb28-47" aria-hidden="true" tabindex="-1"></a>                         <span class="at">proteins_df =</span> carnival_input_toy, </span>
+<span id="cb28-48"><a href="#cb28-48" aria-hidden="true" tabindex="-1"></a>                         <span class="at">files =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb28-49"><a href="#cb28-49" aria-hidden="true" tabindex="-1"></a>                         <span class="at">path_sif =</span> <span class="st">&#39;./union_network1.sif&#39;</span>, </span>
+<span id="cb28-50"><a href="#cb28-50" aria-hidden="true" tabindex="-1"></a>                         <span class="at">path_rds =</span> <span class="st">&#39;./union_network1.RDS&#39;</span>)</span>
+<span id="cb28-51"><a href="#cb28-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-52"><a href="#cb28-52" aria-hidden="true" tabindex="-1"></a><span class="co"># EXPANSION and MAPPING of PHOSPHOPROTEOMICS DATA ON EDGES</span></span>
+<span id="cb28-53"><a href="#cb28-53" aria-hidden="true" tabindex="-1"></a>union_graph_rds <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&#39;./union_network1.RDS&#39;</span>)</span>
+<span id="cb28-54"><a href="#cb28-54" aria-hidden="true" tabindex="-1"></a>union_graph_sif <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_tsv</span>(<span class="st">&#39;./union_network1.sif&#39;</span>,</span>
+<span id="cb28-55"><a href="#cb28-55" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">&#39;source&#39;</span>, <span class="st">&#39;interaction&#39;</span>, <span class="st">&#39;target&#39;</span>))</span>
+<span id="cb28-56"><a href="#cb28-56" aria-hidden="true" tabindex="-1"></a>union_output_final <span class="ot">&lt;-</span> <span class="fu">expand_and_map_edges</span>(<span class="at">optimized_graph_rds =</span> union_graph_rds, </span>
+<span id="cb28-57"><a href="#cb28-57" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">optimized_graph_sif =</span> union_graph_sif,</span>
+<span id="cb28-58"><a href="#cb28-58" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
+<span id="cb28-59"><a href="#cb28-59" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">phospho_df =</span> phospho_toy_df,</span>
+<span id="cb28-60"><a href="#cb28-60" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb28-61"><a href="#cb28-61" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">path_sif =</span> <span class="st">&#39;union_network_validated.sif&#39;</span>,</span>
+<span id="cb28-62"><a href="#cb28-62" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">path_rds =</span> <span class="st">&#39;union_network_validated.rds&#39;</span>)</span></code></pre></div>
+<p>If you want to visualize the result, execute the following command.</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>RCy3<span class="sc">::</span><span class="fu">createNetworkFromIgraph</span>(union_output_final<span class="sc">$</span>igraph_network, </span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>                              <span class="at">collection =</span> <span class="st">&#39;two_steps_analysis&#39;</span>)</span></code></pre></div>
+</div>
+<div id="three-steps-carnival" class="section level3">
+<h3>Three steps CARNIVAL</h3>
+<p>The last type of analysis is to perform a three-steps CARNIVAL:</p>
+<ol style="list-style-type: decimal">
+<li>connect the RECEPTOR(S) to KINASES and PHOSPHATASES;</li>
+<li>connect the KINASES and PHOSPHATASES to PHOSPHOPROTEINS;</li>
+<li>connect the KINASES, PHOSPHATASES and PHOSPHOPROTEINS connected in the previous steps to TRANSCRIPTION FACTORS;</li>
+</ol>
+<p>Finally, you perform the <em>union</em> of the three graphs.</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="co"># FIRST RUN: RECEPTOR to KIN, PHOS, OTHERS</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>receptors_df <span class="ot">&lt;-</span> carnival_input_toy <span class="sc">%&gt;%</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">==</span> <span class="st">&#39;rec&#39;</span>)</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>target1_df <span class="ot">&lt;-</span> carnival_input_toy <span class="sc">%&gt;%</span></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&#39;kin&#39;</span>, <span class="st">&#39;phos&#39;</span>, <span class="st">&#39;other&#39;</span>))</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>one_layer_toy_df <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_tsv</span>(<span class="st">&#39;./one_layer_naive.sif&#39;</span>,</span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">&#39;source&#39;</span>, <span class="st">&#39;interaction&#39;</span>, <span class="st">&#39;target&#39;</span>))</span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>output1 <span class="ot">&lt;-</span> <span class="fu">run_carnival_and_create_graph</span>(<span class="at">source_df =</span> receptors_df,</span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">target_df =</span> target1_df,</span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">naive_network =</span> one_layer_toy_df,</span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">proteins_df =</span> carnival_input_toy,</span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
+<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">solver_path =</span> solver_path, </span>
+<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">solver =</span> solver, </span>
+<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_sif =</span> <span class="st">&#39;./optimized_network1.sif&#39;</span>,</span>
+<span id="cb30-21"><a href="#cb30-21" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_rds =</span> <span class="st">&#39;./optimized_network1.RDS&#39;</span>)</span>
+<span id="cb30-22"><a href="#cb30-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-23"><a href="#cb30-23" aria-hidden="true" tabindex="-1"></a>output1</span>
+<span id="cb30-24"><a href="#cb30-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-25"><a href="#cb30-25" aria-hidden="true" tabindex="-1"></a><span class="co"># SECOND RUN: from KIN, PHOS to OTHER</span></span>
+<span id="cb30-26"><a href="#cb30-26" aria-hidden="true" tabindex="-1"></a>run1_output_nodes <span class="ot">&lt;-</span> <span class="fu">convert_output_nodes_in_next_input</span>(output1)</span>
+<span id="cb30-27"><a href="#cb30-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-28"><a href="#cb30-28" aria-hidden="true" tabindex="-1"></a>source_df <span class="ot">&lt;-</span> run1_output_nodes <span class="sc">%&gt;%</span></span>
+<span id="cb30-29"><a href="#cb30-29" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&#39;kin&#39;</span>, <span class="st">&#39;phos&#39;</span>))</span>
+<span id="cb30-30"><a href="#cb30-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-31"><a href="#cb30-31" aria-hidden="true" tabindex="-1"></a>target2_df <span class="ot">&lt;-</span> run1_output_nodes <span class="sc">%&gt;%</span></span>
+<span id="cb30-32"><a href="#cb30-32" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&#39;other&#39;</span>))</span>
+<span id="cb30-33"><a href="#cb30-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-34"><a href="#cb30-34" aria-hidden="true" tabindex="-1"></a>output2 <span class="ot">&lt;-</span> <span class="fu">run_carnival_and_create_graph</span>(<span class="at">source_df =</span> source_df,</span>
+<span id="cb30-35"><a href="#cb30-35" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">target_df =</span> target2_df,</span>
+<span id="cb30-36"><a href="#cb30-36" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">naive_network =</span> one_layer_toy_df,</span>
+<span id="cb30-37"><a href="#cb30-37" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">proteins_df =</span> carnival_input_toy,</span>
+<span id="cb30-38"><a href="#cb30-38" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
+<span id="cb30-39"><a href="#cb30-39" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">solver_path =</span> solver_path, </span>
+<span id="cb30-40"><a href="#cb30-40" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">solver =</span> solver, </span>
+<span id="cb30-41"><a href="#cb30-41" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb30-42"><a href="#cb30-42" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_sif =</span> <span class="st">&#39;./optimized_network2.sif&#39;</span>,</span>
+<span id="cb30-43"><a href="#cb30-43" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_rds =</span> <span class="st">&#39;./optimized_network2.RDS&#39;</span>)</span>
+<span id="cb30-44"><a href="#cb30-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-45"><a href="#cb30-45" aria-hidden="true" tabindex="-1"></a><span class="co">#THIRD RUN: from KIN, PHOS to OTHER to TFs</span></span>
+<span id="cb30-46"><a href="#cb30-46" aria-hidden="true" tabindex="-1"></a>run2_output_nodes <span class="ot">&lt;-</span> <span class="fu">convert_output_nodes_in_next_input</span>(output2)</span>
+<span id="cb30-47"><a href="#cb30-47" aria-hidden="true" tabindex="-1"></a>source2_df <span class="ot">&lt;-</span> run2_output_nodes <span class="sc">%&gt;%</span></span>
+<span id="cb30-48"><a href="#cb30-48" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&#39;kin&#39;</span>, <span class="st">&#39;phos&#39;</span>, <span class="st">&#39;other&#39;</span>))</span>
+<span id="cb30-49"><a href="#cb30-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-50"><a href="#cb30-50" aria-hidden="true" tabindex="-1"></a>target3_df <span class="ot">&lt;-</span> carnival_input_toy <span class="sc">%&gt;%</span></span>
+<span id="cb30-51"><a href="#cb30-51" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">==</span> <span class="st">&#39;tf&#39;</span>)</span>
+<span id="cb30-52"><a href="#cb30-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-53"><a href="#cb30-53" aria-hidden="true" tabindex="-1"></a>output3 <span class="ot">&lt;-</span> <span class="fu">run_carnival_and_create_graph</span>(<span class="at">source_df =</span> source2_df,</span>
+<span id="cb30-54"><a href="#cb30-54" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">target_df =</span> target3_df,</span>
+<span id="cb30-55"><a href="#cb30-55" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">naive_network =</span> one_layer_toy_df,</span>
+<span id="cb30-56"><a href="#cb30-56" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">proteins_df =</span> carnival_input_toy,</span>
+<span id="cb30-57"><a href="#cb30-57" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
+<span id="cb30-58"><a href="#cb30-58" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">solver_path =</span> solver_path, </span>
+<span id="cb30-59"><a href="#cb30-59" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">solver =</span> solver, </span>
+<span id="cb30-60"><a href="#cb30-60" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb30-61"><a href="#cb30-61" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_sif =</span> <span class="st">&#39;./optimized_network2.sif&#39;</span>,</span>
+<span id="cb30-62"><a href="#cb30-62" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_rds =</span> <span class="st">&#39;./optimized_network2.RDS&#39;</span>)</span>
+<span id="cb30-63"><a href="#cb30-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-64"><a href="#cb30-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-65"><a href="#cb30-65" aria-hidden="true" tabindex="-1"></a><span class="co"># UNION OF RUN1, RUN2 AND RUN3 GRAPHS </span></span>
+<span id="cb30-66"><a href="#cb30-66" aria-hidden="true" tabindex="-1"></a>union_run1_run2 <span class="ot">&lt;-</span> <span class="fu">union_of_graphs</span>(<span class="at">graph_1 =</span> output1<span class="sc">$</span>igraph_network, </span>
+<span id="cb30-67"><a href="#cb30-67" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">graph_2 =</span> output2<span class="sc">$</span>igraph_network, </span>
+<span id="cb30-68"><a href="#cb30-68" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">proteins_df =</span> carnival_input_toy, </span>
+<span id="cb30-69"><a href="#cb30-69" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">files =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb30-70"><a href="#cb30-70" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">path_sif =</span> <span class="st">&#39;./union_network1.sif&#39;</span>, </span>
+<span id="cb30-71"><a href="#cb30-71" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">path_rds =</span> <span class="st">&#39;./union_network1.RDS&#39;</span>)<span class="sc">$</span>network</span>
+<span id="cb30-72"><a href="#cb30-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-73"><a href="#cb30-73" aria-hidden="true" tabindex="-1"></a>union_run1_run2_run3 <span class="ot">&lt;-</span> <span class="fu">union_of_graphs</span>(<span class="at">graph_1 =</span> union_run1_run2,</span>
+<span id="cb30-74"><a href="#cb30-74" aria-hidden="true" tabindex="-1"></a>                               <span class="at">graph_2 =</span> output3<span class="sc">$</span>igraph_network, </span>
+<span id="cb30-75"><a href="#cb30-75" aria-hidden="true" tabindex="-1"></a>                               <span class="at">proteins_df =</span> carnival_input_toy, </span>
+<span id="cb30-76"><a href="#cb30-76" aria-hidden="true" tabindex="-1"></a>                               <span class="at">files =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb30-77"><a href="#cb30-77" aria-hidden="true" tabindex="-1"></a>                               <span class="at">path_sif =</span> <span class="st">&#39;./union_network2.sif&#39;</span>, </span>
+<span id="cb30-78"><a href="#cb30-78" aria-hidden="true" tabindex="-1"></a>                               <span class="at">path_rds =</span> <span class="st">&#39;./union_network2.RDS&#39;</span>)</span>
+<span id="cb30-79"><a href="#cb30-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-80"><a href="#cb30-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-81"><a href="#cb30-81" aria-hidden="true" tabindex="-1"></a><span class="co"># EXPANSION and MAPPING of PHOSPHOPROTEOMICS DATA ON EDGES</span></span>
+<span id="cb30-82"><a href="#cb30-82" aria-hidden="true" tabindex="-1"></a>union2_graph_rds <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&#39;./union_network2.RDS&#39;</span>)</span>
+<span id="cb30-83"><a href="#cb30-83" aria-hidden="true" tabindex="-1"></a>union2_graph_sif <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_tsv</span>(<span class="st">&#39;./union_network2.sif&#39;</span>,</span>
+<span id="cb30-84"><a href="#cb30-84" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">&#39;source&#39;</span>, <span class="st">&#39;interaction&#39;</span>, <span class="st">&#39;target&#39;</span>))</span>
+<span id="cb30-85"><a href="#cb30-85" aria-hidden="true" tabindex="-1"></a>union2_output_final <span class="ot">&lt;-</span> <span class="fu">expand_and_map_edges</span>(<span class="at">optimized_graph_rds =</span> union2_graph_rds, </span>
+<span id="cb30-86"><a href="#cb30-86" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">optimized_graph_sif =</span> union2_graph_sif,</span>
+<span id="cb30-87"><a href="#cb30-87" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
+<span id="cb30-88"><a href="#cb30-88" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">phospho_df =</span> phospho_toy_df,</span>
+<span id="cb30-89"><a href="#cb30-89" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb30-90"><a href="#cb30-90" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">path_sif =</span> <span class="st">&#39;union2_network_validated.sif&#39;</span>,</span>
+<span id="cb30-91"><a href="#cb30-91" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">path_rds =</span> <span class="st">&#39;union2_network_validated.rds&#39;</span>)</span>
+<span id="cb30-92"><a href="#cb30-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-93"><a href="#cb30-93" aria-hidden="true" tabindex="-1"></a>union2_output_final</span>
+<span id="cb30-94"><a href="#cb30-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-95"><a href="#cb30-95" aria-hidden="true" tabindex="-1"></a><span class="co"># VISUALIZATION OF THE NETWORK</span></span>
+<span id="cb30-96"><a href="#cb30-96" aria-hidden="true" tabindex="-1"></a>RCy3<span class="sc">::</span><span class="fu">createNetworkFromIgraph</span>(union2_output_final<span class="sc">$</span>igraph_network, </span>
+<span id="cb30-97"><a href="#cb30-97" aria-hidden="true" tabindex="-1"></a>                              <span class="at">collection =</span> <span class="st">&#39;three_steps_analysis&#39;</span>)</span></code></pre></div>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
