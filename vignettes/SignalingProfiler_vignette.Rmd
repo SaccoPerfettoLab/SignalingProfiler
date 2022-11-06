@@ -5,7 +5,6 @@ output:
     theme: united
     highlight: tango
     toc: true
-    toc_float: true
     toc_depth: 2
          
 vignette: >
