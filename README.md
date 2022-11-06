@@ -13,7 +13,7 @@ This network provides mechanistics hypoteses about the remodeling of the signal 
 
 ## Installation
 
-Signaling Profiler is still in development, but if you want to try it execute the following commands in R.
+To install Signaling Profiler execute the following command in R.
 
 R \>= 4.1 is required
 
