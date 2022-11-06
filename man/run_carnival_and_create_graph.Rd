@@ -12,7 +12,7 @@ run_carnival_and_create_graph(
   solver = NULL,
   proteins_df,
   organism,
-  prot_df,
+  phospho_df,
   files = TRUE,
   path_sif = "./optimized_network.sif",
   path_rds = "./optimized_network.RDS"
@@ -33,9 +33,9 @@ run_carnival_and_create_graph(
 
 \item{organism}{string, organism you are using}
 
-\item{prot_df}{proteome df}
+\item{phospho_df}{tibble containing phosphoproteomics data}
 
-\item{files}{boolean value, if you want or not files}
+\item{files}{boolean value, TRUE if you want output files}
 
 \item{path_sif}{path of the sif output file of network}
 

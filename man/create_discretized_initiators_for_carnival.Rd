@@ -7,10 +7,10 @@
 create_discretized_initiators_for_carnival(proteins_df)
 }
 \arguments{
-\item{proteins_df}{initiators protein df}
+\item{proteins_df}{tibble of initiator proteins}
 }
 \value{
-initiators df with activities discretized
+initiators' tibble with discrtized activities
 }
 \description{
 create_discretized_initiators_for_carnival

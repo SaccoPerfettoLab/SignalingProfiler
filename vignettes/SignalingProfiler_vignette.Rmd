@@ -425,7 +425,6 @@ three_layers_toy <- three_layer_naive_network(receptors_gn = c('FLT3'),
 You will not be able to connect all the proteins for which you inferred the activity. As such, the last step is to filter our inferred protein table only for proteins connected in the naive network. Moreover, in this step, we add a list of receptor with their estimated change of activity upon our perturbation. This will represent the input for the third step of Signaling Profiler.
 
 ```{r eval = TRUE}
-
 receptor_list <- list('Flt3' = -1)
 
 carnival_input <- filter_inferred_protein_for_presence_in_naive_network(one_layer_toy, 

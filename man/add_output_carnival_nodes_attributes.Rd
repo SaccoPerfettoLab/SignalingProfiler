@@ -2,14 +2,9 @@
 % Please edit documentation in R/carnival_analysis.R
 \name{add_output_carnival_nodes_attributes}
 \alias{add_output_carnival_nodes_attributes}
-\title{Title}
+\title{add_output_carnival_nodes_attributes}
 \usage{
-add_output_carnival_nodes_attributes(
-  carnival_result,
-  proteins_df,
-  organism,
-  prot_df
-)
+add_output_carnival_nodes_attributes(carnival_result, proteins_df, organism)
 }
 \arguments{
 \item{carnival_result}{runCARNIVAL output}
@@ -17,12 +12,10 @@ add_output_carnival_nodes_attributes(
 \item{proteins_df}{inferred proteins df}
 
 \item{organism}{string, 'mouse' or 'human'}
-
-\item{prot_df}{proteomics data}
 }
 \value{
 dataframe with nodes and attributes
 }
 \description{
-Title
+add_output_carnival_nodes_attributes
 }
