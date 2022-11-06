@@ -1,3 +1,6 @@
-
+*.sif
+*.lp
 *.R
+*.RDS
+*.rds
 vignette_files
