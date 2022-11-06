@@ -2,7 +2,7 @@
 % Please edit documentation in R/carnival_analysis.R
 \name{add_output_carnival_edges_attributes}
 \alias{add_output_carnival_edges_attributes}
-\title{Title}
+\title{add_output_carnival_edges_attributes}
 \usage{
 add_output_carnival_edges_attributes(carnival_result)
 }
@@ -13,5 +13,5 @@ add_output_carnival_edges_attributes(carnival_result)
 dataframe with edges attributes
 }
 \description{
-Title
+add_output_carnival_edges_attributes
 }

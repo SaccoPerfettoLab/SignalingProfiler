@@ -15,7 +15,22 @@ expand_and_map_edges(
 )
 }
 \arguments{
-\item{path_rds}{}
+\item{optimized_graph_rds}{igraph object output of the run_carnival_and_create_graph}
+
+\item{optimized_graph_sif}{table output of the run_carnival_and_create_graph}
+
+\item{organism}{#string, human or mouse}
+
+\item{phospho_df}{tibble of phosphoproteomics data}
+
+\item{files}{boolean value, TRUE if you want output files}
+
+\item{path_sif}{string of the path  of output sif file}
+
+\item{path_rds}{string of the path of RDS file}
+}
+\value{
+list with igraph object, optimized nodes df and optimized edges df
 }
 \description{
 expand_and_map_edges

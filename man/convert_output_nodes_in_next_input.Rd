@@ -7,7 +7,7 @@
 convert_output_nodes_in_next_input(carnival_result)
 }
 \arguments{
-\item{carnival_result}{}
+\item{carnival_result}{output list of run_carnival_and_create_graph function}
 }
 \value{
 formatted_nodes
