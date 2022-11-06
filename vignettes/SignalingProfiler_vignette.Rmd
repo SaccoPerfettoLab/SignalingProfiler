@@ -608,9 +608,9 @@ RCy3::createNetworkFromIgraph(union_output_final$igraph_network,
 
 The last type of analysis is to perform a three-steps CARNIVAL:
 
-1)  connect the RECEPTOR(S) to KINASES and PHOSPHATASES;
+1) connect the RECEPTOR(S) to KINASES and PHOSPHATASES;
 2) connect the KINASES and PHOSPHATASES to PHOSPHOPROTEINS;
-3)connect the KINASES, PHOSPHATASES and PHOSPHOPROTEINS connected in the previous steps to TRANSCRIPTION FACTORS;
+3) connect the KINASES, PHOSPHATASES and PHOSPHOPROTEINS connected in the previous steps to TRANSCRIPTION FACTORS;
 
 Finally, you perform the *union* of the three graphs.
 
