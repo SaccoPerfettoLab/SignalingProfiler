@@ -440,7 +440,7 @@ Here, we prepare the input for the third step of Signaling Profiler.
 
 -   Moreover, in this step, we add a list of receptor with their estimated change of activity upon our perturbation. If `receptor_list = NULL` you don't add any receptor. 
 
-```{r eval = TRUE}
+```{r eval = FALSE}
 receptor_list <- list('Flt3' = -1)
 
 carnival_input <- prepare_carnival_input(one_layer_toy, 
