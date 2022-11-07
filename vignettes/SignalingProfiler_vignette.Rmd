@@ -104,6 +104,7 @@ head(tr_toy_df)
 ```{r}
 head(prot_toy_df)
 ```
+
 ### Phosphoproteomics
 
 Before using Signaling Profiler, you have to really process you phosphoproteomics data set. The most important step is to have **ONLY ONE OCCURENCE OF EACH PHOSPHOSITE**. If you have a phosphosite quantified more than once, you have to choose the most reliable quantification (usually the lowest multiplicity).
@@ -140,14 +141,15 @@ If multiple scores are available for a protein, you can combine them. For exampl
 
 ### Step 1A) Footprint based analysis
 
-Footprint-based analysis derives protein activity *from the modulation of its downstream targets* using the VIPER statistical tool. The set of regulated analytes of a protein is called *regulon*. Transcription factors’ activity is calculated from transcriptomic data whereas kinases and phosphatases’ activity from phosphoproteomic data.
+Footprint-based analysis derives protein activity *from the modulation of its downstream targets* using the VIPER statistical tool. The set of regulated analytes of a protein is called *regulon*. Transcription factors' activity is calculated from transcriptomic data whereas kinases and phosphatases' activity from phosphoproteomic data.
 
 #### Signaling Profiler regulons
 
-- Transcription factors - target genes collection (`tfea_db`) was retrieved from DoRothEA R Package (confidence: A) and from SIGNOR.
-- Kinases/phosphatases - target phosphosites collection (`ksea_db`) was derived from OmniPath;
+-   Transcription factors - target genes collection (`tfea_db`) was retrieved from DoRothEA R Package (confidence: A) and from SIGNOR.
+-   Kinases/phosphatases - target phosphosites collection (`ksea_db`) was derived from OmniPath;
 
 You can see the collections printing the built-in variables:
+
 ```{r eval = FALSE}
 tfea_db_human
 tfea_db_mouse
@@ -156,11 +158,12 @@ ksea_db_mouse
 ```
 
 #### Important parameters
+
 The `reg_minsize` parameter is important to choose the number of targets in the protein's regulon overlapping with your experimental data. Setting `reg_minsize = 1` means deciding you infer the activity of a protein if you find one modulated protein target in your dataset.
 
-The `exp_sign` parameter allow you to choose if you want to use the whole omic data (`exp_sign = FALSE`) or only the significant analytes (`exp_sign = TRUE`). 
+The `exp_sign` parameter allow you to choose if you want to use the whole omic data (`exp_sign = FALSE`) or only the significant analytes (`exp_sign = TRUE`).
 
-The `hypergeom_corr` parameter should be TRUE if you want to correct VIPER output with an hypergeometric test, that gives less important to proteins with fewer significantly modulated targets in experimental data.  
+The `hypergeom_corr` parameter should be TRUE if you want to correct VIPER output with an hypergeometric test, that gives less important to proteins with fewer significantly modulated targets in experimental data.
 
 #### Infer the activity of transcription factors from transcriptomics
 
@@ -269,9 +272,11 @@ The end of this first step should be a single table containing all the proteins 
 You can assess the proteins molecular function setting `GO_annotation = TRUE` in the previous analyses.
 
 You can find an example in a built-in object.
+
 ```{r eval = TRUE}
 toy_activity_df
 ```
+
 ### A simple inference workflow
 
 ```{r eval = FALSE}
@@ -428,17 +433,24 @@ three_layers_toy <- three_layer_naive_network(receptors_gn = c('FLT3'),
                                           db = db)
 ```
 
-You will not be able to connect all the proteins for which you inferred the activity. As such, the last step is to filter our inferred protein table only for proteins connected in the naive network. Moreover, in this step, we add a list of receptor with their estimated change of activity upon our perturbation. This will represent the input for the third step of Signaling Profiler.
+## Prepare CARNIVAL input
+Here, we prepare the input for the third step of Signaling Profiler.
+
+-   Since, Signaling Profiler may not be able to connect all the inferred proteins in the naive network, we keep in the inferred protein table only the proteins connected in the naive network.
+
+-   Moreover, in this step, we add a list of receptor with their estimated change of activity upon our perturbation. If `receptor_list = NULL` you don't add any receptor. 
 
 ```{r eval = TRUE}
 receptor_list <- list('Flt3' = -1)
 
-carnival_input <- filter_inferred_protein_for_presence_in_naive_network(one_layer_toy, 
-                                                                        toy_prot_activity_df,
-                                                                        receptor_list)                                       
+carnival_input <- prepare_carnival_input(one_layer_toy, 
+                                         toy_prot_activity_df, receptor_list)
+                                                                             
+                                                                                                          
 ```
 
 An example of the result is in this built-in object
+
 ```{r eval = TRUE}
 carnival_input_toy
 ```
@@ -452,7 +464,7 @@ solver = 'cplex'
 solver_path = '/Applications/CPLEX_Studio221/cplex/bin/x86-64_osx/cplex' #for macOS
 ```
 
-The naive network contains all the shortest paths among two proteins: this means that you may have two paths with same length but different causal meaning. CARNIVAL chooses the paths with causal effect coherent with proteins' activities along the path. 
+The naive network contains all the shortest paths among two proteins: this means that you may have two paths with same length but different causal meaning. CARNIVAL chooses the paths with causal effect coherent with proteins' activities along the path.
 
 To run CARNIVAL algorithm you need to:
 
@@ -614,9 +626,9 @@ RCy3::createNetworkFromIgraph(union_output_final$igraph_network,
 
 The last type of analysis is to perform a three-steps CARNIVAL:
 
-1) connect the RECEPTOR(S) to KINASES and PHOSPHATASES;
-2) connect the KINASES and PHOSPHATASES to PHOSPHOPROTEINS;
-3) connect the KINASES, PHOSPHATASES and PHOSPHOPROTEINS connected in the previous steps to TRANSCRIPTION FACTORS;
+1)  connect the RECEPTOR(S) to KINASES and PHOSPHATASES;
+2)  connect the KINASES and PHOSPHATASES to PHOSPHOPROTEINS;
+3)  connect the KINASES, PHOSPHATASES and PHOSPHOPROTEINS connected in the previous steps to TRANSCRIPTION FACTORS;
 
 Finally, you perform the *union* of the three graphs.
 
