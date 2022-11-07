@@ -365,4 +365,35 @@ filter_inferred_protein_for_presence_in_naive_network <- function(naive_network,
   return(prediction_output_filt_rec)
 }
 
+#' get_all_one_step_connections
+#'
+#' @param source_df gene names of source nodes
+#' @param target_df gene names of target nodes
+#' @param proteins_df all inferred proteins
+#' @param db built in causal relation database
+#'
+#' @return naive network
+#' @export
+#'
+#' @examples
+get_all_one_step_connections <- function(source_gn, target_gn, proteins_df, db,
+                                         rds_path = 'direct_naive.RDS',
+                                         sif_path = 'direct_naive.sif'){
+
+  source_target_edges_ids <- get_all_shortest_path_custom(source_gn, target_gn, db, 'one')
+  network <- igraph::subgraph.edges(db, source_target_edges_ids)
+
+  # set node attributes
+  igraph::V(network)$mf <- 'unknown'
+  igraph::V(network)[ENTITY %in% (proteins_df %>% dplyr::filter(mf %in% c('kin', 'phos')))$mf]$mf <- 'kinphos'
+  igraph::V(network)[ENTITY %in% (proteins_df %>% dplyr::filter(mf %in% c('other')))$mf]$mf <- 'other'
+  igraph::V(network)[ENTITY %in% (proteins_df %>% dplyr::filter(mf %in% c('tf')))$mf]$mf <- 'tf'
+
+  message(paste0('Writing in ', getwd(), ' sif and RDS file of the naive network'))
+  saveRDS(network, rds_path)
+  igraphToSif(network, outfile = sif_path, edgeLabel = 'SIGN')
+
+  return(network)
+}
+
 
