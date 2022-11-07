@@ -270,6 +270,7 @@ pre code {
 <li><a href="#one-layer-network">One layer network</a></li>
 <li><a href="#two-layers-network">Two layers network</a></li>
 <li><a href="#three-layers-network">Three layers network</a></li>
+<li><a href="#prepare-carnival-input">Prepare CARNIVAL input</a></li>
 </ul></li>
 <li><a href="#step-3-optimization-of-naive-network-and-creation-of-a-context-specific-model">Step 3) Optimization of naive network and creation of a context-specific model</a></li>
 </ul>
@@ -693,12 +694,20 @@ pre code {
 <span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">subs_gn =</span> other<span class="sc">$</span>gene_name,</span>
 <span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">tfs_gn =</span> tfs<span class="sc">$</span>gene_name,</span>
 <span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">db =</span> db)</span></code></pre></div>
-<p>You will not be able to connect all the proteins for which you inferred the activity. As such, the last step is to filter our inferred protein table only for proteins connected in the naive network. Moreover, in this step, we add a list of receptor with their estimated change of activity upon our perturbation. This will represent the input for the third step of Signaling Profiler.</p>
+</div>
+<div id="prepare-carnival-input" class="section level2">
+<h2>Prepare CARNIVAL input</h2>
+<p>Here, we prepare the input for the third step of Signaling Profiler.</p>
+<ul>
+<li><p>Since, Signaling Profiler may not be able to connect all the inferred proteins in the naive network, we keep in the inferred protein table only the proteins connected in the naive network.</p></li>
+<li><p>Moreover, in this step, we add a list of receptor with their estimated change of activity upon our perturbation. If <code>receptor_list = NULL</code> you don’t add any receptor.</p></li>
+</ul>
 <div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>receptor_list <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="st">&#39;Flt3&#39;</span> <span class="ot">=</span> <span class="sc">-</span><span class="dv">1</span>)</span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>carnival_input <span class="ot">&lt;-</span> <span class="fu">filter_inferred_protein_for_presence_in_naive_network</span>(one_layer_toy, </span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>                                                                        toy_prot_activity_df,</span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>                                                                        receptor_list)                                       </span></code></pre></div>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>carnival_input <span class="ot">&lt;-</span> <span class="fu">prepare_carnival_input</span>(one_layer_toy, </span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>                                         toy_prot_activity_df, receptor_list)</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>                                                                             </span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>                                                                                                          </span></code></pre></div>
 <p>An example of the result is in this built-in object</p>
 <div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>carnival_input_toy</span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="co"># # A tibble: 15 × 5</span></span>
