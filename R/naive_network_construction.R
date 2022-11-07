@@ -327,42 +327,45 @@ three_layer_naive_network <- function(receptors_gn, kinphos_gn, subs_gn, tfs_gn,
   return(network)
 }
 
-#' filter_inferred_protein_for_presence_in_naive_network
+#' prepare_carnival_input
 #'
 #' @param naive_network naive network connecting inferred proteins
 #' @param prediction_output inferred proteins from experimental data
-#' @param recept_list list of receptors with their desired activity
+#' @param recept_list list of receptors with their desired activity or NULL if you don't have any
 #'
 #' @return inferred protein filtered for presence in naive network
 #' @export
 #'
 #' @examples
-filter_inferred_protein_for_presence_in_naive_network <- function(naive_network, prediction_output, recept_list){
-
-
-  # create receptors tibble
-  # recept_list <- list('Flt3' = 1)
-  # prediction_output <- toy_prot_activity_df
-  # naive_network <- one_layer_toy
-
-  # create receptor list
-  recept_df <- tibble::tibble(gene_name = names(recept_list),
-                 mf = 'rec',
-                 method = 'user',
-                 final_score = unlist(recept_list))
-
-  recept_df <- convert_gene_name_in_uniprotid(recept_df, 'mouse') %>%
-    dplyr::relocate('UNIPROT')
+prepare_carnival_input <- function(naive_network, prediction_output, recept_list){
 
   # filter prediction
   prediction_output_filt <- prediction_output %>%
     dplyr::filter(gene_name %in% igraph::V(naive_network)$ENTITY) %>%
     dplyr::arrange(gene_name)
 
-  # unify elements
-  prediction_output_filt_rec <- dplyr::bind_rows(recept_df, prediction_output_filt)
+  if(!is.null(recept_list)){
+    # create receptor list
+    recept_df <- tibble::tibble(gene_name = names(recept_list),
+                                mf = 'rec',
+                                method = 'user',
+                                final_score = unlist(recept_list))
 
-  return(prediction_output_filt_rec)
+    recept_df <- convert_gene_name_in_uniprotid(recept_df, 'mouse') %>%
+      dplyr::relocate('UNIPROT')
+
+    # unify elements
+    prediction_output_filt_rec <- dplyr::bind_rows(recept_df, prediction_output_filt)
+
+    return(prediction_output_filt_rec)
+
+  }
+  # create receptors tibble
+  # recept_list <- list('Flt3' = 1)
+  # prediction_output <- toy_prot_activity_df
+  # naive_network <- one_layer_toy
+
+  return(prediction_output_filt)
 }
 
 #' get_all_one_step_connections
