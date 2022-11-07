@@ -174,6 +174,7 @@ get_all_shortest_path_custom <- function(start_nodes_gn, target_nodes_gn, db, pa
   all_edges_ids <- c()
 
   for(protein in start_nodes_gn){
+    print(paste0('finding ', path_length, ' path from ', protein))
     #protein <- 'FLT3'
 
     source2target <- igraph::get.all.shortest.paths(graph = db,
@@ -384,6 +385,8 @@ get_all_one_step_connections <- function(source_gn, target_gn, proteins_df, db,
                                          sif_path = 'direct_naive.sif'){
 
   source_target_edges_ids <- get_all_shortest_path_custom(source_gn, target_gn, db, 'one')
+
+
   network <- igraph::subgraph.edges(db, source_target_edges_ids)
 
   # set node attributes
