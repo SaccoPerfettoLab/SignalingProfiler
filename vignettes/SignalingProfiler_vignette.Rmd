@@ -2,8 +2,8 @@
 title: "SignalingProfiler vignette"
 output: 
   html_document:
-    theme: united
-    highlight: tango
+    theme: journal
+    highlight: zenburn
     toc: true
     toc_depth: 2
          
@@ -341,7 +341,7 @@ toy_prot_activity_df <- combine_activityscore_proteoscore(toy_activity_df, prote
 
 ```
 
-# Step2) Naive network creation
+## Step2) Naive network creation
 
 In this step, Signaling Profiler connects the proteins of Step1 to user-specified receptor(s). These receptor(s) could represent:
 
@@ -386,19 +386,20 @@ You can modulate the structure of the naive network:
 
 -   choosing the number of layers: the largest is the number of layers, deeper you go in the molecular mechanism behind your experimental condition; but, it is also true that longer path aren't biologically relevant. So it is pretty much empirical.
 
-## One layer network
+### One layer network
 
 ```{r eval = TRUE}
 #
-one_layer_toy <- one_layer <- one_layer_naive_network(starts_gn = c('Flt3'),
-                             targets_gn = toy_prot_activity_df$gene_name,
-                             organism = 'mouse', 
-                             max_length = 4)
-
+one_layer_toy <- one_layer_naive_network(starts_gn = c('Flt3'),
+                                         targets_gn = toy_prot_activity_df$gene_name,
+                                         organism = 'mouse',
+                                         max_length = 4)
+                            
+one_layer_toy
 
 ```
 
-## Two layers network
+### Two layers network
 
 ```{r eval = FALSE}
 
@@ -417,7 +418,7 @@ two_layers_toy <- two_layer_naive_network(starts_gn = c('Flt3'),
                              max_length_2 = 4)
 ```
 
-## Three layers network
+### Three layers network
 
 ```{r eval = FALSE}
 
@@ -442,7 +443,7 @@ three_layers_toy <- three_layer_naive_network(starts_gn = c('Flt3'),
 
 ```
 
-## Prepare CARNIVAL input
+### Prepare CARNIVAL input
 
 Here, we prepare the input for the third step of Signaling Profiler.
 
@@ -465,7 +466,7 @@ An example of the result is in this built-in object
 carnival_input_toy
 ```
 
-# Step 3) Optimization of naive network and creation of a context-specific model
+## Step 3) Optimization of naive network and creation of a context-specific model
 
 This step optimizes the naive network in a context-specific model through CARNIVAL algorithm. It is crucial to install the ILP solver required by CARNIVAL and to know its name and path.
 
@@ -559,7 +560,7 @@ Another type of analysis is to perform a two-steps CARNIVAL:
 
 Finally, you perform the *union* of the two graphs.
 
-```{r eval = TRUE}
+```{r eval = FALSE}
 
 # FIRST RUN: RECEPTOR to KIN, PHOS, OTHERS
 receptors_df <- carnival_input_toy %>%
