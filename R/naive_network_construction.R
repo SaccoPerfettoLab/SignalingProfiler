@@ -137,7 +137,7 @@ one_layer_naive_network <- function(starts_gn, targets_gn, organism, max_length,
   # save files
   message(paste0('Writing in ', getwd(), ' sif and RDS file of the naive network'))
   saveRDS(network, rds_path)
-  igraphToSif(network, outfile = sif_path, edgeLabel = 'SIGN')
+  igraphToSif(network, outfile = sif_path, edgeLabel = 'INTERACTION')
 
   return(network)
 }
@@ -181,7 +181,7 @@ two_layer_naive_network <- function(starts_gn, intermediate_gn, targets_gn,
   # save files
   message(paste0('Writing in ', getwd(), ' sif and RDS file of the naive network'))
   saveRDS(network, rds_path)
-  igraphToSif(network, outfile = sif_path, edgeLabel = 'SIGN')
+  igraphToSif(network, outfile = sif_path, edgeLabel = 'INTERACTION')
 
   return(network)
 }
@@ -247,7 +247,7 @@ three_layer_naive_network <- function(starts_gn, intermediate1_gn, intermediate2
   # save files
   message(paste0('Writing in ', getwd(), ' sif and RDS file of the naive network'))
   saveRDS(network, rds_path)
-  igraphToSif(network, outfile = sif_path, edgeLabel = 'SIGN')
+  igraphToSif(network, outfile = sif_path, edgeLabel = 'INTERACTION')
 
   return(network)
 }
