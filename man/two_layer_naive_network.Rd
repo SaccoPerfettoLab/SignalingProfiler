@@ -5,22 +5,32 @@
 \title{two_layer_naive_network}
 \usage{
 two_layer_naive_network(
-  receptors_gn,
-  kinphos_gn,
-  tfs_gn,
-  db,
+  starts_gn,
+  intermediate_gn,
+  targets_gn,
+  organism,
+  max_length_1,
+  max_length_2,
   rds_path = "two_layer_naive.RDS",
   sif_path = "two_layer_naive.sif"
 )
 }
 \arguments{
-\item{receptors_gn}{gene names of receptors}
+\item{starts_gn}{gene names of starting nodes}
 
-\item{kinphos_gn}{gene names of kinases and phosphatases}
+\item{intermediate_gn}{gene names of intermediate nodes (e.g. kins and phos)}
 
-\item{tfs_gn}{gene names of transcription factors}
+\item{targets_gn}{gene names of target nodes (e.g. transcription factors)}
 
-\item{db}{built in causal relation database}
+\item{organism}{string, 'human' or 'mouse'}
+
+\item{max_length_1}{max_length of shortest path from start to intermediates}
+
+\item{max_length_2}{max_length of shortest path from intermediates to targets}
+
+\item{rds_path}{path of network rds file}
+
+\item{sif_path}{path of network sif file}
 }
 \value{
 naive network
