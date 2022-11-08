@@ -5,25 +5,42 @@
 \title{three_layer_naive_network}
 \usage{
 three_layer_naive_network(
-  receptors_gn,
-  kinphos_gn,
-  subs_gn,
-  tfs_gn,
-  db,
+  starts_gn,
+  intermediate1_gn,
+  intermediate2_gn,
+  targets_gn,
+  organism,
+  max_length_1,
+  max_length_2,
+  max_length_3,
+  both_intermediates = TRUE,
   rds_path = "three_layer_naive.RDS",
   sif_path = "three_layer_naive.sif"
 )
 }
 \arguments{
-\item{receptors_gn}{gene names of receptors}
+\item{starts_gn}{gene names of starting nodes}
 
-\item{kinphos_gn}{gene names of kinases and phosphatases}
+\item{intermediate1_gn}{gene names of intermediates1 nodes}
 
-\item{subs_gn}{gene names of substrates}
+\item{intermediate2_gn}{gene names of intermediates2 nodes}
 
-\item{tfs_gn}{gene names of transcription factors}
+\item{targets_gn}{gene names of targets nodes}
 
-\item{db}{built in causal relation database}
+\item{organism}{string, 'human' or 'mouse'}
+
+\item{max_length_1}{max_length of shortest path from start to intermediates1}
+
+\item{max_length_2}{max_length of shortest path from intermediates1 to intermediates2}
+
+\item{max_length_3}{max_length of shortest path from intermediates2 to targets}
+
+\item{both_intermediates}{boolean, TRUE if you want both intermediates as the starting point of the third layer,
+FALSE if you want to use only intermediates2 (not suggested)}
+
+\item{rds_path}{path of network rds file}
+
+\item{sif_path}{path of network sif file}
 }
 \value{
 naive network

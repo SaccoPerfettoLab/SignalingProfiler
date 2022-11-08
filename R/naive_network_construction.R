@@ -38,51 +38,6 @@ igraphToSif <- function(inGraph, outfile="output.sif", edgeLabel="label") {
   }
 }
 
-##### --------- #####
-
-#' get all edge ids
-#'
-#' @param all_shortest_paths takes in input all shortest paths of igraph command
-#' @param db fb used for the analysis
-#'
-#' @return all edges id along the shortest path
-#'
-#' @examples
-get_all_edge_ids <- function(all_shortest_paths, db){
-  shortest_paths <- lapply(all_shortest_paths$res,
-                           FUN = function(x){names(unlist(x))})
-
-  edges_ids_list <- c()
-
-  for(i_path in c(1:length(shortest_paths))){
-    # unlisting each path
-    # e.g ['A', 'B', 'C', 'D]
-    path = unlist(shortest_paths[i_path])
-
-    # getting for each couple (AB, BC, CD) all edges ids
-    all_couple_edges_ids <- c()
-
-    if(length(path) > 1){
-      for( node_idx in c( 1:(length(path)-1)) ){
-        # selecting node A
-        node1 = path[ node_idx ]
-        # selecting node B
-        node2 = path[ node_idx + 1 ]
-
-        out_edges <- igraph::incident_edges( db, node1, mode = 'out' )
-        in_edges <- igraph::incident_edges( db, node2, mode = 'in' )
-        couple_edge_ids <- intersect( out_edges[[node1]],
-                                      in_edges[[node2]] )
-
-        all_couple_edges_ids <- c( all_couple_edges_ids, couple_edge_ids )
-      }
-
-      edges_ids_list <- c(edges_ids_list, all_couple_edges_ids)
-    }
-
-  }
-  return(unique(edges_ids_list))
-}
 
 ##### --------- #####
 
@@ -153,89 +108,31 @@ coverage_of_inferred_proteins_in_db <- function(prediction_output, organism, rep
 
 ##### --------- #####
 
-#' get_all_shortest_path_custom
-#'
-#' @param start_nodes_gn vector of gene names of starting nodes
-#' @param target_nodes_gn vector of gene names of target nodes
-#' @param db igraph object representing chosen built in databas
-#' @param path_length 'one' or 'shortest' to choose the length of the path connecting
-#' proteins: 1 step or the shortest
-#'
-#' @return a vector with edges ids along the shortest paths
-#' @export
-#'
-#' @examples
-get_all_shortest_path_custom <- function(start_nodes_gn, target_nodes_gn, db, path_length){
-  message('Warning message from developer: this analysis can take even hours according to the number of nodes')
-  # start_nodes_gn <- kinphos_gn
-  # target_nodes_gn <- tfs_gn
-  # path_length <- 'shortest'
-
-  all_edges_ids <- c()
-
-  for(protein in start_nodes_gn){
-    print(paste0('finding ', path_length, ' path from ', protein))
-    #protein <- 'FLT3'
-
-    source2target <- igraph::get.all.shortest.paths(graph = db,
-                                                    from = igraph::V(db)[ENTITY %in% c(protein)],
-                                                    to = igraph::V(db)[ENTITY %in% target_nodes_gn],
-                                                    mode = 'out')
-    if(path_length == 'one'){
-
-      if(length(source2target$res) == 0){
-        next
-      }else{
-        for (i in c(1:length(source2target$res))){
-          if (length(source2target$res[[i]]) == 2){
-            node1 = names(unlist(source2target$res[[i]]))[1]
-            # selecting node B
-            node2 = names(unlist(source2target$res[[i]]))[2]
-
-            out_edges <- igraph::incident_edges( db, node1, mode = 'out' )
-            in_edges <- igraph::incident_edges( db, node2, mode = 'in' )
-            edge_ids <- intersect( out_edges[[node1]],
-                                   in_edges[[node2]] )
-            all_edges_ids <- c(all_edges_ids, edge_ids)
-          }
-        }
-      }
-
-    }else if(path_length == 'shortest'){
-      if(length(source2target$res) == 0){
-        next
-      }else{
-        all_edges_ids <- c(all_edges_ids, get_all_edge_ids(source2target, db))
-      }
-
-    }else{
-      error('Please provide a valid type of analysis')
-    }
-  }
-  return(all_edges_ids)
-}
-
 #' one_layer_naive_network
 #'
-#' @param receptors_gn gene names of receptors
-#' @param targets_gn gene names of target nodes (transcription factors)
-#' @param db built in causal relation database
+#' @param starts_gn gene names of starting nodes (e.g. receptors)
+#' @param targets_gn gene names of target nodes (e.g. transcription factors)
+#' @param organism string, 'human' or 'mouse'
+#' @param max_length integer, 1 to 4 for max_length connecting start to end
+#' @param rds_path path of network rds file
+#' @param sif_path path of network sif file
+
 #'
 #' @return naive network
 #' @export
 #'
 #' @examples
-one_layer_naive_network <- function(receptors_gn, targets_gn, db,
+one_layer_naive_network <- function(starts_gn, targets_gn, organism, max_length,
                                     rds_path = 'one_layer_naive.RDS',
                                     sif_path = 'one_layer_naive.sif'){
   message('One layer: shortest paths from receptor(s) to all proteins')
-  edges_ids <- get_all_shortest_path_custom(receptors_gn, targets_gn, db, 'shortest')
-  network <- igraph::subgraph.edges(db, edges_ids)
+  all_paths_df <- get_all_shortest_path_custom(starts_gn, targets_gn, organism, max_length)
+  network <- create_graph_from_paths(all_paths_df, organism)
 
   # set node attributes
-  igraph::V(network)$mf <- 'unknown'
-  igraph::V(network)[ENTITY %in% receptors_gn]$mf <- 'recept'
-  igraph::V(network)[ENTITY %in% targets_gn]$mf <- 'target'
+  igraph::V(network)$mf_naive <- 'unknown'
+  igraph::V(network)[ENTITY %in% starts_gn]$mf_naive <- 'start'
+  igraph::V(network)[ENTITY %in% targets_gn]$mf_naive <- 'target'
 
   # save files
   message(paste0('Writing in ', getwd(), ' sif and RDS file of the naive network'))
@@ -247,78 +144,105 @@ one_layer_naive_network <- function(receptors_gn, targets_gn, db,
 
 #' two_layer_naive_network
 #'
-#' @param receptors_gn gene names of receptors
-#' @param kinphos_gn gene names of kinases and phosphatases
-#' @param tfs_gn gene names of transcription factors
-#' @param db  built in causal relation database
+#' @param starts_gn gene names of starting nodes
+#' @param intermediate_gn gene names of intermediate nodes (e.g. kins and phos)
+#' @param targets_gn gene names of target nodes (e.g. transcription factors)
+#' @param organism string, 'human' or 'mouse'
+#' @param max_length_1 max_length of shortest path from start to intermediates
+#' @param max_length_2 max_length of shortest path from intermediates to targets
+#' @param rds_path path of network rds file
+#' @param sif_path path of network sif file
 #'
 #' @return naive network
 #' @export
 #'
 #' @examples
-two_layer_naive_network <- function(receptors_gn, kinphos_gn, tfs_gn, db,
+two_layer_naive_network <- function(starts_gn, intermediate_gn, targets_gn,
+                                    organism, max_length_1, max_length_2,
                                     rds_path = 'two_layer_naive.RDS',
                                     sif_path = 'two_layer_naive.sif'){
-  # receptors_gn <- c('FLT3')
-  # kinphos_gn <- toy_kin$gene_name
-  # tfs_gn <- toy_tf$gene_name
 
-  message('First layer: shortest paths from receptor(s) to kinases, phosphatases and others')
-  rec_kins_edges_ids <- get_all_shortest_path_custom(receptors_gn, kinphos_gn, db, 'shortest')
 
-  message('Second layer: shortest paths from kinases, phosphtases and others to transcription factors')
-  kins_tfs_edges_ids <-  get_all_shortest_path_custom(kinphos_gn, tfs_gn, db, 'shortest')
-  network <- igraph::subgraph.edges(db, c(rec_kins_edges_ids, kins_tfs_edges_ids))
+  message(paste0('First layer: ', max_length_1, ' length paths from starting nodes to intermediates'))
+  all_paths_layer1_df <- get_all_shortest_path_custom(starts_gn, intermediate_gn, organism, max_length_1)
+
+  message(paste0('Second layer: ', max_length_2, ' length paths from intermediates nodes to targets'))
+  all_paths_layer2_df <- get_all_shortest_path_custom(intermediate_gn, targets_gn, organism, max_length_2)
+
+  all_paths_df <- dplyr::bind_rows(all_paths_layer1_df, all_paths_layer2_df)
+  network <- create_graph_from_paths(all_paths_df, organism)
 
   # set node attributes
-  igraph::V(network)$mf <- 'unknown'
-  igraph::V(network)[ENTITY %in% receptors_gn]$mf <- 'recept'
-  igraph::V(network)[ENTITY %in% kinphos_gn]$mf <- 'kinphos'
-  igraph::V(network)[ENTITY %in% tfs_gn]$mf <- 'tf'
+  igraph::V(network)$mf_naive <- 'unknown'
+  igraph::V(network)[ENTITY %in% starts_gn]$mf_naive <- 'start'
+  igraph::V(network)[ENTITY %in% intermediate_gn]$mf_naive <- 'intermediate'
+  igraph::V(network)[ENTITY %in% targets_gn]$mf_naive <- 'target'
 
   # save files
   message(paste0('Writing in ', getwd(), ' sif and RDS file of the naive network'))
   saveRDS(network, rds_path)
   igraphToSif(network, outfile = sif_path, edgeLabel = 'SIGN')
 
-
   return(network)
 }
 
 #' three_layer_naive_network
 #'
-#' @param receptors_gn gene names of receptors
-#' @param kinphos_gn gene names of kinases and phosphatases
-#' @param subs_gn gene names of substrates
-#' @param tfs_gn gene names of transcription factors
-#' @param db  built in causal relation database
+#' @param starts_gn gene names of starting nodes
+#' @param intermediate1_gn gene names of intermediates1 nodes
+#' @param intermediate2_gn gene names of intermediates2 nodes
+#' @param targets_gn gene names of targets nodes
+#' @param organism string, 'human' or 'mouse'
+#' @param max_length_1 max_length of shortest path from start to intermediates1
+#' @param max_length_2 max_length of shortest path from intermediates1 to intermediates2
+#' @param max_length_3  max_length of shortest path from intermediates2 to targets
+#' @param rds_path path of network rds file
+#' @param sif_path path of network sif file
+#' @param both_intermediates boolean, TRUE if you want both intermediates as the starting point of the third layer,
+#' FALSE if you want to use only intermediates2 (not suggested)
 #'
 #' @return naive network
 #' @export
 #'
 #' @examples
-three_layer_naive_network <- function(receptors_gn, kinphos_gn, subs_gn, tfs_gn, db,
+#'
+three_layer_naive_network <- function(starts_gn, intermediate1_gn, intermediate2_gn,
+                                      targets_gn, organism,
+                                      max_length_1, max_length_2, max_length_3,
+                                      both_intermediates = TRUE,
                                       rds_path = 'three_layer_naive.RDS',
                                       sif_path = 'three_layer_naive.sif'){
 
   # create network
-  message('First layer: shortest paths from receptor(s) to kinases and phosphatases')
-  rec_kins_edges_ids <- get_all_shortest_path_custom(receptors_gn, kinphos_gn, db, 'shortest')
+  message(paste0('First layer: ', max_length_1, ' length paths from starting nodes to intermediates1'))
+  all_paths_layer1_df <- get_all_shortest_path_custom(starts_gn, intermediate1_gn, organism, max_length_1)
 
-  message('Second layer: one step paths from kinases and phosphatases to others')
-  kins_subs_edges_ids <- get_all_shortest_path_custom(kinphos_gn, subs_gn, db, 'one')
+  message(paste0('Second layer: ', max_length_2, ' length paths from intermediates1 nodes to intermediates'))
+  all_paths_layer2_df <- get_all_shortest_path_custom(intermediate1_gn, targets_gn, organism, max_length_2)
 
-  message('Third layer: shortest paths from kinases, phosphatases and others to transcription factors')
-  kins_tfs_edges_ids <-  get_all_shortest_path_custom(c(kinphos_gn, subs_gn), tfs_gn, db, 'shortest')
+  # third layer
+  if(both_intermediates == TRUE){
+    message(paste0('Third layer: ', max_length_3, ' length paths from intermediates2 nodes to targets'))
+    all_paths_layer3_df <- get_all_shortest_path_custom(c(intermediate1_gn, intermediate2_gn),
+                                                        targets_gn, organism, max_length_3)
 
-  network <- igraph::subgraph.edges(db, c(rec_kins_edges_ids, kins_subs_edges_ids, kins_tfs_edges_ids))
+  }else if(both_intermediates == FALSE){
+    message(paste0('Third layer: ', max_length_3, ' length paths from intermediates2 nodes to targets'))
+    all_paths_layer3_df <- get_all_shortest_path_custom(intermediate2_gn, targets_gn, organism, max_length_3)
+  }else{
+    error('Please provide a boolean value for both_intermediates parameter')
+  }
+
+
+  all_paths_df <- dplyr::bind_rows(all_paths_layer1_df, all_paths_layer2_df, all_paths_layer3_df)
+  network <- create_graph_from_paths(all_paths_df, organism)
 
   # set node attributes
-  igraph::V(network)$mf <- 'unknown'
-  igraph::V(network)[ENTITY %in% receptors_gn]$mf <- 'recept'
-  igraph::V(network)[ENTITY %in% kinphos_gn]$mf <- 'kinphos'
-  igraph::V(network)[ENTITY %in% subs_gn]$mf <- 'other'
-  igraph::V(network)[ENTITY %in% tfs_gn]$mf <- 'tf'
+  igraph::V(network)$mf_naive <- 'unknown'
+  igraph::V(network)[ENTITY %in% starts_gn]$mf_naive <- 'start'
+  igraph::V(network)[ENTITY %in% intermediate1_gn]$mf_naive <- 'intermediate1'
+  igraph::V(network)[ENTITY %in% intermediate2_gn]$mf_naive <- 'intermediate2'
+  igraph::V(network)[ENTITY %in% targets_gn]$mf_naive <- 'target'
 
   # save files
   message(paste0('Writing in ', getwd(), ' sif and RDS file of the naive network'))
@@ -367,39 +291,6 @@ prepare_carnival_input <- function(naive_network, prediction_output, recept_list
   # naive_network <- one_layer_toy
 
   return(prediction_output_filt)
-}
-
-#' get_all_one_step_connections
-#'
-#' @param source_df gene names of source nodes
-#' @param target_df gene names of target nodes
-#' @param proteins_df all inferred proteins
-#' @param db built in causal relation database
-#'
-#' @return naive network
-#' @export
-#'
-#' @examples
-get_all_one_step_connections <- function(source_gn, target_gn, proteins_df, db,
-                                         rds_path = 'direct_naive.RDS',
-                                         sif_path = 'direct_naive.sif'){
-
-  source_target_edges_ids <- get_all_shortest_path_custom(source_gn, target_gn, db, 'one')
-
-
-  network <- igraph::subgraph.edges(db, source_target_edges_ids)
-
-  # set node attributes
-  igraph::V(network)$mf <- 'unknown'
-  igraph::V(network)[ENTITY %in% (proteins_df %>% dplyr::filter(mf %in% c('kin', 'phos')))$mf]$mf <- 'kinphos'
-  igraph::V(network)[ENTITY %in% (proteins_df %>% dplyr::filter(mf %in% c('other')))$mf]$mf <- 'other'
-  igraph::V(network)[ENTITY %in% (proteins_df %>% dplyr::filter(mf %in% c('tf')))$mf]$mf <- 'tf'
-
-  message(paste0('Writing in ', getwd(), ' sif and RDS file of the naive network'))
-  saveRDS(network, rds_path)
-  igraphToSif(network, outfile = sif_path, edgeLabel = 'SIGN')
-
-  return(network)
 }
 
 

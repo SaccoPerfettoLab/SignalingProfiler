@@ -5,19 +5,26 @@
 \title{one_layer_naive_network}
 \usage{
 one_layer_naive_network(
-  receptors_gn,
+  starts_gn,
   targets_gn,
-  db,
+  organism,
+  max_length,
   rds_path = "one_layer_naive.RDS",
   sif_path = "one_layer_naive.sif"
 )
 }
 \arguments{
-\item{receptors_gn}{gene names of receptors}
+\item{starts_gn}{gene names of starting nodes (e.g. receptors)}
 
-\item{targets_gn}{gene names of target nodes (transcription factors)}
+\item{targets_gn}{gene names of target nodes (e.g. transcription factors)}
 
-\item{db}{built in causal relation database}
+\item{organism}{string, 'human' or 'mouse'}
+
+\item{max_length}{integer, 1 to 4 for max_length connecting start to end}
+
+\item{rds_path}{path of network rds file}
+
+\item{sif_path}{path of network sif file}
 }
 \value{
 naive network
