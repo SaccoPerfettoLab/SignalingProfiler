@@ -77,8 +77,8 @@ The Signaling Profiler package provides a flexible way to create signaling netwo
 
 -   optimization of the naïve network on proteins activity through CARNIVAL algorithm (**Step 3**);
 
-
 ## Toy datasets
+
 In the Signaling Profiler package there are *toy datasets* to show the format of omic data tables and to perform some tests.
 
 ```{r eval = FALSE}
@@ -103,7 +103,6 @@ carnival_input_toy
 toy_sp_output
 
 ```
-
 
 ## Input data tables
 
@@ -300,7 +299,7 @@ You can assess the proteins molecular function setting `GO_annotation = TRUE` in
 You can find an example in a built-in object.
 
 ```{r eval = TRUE}
-toy_activity_df
+toy_prot_activity_df
 ```
 
 ### A simple inference workflow
@@ -376,7 +375,7 @@ In this step, Signaling Profiler connects the proteins of Step1 to user-specifie
 
 Here, we create what we call a **naïve network**, a graph connecting your proteins through ALL the possible SHORTEST causal paths of a user-specified length (1 to 4). We don't consider the causality of the edges, just distance. As such, in this naïve network there may be two paths with same length, but different causal meaning.
 
-In this step, you are building the skeleton of the signal in your cellular model, looking across all the possible routes available in SIGNOR and PsP databases. These databases are available for both *human* and *mouse* organisms, as built-in objects in the package, in tabular (`PKN_mouse`, `PKN_human`)  and igraph object format (`db_mouse`, `db_human`).
+In this step, you are building the skeleton of the signal in your cellular model, looking across all the possible routes available in SIGNOR and PsP databases. These databases are available for both *human* and *mouse* organisms, as built-in objects in the package, in tabular (`PKN_mouse`, `PKN_human`) and igraph object format (`db_mouse`, `db_human`).
 
 Even if you inferred the activity of a protein, it may be absent in the databases. So a good practice is to check for database coverage of your inferred proteins data set.
 
@@ -567,14 +566,57 @@ output_final$nodes_df
 output_final$edges_df
 ```
 
-The toy example looks like:
+#### A toy Signaling Profiler output
+
+The Signaling Profiler output is a list of three elements:
+
+-   a graph as **igraph object** representing the context-specific mechanistic model;
+
+-   a table of all the proteins (nodes) in the final model;
+
+-   a table of all the interactions among the proteins in the model;
+
+##### SP output graph
+
 ```{r eval = TRUE}
 toy_sp_output$igraph_network
 ```
 
+##### SP output proteins table (nodes_df)
+
+The proteins in the final context-specific model are reported in `toy_sp_output$nodes_df` and they are annotated with different attributes:
+
+-   Protein identifiers: **UNIPROT ID** (name) and **gene name**;
+
+-   Two different activity scores:
+
+    -   **final_score**: it is the activity derived from experimental data;
+    -   **carnival_activity**: it is the activity computed by CARNIVAL algorithm ranging between -100 and +100; usually it has the *same sign* as the **final_score**, but sometimes CARNIVAL changes the node activity because the neighbour proteins suggest the opposite activity sign;
+    -   **discordant:** it is TRUE if **final_score** and **carnival_activity** have opposite sign;
+
+-   Molecular function annotation (**mf**);
+
 ```{r eval = TRUE}
 toy_sp_output$nodes_df
 ```
+
+##### SP output interaction table (edges_df)
+
+The interactions among the proteins in the final context-specific model are reported in `toy_sp_output$edges_df` and they are annotated with different attributes:
+
+-   UNIPROT IDs of the nodes connected (**source** and **target**);
+
+-   **sign** reporting if the interaction is activatory (1) or inhibitory (-1);
+
+-   **carnival_weight**: since CARNIVAL may return more than one solustion, this attribute reports the frequency of the edge in the different solutions returned (e.g. 100 means that the edge is present in all the solutions!);
+
+-   annotation from phosphoproteomics data:
+
+    -   **aminoacid**: reports the phosphosites in SIGNOR and PsP matching that interaction; if the phosphosite has a \* it means that it is *significantly modulated among your two conditions*;
+
+    -   **FC**: reports the fold-change of phosphorylation among your two conditions of the phosphosite matched on the interaction;
+
+    -   **is quantified** is TRUE if you quantified the phosphosite matching that edge in your phosphoproteomic data set;
 
 ```{r eval = TRUE}
 toy_sp_output$edges_df
@@ -779,4 +821,41 @@ union2_output_final
 # VISUALIZATION OF THE NETWORK
 RCy3::createNetworkFromIgraph(union2_output_final$igraph_network, 
                               collection = 'three_steps_analysis')
+```
+
+## Step 4) phenoSCORE computation
+Once you have your context-specific model, you can *in silico* validate it, computing the modulation of activity of
+relevant phenotypes for your context. We call this score **phenoSCORE**. 
+It is very useful, if you have some expectation about your model characteristics. 
+For example, if you are treating tumor cells you expect the APOPTOSIS phenotype to be activated.
+
+We compute the **phenoSCORE** using: 
+
+- the nodes in the context-specific model whose activity has been inferred from experimental data;
+- paths table from SIGNOR proteins to SIGNOR phenotypes containing a different significant causal paths, derived from our in-house recently published [resource](link.it); it is available as built-in object `paths_to_pheno`
+
+You can choose the phenotypes you desire to look at using the `desired_phenotype` parameter, or you can compute the activity for all annotated phenotypes.
+
+```{r eval = FALSE}
+unique(paths_to_pheno$EndPathways)
+```
+
+To compute the **phenoSCORE** simply execute:
+
+```{r eval = FALSE}
+
+# only desired phenotypes
+toy_phenoscore_output <- compute_phenoscore(sp_output = toy_sp_output, 
+                   desired_phenotypes = 'G1/S_TRANSITION_CHECKPOINT', 
+                   compact = TRUE)
+
+
+# all phenotypes
+compute_phenoscore(sp_output = toy_sp_output, 
+                   desired_phenotypes = NULL, 
+                   compact = TRUE)
+```
+
+```{r eval = TRUE}
+toy_phenoscore_output
 ```
