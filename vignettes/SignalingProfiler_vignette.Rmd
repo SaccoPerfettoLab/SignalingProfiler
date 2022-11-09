@@ -31,7 +31,7 @@ Signaling Profiler is a modelling pipeline described in [Massacci, Venafra et al
 
 Briefly, **Signaling Profiler allows to build a mechanistic model representing the signal remodeling upon a treatment or in a disease condition**. The model starts with receptor(s) and ends with proteins whose activity is modulated (up- or down-regulated) among your two conditions (e.g. treated vs untreated, disease vs healthy).
 
-It takes advantage of previously developed algorithms (e.g. VIPER, CARNIVAL, REF) and complements them with novel additional features that allow a more exhaustive integration of phosphoproteomics data (**phosphoSCORE**) and *in silico* validation results (**phenoSCORE**).
+It takes advantage of previously developed algorithms (e.g. VIPER, CARNIVAL) and complements them with novel additional features that allow a more exhaustive integration of phosphoproteomics data (**phosphoSCORE**) and *in silico* validation results (**phenoSCORE**).
 
 # Installation
 
@@ -61,7 +61,7 @@ export PATH="$PATH:/Users/[YOUR_USERNAME]/bin/ncbi-blast-2.13.0+/bin"
 
 ### Install ILP Solver
 
-CARNIVAL algorithm relies on a **solver of integer linear programming (ILP) problems**, that you must install. An exhaustive guide about installation can be found in *Prerequistes* section of CARNIVAL github page [here](https://saezlab.github.io/CARNIVAL/).
+CARNIVAL algorithm relies on a **solver of integer linear programming (ILP) problems**, that you must install. An exhaustive guide about installation can be found in *Prerequisites* section of CARNIVAL github page [here](https://saezlab.github.io/CARNIVAL/).
 
 # Running Signaling Profiler
 
@@ -71,13 +71,39 @@ library(SignalingProfiler)
 
 The Signaling Profiler package provides a flexible way to create signaling networks integrating transcriptomics, proteomics and phosphoproteomics data. The pipeline is divided in three main steps:
 
--   inference of key signaling proteins activity from multi-omics data;
+-   inference of key signaling proteins activity from multi-omics data (**Step 1**);
 
--   building a naive network connecting receptor(s) to key signaling proteins through the molecular interactions annotated in SIGNOR and PhosphoSitePlus databases;
+-   building a naïve network connecting receptor(s) to key signaling proteins through the molecular interactions annotated in SIGNOR and PhosphoSitePlus databases (**Step 2**);
 
--   optimization of the naive network on proteins activity through CARNIVAL algorithm;
+-   optimization of the naïve network on proteins activity through CARNIVAL algorithm (**Step 3**);
 
+
+## Toy datasets
 In the Signaling Profiler package there are *toy datasets* to show the format of omic data tables and to perform some tests.
+
+```{r eval = FALSE}
+
+# toy omics datasets
+tr_toy_df
+prot_toy_df
+phospho_toy_df
+
+# inferred proteins datasets
+toy_prot_activity_df
+
+# toy naïve networks
+one_layer_toy
+two_layers_toy
+three_layers_toy
+
+# toy CARNIVAL input 
+carnival_input_toy
+
+# toy Signaling Profiler output
+toy_sp_output
+
+```
+
 
 ## Input data tables
 
@@ -341,26 +367,24 @@ toy_prot_activity_df <- combine_activityscore_proteoscore(toy_activity_df, prote
 
 ```
 
-## Step2) Naive network creation
+## Step2) Naïve network creation
 
 In this step, Signaling Profiler connects the proteins of Step1 to user-specified receptor(s). These receptor(s) could represent:
 
 -   target of a treatment;
 -   some mutated genes in your biological process;
 
-Here, we create what we call a **naive network**, a graph connecting your proteins through ALL the possible SHORTEST causal paths of a user-specified length (1 to 4). We don't consider the causality of the edges, just distance. As such, in this naive network there may be two paths with same length, but different causal meaning.
+Here, we create what we call a **naïve network**, a graph connecting your proteins through ALL the possible SHORTEST causal paths of a user-specified length (1 to 4). We don't consider the causality of the edges, just distance. As such, in this naïve network there may be two paths with same length, but different causal meaning.
 
-In this step, you are building the skeleton of the signal in your cellular model, looking across all the possible routes available in SIGNOR and PsP databases. These databases are available as built-in object in the package, in tabular and igraph object format, and for both *human* and *mouse* organisms.
+In this step, you are building the skeleton of the signal in your cellular model, looking across all the possible routes available in SIGNOR and PsP databases. These databases are available for both *human* and *mouse* organisms, as built-in objects in the package, in tabular (`PKN_mouse`, `PKN_human`)  and igraph object format (`db_mouse`, `db_human`).
 
-So the first step here is choosing the database for your organism:
-
-Even if you inferred the activity of a protein, it may be absent in the naive network. So a good practice is to check for database coverage of your inferred proteins dataset.
+Even if you inferred the activity of a protein, it may be absent in the databases. So a good practice is to check for database coverage of your inferred proteins data set.
 
 ```{r eval = TRUE}
 coverage_of_inferred_proteins_in_db(toy_prot_activity_df, 'mouse', report = FALSE) 
 ```
 
-You can build the naive network in three ways:
+You can build the naïve network in three ways:
 
 -   ONE LAYER NETWORK: from **starting proteins** (e.g., receptor(s)) to all the inferred proteins;
 
@@ -380,7 +404,7 @@ You can build the naive network in three ways:
 
 In each layer, you can specify the `max_length` of the paths. Usually, we create a second layer of direct connections (max_length = 1) to connect kinases and phosphatases to their targets.
 
-You can modulate the structure of the naive network:
+You can modulate the structure of the naïve network:
 
 -   choosing which proteins are the starting, intermediates 1 and 2 and targets nodes;
 
@@ -409,7 +433,7 @@ kin_phos_other <- toy_prot_activity_df %>%
 tfs <- toy_prot_activity_df %>% 
   dplyr::filter(mf == 'tf')
 
-# create the naive network
+# create the naïve network
 two_layers_toy <- two_layer_naive_network(starts_gn = c('Flt3'),
                              intermediate_gn = kin_phos_other$gene_name,
                              targets_gn = tfs$gene_name, 
@@ -430,7 +454,7 @@ other <- toy_prot_activity_df %>%
 tfs <- toy_prot_activity_df %>% 
   dplyr::filter(mf == 'tf')
 
-# create the naive network
+# create the naïve network
 three_layers_toy <- three_layer_naive_network(starts_gn = c('Flt3'),
                                           intermediate1_gn = kin_phos$gene_name,
                                           intermediate2_gn = other$gene_name,
@@ -447,7 +471,7 @@ three_layers_toy <- three_layer_naive_network(starts_gn = c('Flt3'),
 
 Here, we prepare the input for the third step of Signaling Profiler.
 
--   Since, Signaling Profiler may not be able to connect all the inferred proteins in the naive network, we keep in the inferred protein table only the proteins connected in the naive network.
+-   Since, Signaling Profiler may not be able to connect all the inferred proteins in the naïve network, we keep in the inferred proteins' table only the proteins connected in the naïve network.
 
 -   Moreover, in this step, we add a list of receptor with their estimated change of activity upon our perturbation. If `receptor_list = NULL` you don't add any receptor.
 
@@ -466,16 +490,16 @@ An example of the result is in this built-in object
 carnival_input_toy
 ```
 
-## Step 3) Optimization of naive network and creation of a context-specific model
+## Step 3) Optimization of naïve network and creation of a context-specific model
 
-This step optimizes the naive network in a context-specific model through CARNIVAL algorithm. It is crucial to install the ILP solver required by CARNIVAL and to know its name and path.
+This step optimizes the naïve network in a context-specific model through CARNIVAL algorithm. It is crucial to install the ILP solver required by CARNIVAL and to know its name and path.
 
 ```{r eval = TRUE}
 solver = 'cplex'
 solver_path = '/Applications/CPLEX_Studio221/cplex/bin/x86-64_osx/cplex' #for macOS
 ```
 
-The naive network contains all the shortest paths among two proteins: this means that you may have two paths with same length but different causal meaning. CARNIVAL chooses the paths with causal effect coherent with proteins' activities along the path.
+The naïve network contains all the shortest paths among two proteins: this means that you may have two paths with same length but different causal meaning. CARNIVAL chooses the paths with causal effect coherent with proteins' activities along the path.
 
 To run CARNIVAL algorithm you need to:
 
@@ -483,7 +507,7 @@ To run CARNIVAL algorithm you need to:
 
 -   Create a tibble with the ending points of the model (**target_df**);
 
--   Provide the *naive network* in SIF format (Step 2 creates the file in your working directory) (**naive_network**);
+-   Provide the *naïve network* in SIF format (Step 2 creates the file in your working directory) (**naïve_network**);
 
 -   Provide the whole inferred proteins tibble (**proteins_df**);
 
@@ -503,11 +527,12 @@ source_df <- carnival_input_toy %>%
 target_df <- carnival_input_toy %>%
   dplyr::filter(mf != 'rec')
 
-one_layer_toy <- readr::read_tsv('./one_layer_naive.sif')
+one_layer_toy <- readr::read_tsv('./one_layer_naive.sif',
+                                 col_names = c('source', 'interaction', 'target'))
 
 output <- run_carnival_and_create_graph(source_df = source_df,
                                         target_df = target_df,
-                                        naive_network = one_layer_toy,
+                                        naive_network = unique(one_layer_toy),
                                         proteins_df = carnival_input_toy,
                                         organism = 'mouse',
                                         solver_path = solver_path, 
@@ -542,6 +567,19 @@ output_final$nodes_df
 output_final$edges_df
 ```
 
+The toy example looks like:
+```{r eval = TRUE}
+toy_sp_output$igraph_network
+```
+
+```{r eval = TRUE}
+toy_sp_output$nodes_df
+```
+
+```{r eval = TRUE}
+toy_sp_output$edges_df
+```
+
 If you want to visualize the network in Cytoscape, we suggest the usage of RCy3 package. You have to open Cytoscape on your laptop and then run the following command.
 
 ```{r eval = FALSE}
@@ -574,7 +612,7 @@ one_layer_toy_df <- readr::read_tsv('./one_layer_naive.sif',
 
 output1 <- run_carnival_and_create_graph(source_df = receptors_df,
                                          target_df = target1_df,
-                                         naive_network = one_layer_toy_df,
+                                         naive_network = unique(one_layer_toy_df),
                                          proteins_df = carnival_input_toy,
                                          organism = 'mouse',
                                          solver_path = solver_path, 
@@ -596,7 +634,7 @@ target2_df <- carnival_input_toy %>%
 
 output2 <- run_carnival_and_create_graph(source_df = source_df,
                                          target_df = target2_df,
-                                         naive_network = one_layer_toy_df,
+                                         naive_network = unique(one_layer_toy_df),
                                          proteins_df = carnival_input_toy,
                                          organism = 'mouse',
                                          solver_path = solver_path, 
@@ -657,7 +695,7 @@ one_layer_toy_df <- readr::read_tsv('./one_layer_naive.sif',
 
 output1 <- run_carnival_and_create_graph(source_df = receptors_df,
                                          target_df = target1_df,
-                                         naive_network = one_layer_toy_df,
+                                         naive_network = unique(one_layer_toy_df),
                                          proteins_df = carnival_input_toy,
                                          organism = 'mouse',
                                          solver_path = solver_path, 
@@ -679,7 +717,7 @@ target2_df <- run1_output_nodes %>%
 
 output2 <- run_carnival_and_create_graph(source_df = source_df,
                                          target_df = target2_df,
-                                         naive_network = one_layer_toy_df,
+                                         naive_network = unique(one_layer_toy_df),
                                          proteins_df = carnival_input_toy,
                                          organism = 'mouse',
                                          solver_path = solver_path, 
@@ -698,7 +736,7 @@ target3_df <- carnival_input_toy %>%
 
 output3 <- run_carnival_and_create_graph(source_df = source2_df,
                                          target_df = target3_df,
-                                         naive_network = one_layer_toy_df,
+                                         naive_network = unique(one_layer_toy_df),
                                          proteins_df = carnival_input_toy,
                                          organism = 'mouse',
                                          solver_path = solver_path, 
