@@ -842,18 +842,18 @@ unique(paths_to_pheno$EndPathways)
 
 To compute the **phenoSCORE** simply execute:
 
-```{r eval = FALSE}
+```{r eval = TRUE}
+
+# all phenotypes
+compute_phenoscore(sp_output = toy_sp_output, 
+                   desired_phenotypes = NULL, 
+                   compact = FALSE)
 
 # only desired phenotypes
 toy_phenoscore_output <- compute_phenoscore(sp_output = toy_sp_output, 
                    desired_phenotypes = 'G1/S_TRANSITION_CHECKPOINT', 
                    compact = TRUE)
 
-
-# all phenotypes
-compute_phenoscore(sp_output = toy_sp_output, 
-                   desired_phenotypes = NULL, 
-                   compact = TRUE)
 ```
 
 ```{r eval = TRUE}
