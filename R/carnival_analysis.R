@@ -273,6 +273,11 @@ run_carnival_and_create_graph <- function(source_df,
                                             poolrelGAP=0.0001,
                                             betaWeight = 0.2)
 
+  if(nrow(carnival_result$sifAll[[1]]) == 0){
+    message('No network found for your experiment')
+    return(NULL)
+  }
+
   # organism <- 'mouse'
   # format result
   nodes_df <- add_output_carnival_nodes_attributes(carnival_result,
@@ -281,30 +286,21 @@ run_carnival_and_create_graph <- function(source_df,
     dplyr::filter(carnival_activity != 0) %>%
     dplyr::distinct()
 
+  edges_df <- add_output_carnival_edges_attributes(carnival_result) %>%
+    dplyr::filter(carnival_weight != 0)
 
-  if(nrow(nodes_df) == 0){
-    message('No network found for your experiment')
-    return(NULL)
-  }else{
-
-    edges_df <- add_output_carnival_edges_attributes(carnival_result) %>%
-      dplyr::filter(carnival_weight != 0)
-
-    CARNIVAL_igraph_network <- igraph::graph_from_data_frame(edges_df,
-                                                             nodes_df,
-                                                             directed = TRUE)
-
-    if(files == TRUE){
-      igraphToSif(CARNIVAL_igraph_network, path_sif, 'sign')
-      saveRDS(CARNIVAL_igraph_network, path_rds)
-    }
-
-    # create carnival output as graph
-    return(list(igraph_network = CARNIVAL_igraph_network,
-                nodes_df = nodes_df,
-                edges_df = edges_df))
-
+  CARNIVAL_igraph_network <- igraph::graph_from_data_frame(edges_df,
+                                                           nodes_df,
+                                                           directed = TRUE)
+  if(files == TRUE){
+    igraphToSif(CARNIVAL_igraph_network, path_sif, 'sign')
+    saveRDS(CARNIVAL_igraph_network, path_rds)
   }
+
+  # create carnival output as graph
+  return(list(igraph_network = CARNIVAL_igraph_network,
+              nodes_df = nodes_df,
+              edges_df = edges_df))
 }
 
 #' convert_output_nodes_in_next_input
