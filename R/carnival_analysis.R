@@ -278,6 +278,7 @@ run_carnival_and_create_graph <- function(source_df,
   nodes_df <- add_output_carnival_nodes_attributes(carnival_result,
                                                    proteins_df,
                                                    organism) %>%
+    dplyr::filter(carnival_activity != 0) %>%
     dplyr::distinct()
 
 
@@ -286,7 +287,9 @@ run_carnival_and_create_graph <- function(source_df,
     return(NULL)
   }else{
 
-    edges_df <- add_output_carnival_edges_attributes(carnival_result)
+    edges_df <- add_output_carnival_edges_attributes(carnival_result) %>%
+      dplyr::filter(carnival_weight != 0)
+
     CARNIVAL_igraph_network <- igraph::graph_from_data_frame(edges_df,
                                                              nodes_df,
                                                              directed = TRUE)
