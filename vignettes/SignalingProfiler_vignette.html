@@ -535,7 +535,7 @@ pre code {
 <div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ** STEP 1A **</span></span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="co"># infer the activity of transcription factors from transcriptomics data</span></span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>tf_activity_f <span class="ot">&lt;-</span> <span class="fu">run_footprint_based_analysis</span>(<span class="at">omic_data =</span> tr_toy_df, </span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>tf_activity_foot <span class="ot">&lt;-</span> <span class="fu">run_footprint_based_analysis</span>(<span class="at">omic_data =</span> tr_toy_df, </span>
 <span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">analysis =</span> <span class="st">&#39;tfea&#39;</span>, </span>
 <span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>, </span>
 <span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">reg_minsize=</span> <span class="dv">1</span>, </span>
@@ -544,7 +544,7 @@ pre code {
 <span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">GO_annotation =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a><span class="co"># infer the activity of kinases and phosphatases from phosphoproteomics data</span></span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>kin_phos_activity_f <span class="ot">&lt;-</span> <span class="fu">run_footprint_based_analysis</span>(<span class="at">omic_data =</span> phospho_toy_df, </span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>kin_phos_activity_foot <span class="ot">&lt;-</span> <span class="fu">run_footprint_based_analysis</span>(<span class="at">omic_data =</span> phospho_toy_df, </span>
 <span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">analysis =</span> <span class="st">&#39;ksea&#39;</span>, </span>
 <span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>, </span>
 <span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">reg_minsize=</span> <span class="dv">1</span>, </span>
@@ -633,12 +633,12 @@ pre code {
 <span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">max_length =</span> <span class="dv">4</span>)</span>
 <span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>                            </span>
 <span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>one_layer_toy</span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="co"># IGRAPH 78f562d DN-- 37 118 -- </span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="co"># IGRAPH c255e79 DN-- 37 118 -- </span></span>
 <span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="co"># + attr: name (v/c), ENTITY (v/c), mf_naive (v/c), ENTITYA (e/c),</span></span>
 <span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="co"># | INTERACTION (e/n), ENTITYB (e/c), TYPEA (e/c), DATABASEA (e/c), TYPEB</span></span>
 <span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="co"># | (e/c), DATABASEB (e/c), MECHANISM (e/c), RESIDUE (e/c), SEQUENCE</span></span>
 <span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="co"># | (e/c), SCORE (e/n), GROUP (e/l), PHOSPHO_KEY_GN_SEQ (e/c)</span></span>
-<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a><span class="co"># + edges from 78f562d (vertex names):</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a><span class="co"># + edges from c255e79 (vertex names):</span></span>
 <span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a><span class="co">#  [1] Q00342-&gt;Q60631 Q00342-&gt;P35235 Q60631-&gt;P00520 P35235-&gt;P05480 P35235-&gt;P05480</span></span>
 <span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a><span class="co">#  [6] P00520-&gt;P35991 P00520-&gt;P35991 P05480-&gt;P35991 P35991-&gt;P24604 Q00342-&gt;Q60631</span></span>
 <span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a><span class="co"># [11] Q00342-&gt;P35235 Q00342-&gt;P46414 Q60631-&gt;P00520 P35235-&gt;P70424 P35235-&gt;P05480</span></span>
@@ -787,18 +787,16 @@ pre code {
 <div id="sp-output-graph" class="section level5">
 <h5>SP output graph</h5>
 <div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>toy_sp_output<span class="sc">$</span>igraph_network</span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="co"># IGRAPH aed535d DN-- 37 53 -- </span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="co"># IGRAPH 51b0010 DN-- 22 22 -- </span></span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="co"># + attr: name (v/c), gene_name (v/c), carnival_activity (v/n), mf (v/c),</span></span>
 <span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="co"># | final_score (v/n), discordant (v/l), sign (e/c), carnival_weight</span></span>
 <span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="co"># | (e/n), aminoacid (e/c), FC (e/c), is_quantified (e/l)</span></span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="co"># + edges from aed535d (vertex names):</span></span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a><span class="co">#  [1] P35235-&gt;P70424 P46414-&gt;P11440 P34152-&gt;P35546 Q01279-&gt;P19785 P35546-&gt;Q63844</span></span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a><span class="co">#  [6] P28563-&gt;Q63844 P62137-&gt;Q63844 P63330-&gt;Q63844 P31938-&gt;Q63844 O54833-&gt;P53762</span></span>
-<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a><span class="co"># [11] Q60737-&gt;P53762 P35235-&gt;P05480 P11440-&gt;P48964 P05480-&gt;P31750 P11440-&gt;Q60864</span></span>
-<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a><span class="co"># [16] Q00342-&gt;Q02248 P11440-&gt;Q61183 P00520-&gt;Q07832 P11440-&gt;P62137 P97377-&gt;P62137</span></span>
-<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a><span class="co"># [21] Q00342-&gt;Q60631 P11440-&gt;O54833 P11440-&gt;Q60737 P11440-&gt;Q61501 P11440-&gt;P31938</span></span>
-<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a><span class="co"># [26] P00520-&gt;O08759 P35235-&gt;P34152 Q00342-&gt;P35235 P00520-&gt;P35991 P05480-&gt;P35991</span></span>
-<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a><span class="co"># + ... omitted several edges</span></span></code></pre></div>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="co"># + edges from 51b0010 (vertex names):</span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a><span class="co">#  [1] P46414-&gt;P11440 P62137-&gt;Q63844 O54833-&gt;P53762 Q60737-&gt;P53762 Q00342-&gt;Q02248</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a><span class="co">#  [6] P11440-&gt;Q61183 P11440-&gt;P62137 Q00342-&gt;Q60631 P11440-&gt;O54833 P11440-&gt;Q60737</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a><span class="co"># [11] P11440-&gt;Q61501 P00520-&gt;O08759 P00520-&gt;P35991 O08759-&gt;Q8VDM4 Q61501-&gt;Q08639</span></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a><span class="co"># [16] B2RWS6-&gt;P26323 Q02248-&gt;B2RWS6 Q60631-&gt;P00520 P00520-&gt;P19785 Q00342-&gt;P46414</span></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a><span class="co"># [21] P35991-&gt;P24604 P19785-&gt;O08537</span></span></code></pre></div>
 </div>
 <div id="sp-output-proteins-table-nodes_df" class="section level5">
 <h5>SP output proteins table (nodes_df)</h5>
@@ -814,7 +812,7 @@ pre code {
 <li><p>Molecular function annotation (<strong>mf</strong>);</p></li>
 </ul>
 <div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>toy_sp_output<span class="sc">$</span>nodes_df</span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="co"># # A tibble: 37 × 6</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="co"># # A tibble: 22 × 6</span></span>
 <span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="co">#    name   gene_name carnival_activity mf    final_score discordant</span></span>
 <span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="co">#    &lt;chr&gt;  &lt;chr&gt;                 &lt;dbl&gt; &lt;chr&gt;       &lt;dbl&gt; &lt;lgl&gt;     </span></span>
 <span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="co">#  1 B2RWS6 Ep300                  -100 tf         NA     FALSE     </span></span>
@@ -822,12 +820,12 @@ pre code {
 <span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a><span class="co">#  3 O08759 Ube3a                   100 tf         NA     FALSE     </span></span>
 <span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a><span class="co">#  4 O54833 Csnk2a2                 -50 kin        NA     FALSE     </span></span>
 <span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a><span class="co">#  5 P00520 Abl1                   -100 kin        NA     FALSE     </span></span>
-<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a><span class="co">#  6 P05480 Src                       0 kin        NA     FALSE     </span></span>
-<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a><span class="co">#  7 P11440 Cdk1                   -100 kin        -0.554 FALSE     </span></span>
-<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a><span class="co">#  8 P19785 Esr1                   -100 tf         NA     FALSE     </span></span>
-<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a><span class="co">#  9 P24604 Tec                     100 kin         1.04  FALSE     </span></span>
-<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 10 P26323 Fli1                   -100 tf         -1.73  FALSE     </span></span>
-<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a><span class="co"># # … with 27 more rows</span></span></code></pre></div>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a><span class="co">#  6 P11440 Cdk1                   -100 kin        -0.554 FALSE     </span></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a><span class="co">#  7 P19785 Esr1                   -100 tf         NA     FALSE     </span></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a><span class="co">#  8 P24604 Tec                     100 kin         1.04  FALSE     </span></span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a><span class="co">#  9 P26323 Fli1                   -100 tf         -1.73  FALSE     </span></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 10 P35991 Btk                     100 kin        NA     FALSE     </span></span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a><span class="co"># # … with 12 more rows</span></span></code></pre></div>
 </div>
 <div id="sp-output-interaction-table-edges_df" class="section level5">
 <h5>SP output interaction table (edges_df)</h5>
@@ -844,20 +842,20 @@ pre code {
 </ul></li>
 </ul>
 <div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>toy_sp_output<span class="sc">$</span>edges_df</span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="co"># # A tibble: 53 × 7</span></span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="co">#    source target sign  carnival_weight aminoacid             FC          is_qu…¹</span></span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="co">#    &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt;           &lt;dbl&gt; &lt;chr&gt;                 &lt;chr&gt;       &lt;lgl&gt;  </span></span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="co">#  1 P35235 P70424 -1                  0 &lt;NA&gt;                  &lt;NA&gt;        FALSE  </span></span>
-<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="co">#  2 P46414 P11440 -1                100 &lt;NA&gt;                  &lt;NA&gt;        FALSE  </span></span>
-<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="co">#  3 P34152 P35546 1                   0 &lt;NA&gt;                  &lt;NA&gt;        FALSE  </span></span>
-<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a><span class="co">#  4 Q01279 P19785 1                   0 &lt;NA&gt;                  &lt;NA&gt;        FALSE  </span></span>
-<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a><span class="co">#  5 P35546 Q63844 1                   0 Tyr205                -0.657539   TRUE   </span></span>
-<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a><span class="co">#  6 P28563 Q63844 -1                  0 Tyr205;Thr203*        -0.657539;… TRUE   </span></span>
-<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a><span class="co">#  7 P62137 Q63844 -1                100 &lt;NA&gt;                  &lt;NA&gt;        FALSE  </span></span>
-<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a><span class="co">#  8 P63330 Q63844 -1                  0 Thr203*               -1.98369*   TRUE   </span></span>
-<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a><span class="co">#  9 P31938 Q63844 1                   0 Thr203*;Tyr205;Thr205 -1.98369*;… TRUE   </span></span>
-<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 10 O54833 P53762 -1                 50 &lt;NA&gt;                  &lt;NA&gt;        FALSE  </span></span>
-<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a><span class="co"># # … with 43 more rows, and abbreviated variable name ¹​is_quantified</span></span></code></pre></div>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="co"># # A tibble: 22 × 7</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="co">#    source target sign  carnival_weight aminoacid FC    is_quantified</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="co">#    &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt;           &lt;dbl&gt; &lt;chr&gt;     &lt;chr&gt; &lt;lgl&gt;        </span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="co">#  1 P46414 P11440 -1                100 &lt;NA&gt;      &lt;NA&gt;  FALSE        </span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="co">#  2 P62137 Q63844 -1                100 &lt;NA&gt;      &lt;NA&gt;  FALSE        </span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="co">#  3 O54833 P53762 -1                 50 &lt;NA&gt;      &lt;NA&gt;  FALSE        </span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a><span class="co">#  4 Q60737 P53762 -1                 50 &lt;NA&gt;      &lt;NA&gt;  FALSE        </span></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a><span class="co">#  5 Q00342 Q02248 1                 100 &lt;NA&gt;      &lt;NA&gt;  FALSE        </span></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a><span class="co">#  6 P11440 Q61183 1                 100 &lt;NA&gt;      &lt;NA&gt;  FALSE        </span></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a><span class="co">#  7 P11440 P62137 -1                100 &lt;NA&gt;      &lt;NA&gt;  FALSE        </span></span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a><span class="co">#  8 Q00342 Q60631 1                 100 &lt;NA&gt;      &lt;NA&gt;  FALSE        </span></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a><span class="co">#  9 P11440 O54833 1                  50 &lt;NA&gt;      &lt;NA&gt;  FALSE        </span></span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 10 P11440 Q60737 1                  50 &lt;NA&gt;      &lt;NA&gt;  FALSE        </span></span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a><span class="co"># # … with 12 more rows</span></span></code></pre></div>
 <p>If you want to visualize the network in Cytoscape, we suggest the usage of RCy3 package. You have to open Cytoscape on your laptop and then run the following command.</p>
 <div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>RCy3<span class="sc">::</span><span class="fu">createNetworkFromIgraph</span>(output_final<span class="sc">$</span>igraph_network, </span>
@@ -1063,7 +1061,7 @@ pre code {
 <span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="fu">compute_phenoscore</span>(<span class="at">sp_output =</span> toy_sp_output, </span>
 <span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">desired_phenotypes =</span> <span class="cn">NULL</span>, </span>
 <span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">compact =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a><span class="co"># # A tibble: 493 × 8</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a><span class="co"># # A tibble: 484 × 8</span></span>
 <span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a><span class="co">#    name   gene_name mf    final_score EndPathways        pheno…¹ Path_…² Path_…³</span></span>
 <span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a><span class="co">#    &lt;chr&gt;  &lt;chr&gt;     &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;                &lt;dbl&gt; &lt;chr&gt;     &lt;dbl&gt;</span></span>
 <span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a><span class="co">#  1 P11440 CDK1      kin        -0.554 AMYLOID_FIBRIL_FO…   0.554 CDK1--…       4</span></span>
@@ -1076,7 +1074,7 @@ pre code {
 <span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a><span class="co">#  8 P11440 CDK1      kin        -0.554 AUTOPHAGOSOME_FOR…  12.5   CDK1--…       4</span></span>
 <span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a><span class="co">#  9 P11440 CDK1      kin        -0.554 AUTOPHAGOSOME_FOR…  12.5   CDK1--…       4</span></span>
 <span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a><span class="co"># 10 P11440 CDK1      kin        -0.554 AUTOPHAGOSOME_FOR…  12.5   CDK1--…       4</span></span>
-<span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a><span class="co"># # … with 483 more rows, and abbreviated variable names ¹​phenoSCORE,</span></span>
+<span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a><span class="co"># # … with 474 more rows, and abbreviated variable names ¹​phenoSCORE,</span></span>
 <span id="cb35-20"><a href="#cb35-20" aria-hidden="true" tabindex="-1"></a><span class="co"># #   ²​Path_String, ³​Path_Length</span></span>
 <span id="cb35-21"><a href="#cb35-21" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb35-22"><a href="#cb35-22" aria-hidden="true" tabindex="-1"></a><span class="co"># only desired phenotypes</span></span>
