@@ -308,7 +308,7 @@ toy_prot_activity_df
 
 # ** STEP 1A **
 # infer the activity of transcription factors from transcriptomics data
-tf_activity_f <- run_footprint_based_analysis(omic_data = tr_toy_df, 
+tf_activity_foot <- run_footprint_based_analysis(omic_data = tr_toy_df, 
                                               analysis = 'tfea', 
                                               organism = 'mouse', 
                                               reg_minsize= 1, 
@@ -317,7 +317,7 @@ tf_activity_f <- run_footprint_based_analysis(omic_data = tr_toy_df,
                                               GO_annotation = TRUE)
 
 # infer the activity of kinases and phosphatases from phosphoproteomics data
-kin_phos_activity_f <- run_footprint_based_analysis(omic_data = phospho_toy_df, 
+kin_phos_activity_foot <- run_footprint_based_analysis(omic_data = phospho_toy_df, 
                                               analysis = 'ksea', 
                                               organism = 'mouse', 
                                               reg_minsize= 1, 
