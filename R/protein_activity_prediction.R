@@ -430,7 +430,7 @@ phosphoscore_computation <- function(phosphoproteomic_data,
     phosphoscore_df <- phosphoscore_df_output$phosphoscore_df
   }else if(organism == 'hybrid'){
     phosphoscore_df_output <- phospho_score_hybrid_computation(phosphoproteomic_data,
-                                                        organism, activatory, blastp_path, path_fasta)
+                                                        organism, activatory, blastp_path, path_fasta, local)
 
     phosphoscore_df <- phosphoscore_df_output$phosphoscore_df
   }else{
@@ -730,6 +730,9 @@ map_experimental_on_regulatory_phosphosites <- function(phosphoproteomic_data,
 #' @param organism string specifying human, mouse or hybrid
 #' @param organism boolean value, if activatory or all interactions
 #' @param path_fasta optional, path of phosphoproteomic fasta file
+#' @param activatory
+#' @param blastp_path optional, path of Windows blastp exe file
+#' @param local
 #'
 #' @return list containing used experimental data and phosphoscore dataframe
 #'
@@ -737,6 +740,7 @@ map_experimental_on_regulatory_phosphosites <- function(phosphoproteomic_data,
 phospho_score_hybrid_computation <- function(phosphoproteomic_data,
                                              organism,
                                              activatory,
+                                             blastp_path = NULL,
                                              path_fasta = './phospho.fasta', local){
 
   # phosphoproteomic_data <- JMD_phospho_r
@@ -750,7 +754,8 @@ phospho_score_hybrid_computation <- function(phosphoproteomic_data,
                                                                               activatory = activatory, local)
 
   phosphoscore_df_hybrid_output <- map_experimental_on_regulatory_phosphosites(phosphoproteomic_data, 'hybrid',
-                                                                               activatory = activatory, path_fasta, local)
+                                                                               activatory = activatory,
+                                                                               blastp_path, path_fasta, local)
 
 
   if(is.list(phosphoscore_df_mouse_output) & !is.list(phosphoscore_df_hybrid_output)){
