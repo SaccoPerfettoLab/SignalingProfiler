@@ -51,8 +51,14 @@ The two most important prerequisites for the usage are:
 
 1.  Go to where the installers and source code are available [here](https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/)
 
-2.  Download the ".tar.gz' file. All the commands/binaries are in the *bin* sub-directory.
+2.  Download the ".tar.gz' file for your operating system. All the commands/binaries are in the *bin* sub-directory.
 
+#### Windows systems
+3. **Pay attention to the location where blast is installed, you will need it later** 
+
+It should be something like: "C:\\Program Files\\NCBI\\blast-BLAST_VERSION+\\bin\\blastp".
+
+#### Unix-like systems 
 3.  Add to \$PATH variable the bin blast sub-directory.
 
 ```{r eval = FALSE}
@@ -242,11 +248,28 @@ phosphoscore_mouse <- phosphoscore_computation(phosphoproteomic_data = phospho_t
 #### Activatory analysis in hybrid regulatory phosphosites
 
 **THIS ANALYSIS REQUIRES BLASTP INSTALLED**
+Please check the Prerequisites session.
 
+##### Unix-like systems
 ```{r eval = FALSE}
 phosphoscore_hybrid <- phosphoscore_computation(phosphoproteomic_data = phospho_toy_df, 
                                                organism = 'hybrid', 
                                                activatory = TRUE , 
+                                               GO_annotation= TRUE)
+```
+
+##### Windows systems
+
+For Windows system is dangerous to modify the PATH variable.
+As such, you should specify the path in your system of blastp.
+Since, unfortunately folders have spaces in Windows system, you need to pass the path as a string. So the first quotes represent the ones necessary for the argument itself, the second pairs of quotes represent the ones necessary to handle the spaces in the path!
+
+
+```{r eval = FALSE}
+phosphoscore_hybrid <- phosphoscore_computation(phosphoproteomic_data = phospho_toy_df, 
+                                               organism = 'hybrid', 
+                                               activatory = TRUE ,
+                                               blastp_path = "\"C:\\Program Files\\NCBI\\blast-BLAST_VERSION+\\bin\\blastp\"",
                                                GO_annotation= TRUE)
 ```
 

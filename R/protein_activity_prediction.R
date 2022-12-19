@@ -523,6 +523,8 @@ create_fasta <- function(phospho_df, path){
 #' @param all boolean value representing if you want all alingments
 #' or only the ones with same gene_name
 #' #' @param local FOR DEVELOPMENTAL PURPOSES TO DELETE
+#' @param blastp_path string specifying the blastp path on Windows
+#' @param local boolean TRUE or FALSE, for developing purposes
 #'
 #' @return a list containing:
 #' a dataframe of the sure mouse phosphopeptides aligned on human
@@ -531,18 +533,25 @@ create_fasta <- function(phospho_df, path){
 #' @export
 #'
 #' @examples
-run_blast <- function(path_experimental_fasta_file, all = FALSE, local = FALSE){
+run_blast <- function(path_experimental_fasta_file, all = FALSE,
+                      blastp_path = NULL, local = FALSE){
 
   message('Running blastp')
   #print(local)
-  # path_experimental_fasta_file <- './phospho.fasta'
+  #path_experimental_fasta_file <- './phospho.fasta'
   # local = TRUE
   if(local == TRUE){path_package <- './'
   }else{ path_package <- paste0(.libPaths(), '/SignalingProfiler/')}
 
-  blastp <- paste0('blastp -query ', path_experimental_fasta_file,
-                   ' -subject ', paste0(path_package, 'data/human_phosphosites_db.fasta '),
-                   '-out map2.out -outfmt 7 -evalue 0.05')
+  if(is.null(blastp_path)){
+    blastp <- paste0('blastp -query ', path_experimental_fasta_file,
+                     ' -subject ', paste0(path_package, 'data/human_phosphosites_db.fasta '),
+                     '-out map2.out -outfmt 7 -evalue 0.05')
+  }else{
+    blastp <- paste0(blastp_path, ' -query ', path_experimental_fasta_file,
+                     ' -subject ', paste0(path_package, 'data/human_phosphosites_db.fasta '),
+                     '-out map2.out -outfmt 7 -evalue 0.05')
+  }
 
   system(blastp)
 
@@ -621,6 +630,8 @@ generate_hybrid_db <- function(mh_alignment, activatory){
 #' @param organism string, human mouse or hybrid
 #' @param local DEVELOPMENTAL PURPOSES TRUE OR FALSE
 #'
+#' @param path_fasta
+#' @param blastp_path path of blastp in windows
 #'
 #' @return phosphoscore_df representing experimentally quantified phosphosites
 #' associated to their fold-change
@@ -630,7 +641,9 @@ generate_hybrid_db <- function(mh_alignment, activatory){
 map_experimental_on_regulatory_phosphosites <- function(phosphoproteomic_data,
                                                         organism,
                                                         activatory,
-                                                        path_fasta, local = FALSE){
+                                                        path_fasta,
+                                                        blastp_path = NULL,
+                                                        local = FALSE){
 
   #phosphoproteomic_data <- readRDS('./data/TKD_phospho.RDS')
   # path_fasta = './phospho.fasta'
@@ -662,7 +675,7 @@ map_experimental_on_regulatory_phosphosites <- function(phosphoproteomic_data,
       create_fasta(phosphoproteomic_data, path_fasta)
     }
 
-    reg_phos_db <- generate_hybrid_db(mh_alignment = run_blast(path_fasta, local = local)$mapped,
+    reg_phos_db <- generate_hybrid_db(mh_alignment = run_blast(path_fasta, blastp_path = blastp_path, local = local)$mapped,
                                       activatory)
   }else{
     stop('please provide a valid organism')
