@@ -771,7 +771,7 @@ phospho_score_hybrid_computation <- function(phosphoproteomic_data,
 
     phosphoscore_df_hybrid <- phosphoscore_df_hybrid_output$phosphoscore_df %>%
       dplyr::select(PHOSPHO_KEY_GN_SEQ, inferred_activity, gene_name) %>%
-      dplyr::mutate_at('gene_name', str_to_title)
+      dplyr::mutate_at('gene_name', stringr::str_to_title)
 
     message('Computing Phosphoscore')
     joined_tables <- dplyr::full_join(phosphoscore_df_mouse, phosphoscore_df_hybrid,
