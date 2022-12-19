@@ -430,7 +430,7 @@ phosphoscore_computation <- function(phosphoproteomic_data,
     phosphoscore_df <- phosphoscore_df_output$phosphoscore_df
   }else if(organism == 'hybrid'){
     phosphoscore_df_output <- phospho_score_hybrid_computation(phosphoproteomic_data,
-                                                        organism, activatory, blastp_path, path_fasta, local)
+                                                        organism, activatory, blastp_path, path_fasta)
 
     phosphoscore_df <- phosphoscore_df_output$phosphoscore_df
   }else{
