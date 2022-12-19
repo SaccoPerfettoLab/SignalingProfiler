@@ -538,11 +538,11 @@ create_fasta <- function(phospho_df, path){
 run_blast <- function(path_experimental_fasta_file, all = FALSE,
                       blastp_path = NULL, local = FALSE){
 
-  blastp_path <- "\"C:\\Program Files\\NCBI\\blast-BLAST_VERSION+\\bin\\blastp\""
+  #blastp_path <- "\"C:\\Program Files\\NCBI\\blast-BLAST_VERSION+\\bin\\blastp\""
 
   message('Running blastp')
   #print(local)
-  path_experimental_fasta_file <- './phospho.fasta'
+  #path_experimental_fasta_file <- './phospho.fasta'
   # local = TRUE
   if(local == TRUE){path_package <- './'
   }else{ path_package <- paste0(.libPaths(), '/SignalingProfiler/')}
