@@ -755,7 +755,7 @@ phospho_score_hybrid_computation <- function(phosphoproteomic_data,
 
   phosphoscore_df_hybrid_output <- map_experimental_on_regulatory_phosphosites(phosphoproteomic_data, 'hybrid',
                                                                                activatory = activatory,
-                                                                               blastp_path, path_fasta, local)
+                                                                               blastp_path = blastp_path, path_fasta = path_fasta, local = local)
 
 
   if(is.list(phosphoscore_df_mouse_output) & !is.list(phosphoscore_df_hybrid_output)){
