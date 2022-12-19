@@ -542,7 +542,7 @@ run_blast <- function(path_experimental_fasta_file, all = FALSE,
   #print(local)
   # local = TRUE
   if(local == TRUE){path_package <- './'
-  }else{ path_package <- paste0(.libPaths(), '/SignalingProfiler/')}
+  }else{ path_package <- paste0(.libPaths()[1], '/SignalingProfiler/')}
 
   if(is.null(blastp_path)){
     blastp <- paste0('blastp -query ', path_experimental_fasta_file,
