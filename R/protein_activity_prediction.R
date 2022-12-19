@@ -401,6 +401,7 @@ run_footprint_based_analysis <- function(omic_data, analysis, organism,
 #' @param path_fasta optional
 #' @param local DEVELOPMENTAL PURPOSES
 #' @param GO_annotation boolean value, TRUE perform GO molecular function annotaiton, FALSE default value
+#' @param blastp_path optional, Windows path of blastp
 #'
 #' @return phosphoscore dataset with gene_name, inferred activity and
 #' used phosphosites from experimental data
@@ -411,6 +412,7 @@ phosphoscore_computation <- function(phosphoproteomic_data,
                                     organism,
                                     activatory,
                                     path_fasta = './phospho.fasta',
+                                    blastp_path = NULL,
                                     local = FALSE,
                                     GO_annotation = FALSE){
   message('** RUNNING PHOSPHOSCORE ANALYSIS **')
@@ -428,7 +430,7 @@ phosphoscore_computation <- function(phosphoproteomic_data,
     phosphoscore_df <- phosphoscore_df_output$phosphoscore_df
   }else if(organism == 'hybrid'){
     phosphoscore_df_output <- phospho_score_hybrid_computation(phosphoproteomic_data,
-                                                        organism, activatory, path_fasta, local)
+                                                        organism, activatory, blastp_path, path_fasta, local)
 
     phosphoscore_df <- phosphoscore_df_output$phosphoscore_df
   }else{
