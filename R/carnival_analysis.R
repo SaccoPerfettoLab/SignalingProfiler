@@ -260,6 +260,9 @@ run_carnival_and_create_graph <- function(source_df,
                                           path_sif = './optimized_network.sif',
                                           path_rds = './optimized_network.RDS'){
 
+  message(' ** RUNNING CARNIVAL ** ')
+  message('Credits to Prof. Julio Saez-Rodriguez. For more information visit: https://saezlab.github.io/CARNIVAL/ ')
+
   # discretize initiators
   source_df_disc <- create_discretized_initiators_for_carnival(source_df)
 

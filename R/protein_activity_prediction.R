@@ -348,6 +348,7 @@ run_footprint_based_analysis <- function(omic_data, analysis, organism,
                                          GO_annotation = FALSE){
 
   message(' ** RUNNING FOOTPRINT BASED ANALYSIS ** ')
+  message('Credits to Prof. Julio Saez-Rodriguez. For more information read this article: Dugourd A, Saez-Rodriguez J. Footprint-based functional analysis of multiomic data. Curr Opin Syst Biol. 2019 Jun;15:82-90. doi: 10.1016/j.coisb.2019.04.002. PMID: 32685770; PMCID: PMC7357600.')
 
   # omic_data <- readRDS('./data/JMD_phospho.RDS')
   # # omic_data <- phospho_toy_df
@@ -862,6 +863,8 @@ combine_footprint_and_phosphoscore <- function(footprint_output, phosphoscore_df
 #'
 #' @examples
 activity_from_proteomics <- function(prot_df, organism){
+
+  message('** COMPUTING PROTEOSCORE **')
 
   prot_df <- prot_df %>%
     dplyr::filter(significant == '+') %>%
