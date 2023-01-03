@@ -21,6 +21,9 @@ R \>= 4.1 is required
 devtools::install_github('https://github.com/SaccoPerfettoLab/SignalingProfiler/')
 ```
 
+SignalingProfiler is currently under active development, as such we suggest to delete and re-install the package regularly 
+to exploit the new features. 
+
 ## Prerequisites
 
 Signaling Profiler is dependent on Saez lab algorithm CARNIVAL for performing the signalling pathway optimization. You can find all the instruction for installation in Saez lab repository [CARNIVAL](https://saezlab.github.io/CARNIVAL/).
@@ -30,6 +33,8 @@ Signaling Profiler is dependent on Saez lab algorithm CARNIVAL for performing th
 You can find the tutorial of Signaling Profiler [here](https://htmlpreview.github.io/?https://github.com/SaccoPerfettoLab/SignalingProfiler/blob/main/vignettes/SignalingProfiler_vignette.html). 
 
 ## Citation
-If you use Signaling Profiler for your research please cite the [BioRxiv publication](https://www.biorxiv.org/content/10.1101/2022.05.16.492070v1).
+If you use SignalingProfiler for your research please cite the [original publication](https://www.nature.com/articles/s41375-022-01785-w).
+
+> Massacci, G., Venafra, V., Latini, S. et al. A key role of the WEE1-CDK1 axis in mediating TKI-therapy resistance in FLT3-ITD positive acute myeloid leukemia patients. Leukemia (2022). https://doi.org/10.1038/s41375-022-01785-w
 
 ## License
