@@ -420,8 +420,8 @@ phosphoscore_computation <- function(phosphoproteomic_data,
 
   # phosphoproteomic_data <- readRDS('./data/TKD_phospho.RDS') %>% mutate_at('gene_name', str_to_title)
   # path_fasta = './phospho.fasta'
-  # organism = 'hybrid'
-  # activatory = FALSE
+  # organism = 'human'
+  # activatory = TRUE
   # local = TRUE
   # GO_annotation = FALSE
 
@@ -468,7 +468,7 @@ phosphoscore_computation <- function(phosphoproteomic_data,
   }
 
   # add uniprot and molecular function
-  output <- convert_gene_name_in_uniprotid(bio_dataset = output, organism = 'mouse')
+  output <- convert_gene_name_in_uniprotid(bio_dataset = output, organism = organism)
 
   if(GO_annotation == TRUE){
     output <- molecular_function_annotation(output) %>%
