@@ -870,7 +870,7 @@ activity_from_proteomics <- function(prot_df, organism){
     dplyr::filter(significant == '+') %>%
     dplyr::select(gene_name, difference)
 
-  prot_df <- convert_gene_name_in_uniprotid(prot_df, 'mouse')
+  prot_df <- convert_gene_name_in_uniprotid(prot_df, organism)
 
   prot_df <- molecular_function_annotation(prot_df)
 
