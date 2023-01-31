@@ -454,7 +454,8 @@ phosphoscore_computation <- function(phosphoproteomic_data,
 
   exp_fc_sub <- dplyr::left_join(exp_fc_sub,
                                  phosphoscore_df %>%
-                                   dplyr::select(PHOSPHO_KEY_GN_SEQ, ACTIVATION, difference))
+                                   dplyr::select(PHOSPHO_KEY_GN_SEQ, ACTIVATION, difference),
+                                 by = 'PHOSPHO_KEY_GN_SEQ')
 
   exp_fc_sub <- exp_fc_sub %>%
     dplyr::mutate(aa = paste0(aminoacid, position),
