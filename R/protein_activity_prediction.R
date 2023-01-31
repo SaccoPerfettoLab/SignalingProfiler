@@ -447,14 +447,16 @@ phosphoscore_computation <- function(phosphoproteomic_data,
 
   exp_fc_sub <- phosphoscore_df_output$used_exp_data %>%
     dplyr::mutate_at('PHOSPHO_KEY_GN_SEQ', toupper) %>%
-    dplyr::select(gene_name, PHOSPHO_KEY_GN_SEQ, aminoacid, position) %>% dplyr::distinct()
+    dplyr::select(gene_name, PHOSPHO_KEY_GN_SEQ, ACTIVATION, aminoacid, position) %>%
+    dplyr::distinct()
 
   exp_fc_sub <- exp_fc_sub %>%
     dplyr::mutate(aa = paste0(aminoacid, position),
                   gene_name = (gene_name)) %>%
     dplyr::group_by(gene_name) %>%
     dplyr::summarise(n_sign_phos = dplyr::n(),
-                     phos = paste0(aa, collapse = ';'))
+                     phos = paste0(aa, collapse = ';'),
+                     activ = paste0(ACTIVATION, collapse = ';'))
 
   output <- dplyr::left_join(raw_output, exp_fc_sub, by = 'gene_name')
 
