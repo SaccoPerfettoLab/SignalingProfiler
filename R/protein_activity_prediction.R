@@ -418,9 +418,11 @@ phosphoscore_computation <- function(phosphoproteomic_data,
                                     GO_annotation = FALSE){
   message('** RUNNING PHOSPHOSCORE ANALYSIS **')
 
-  # phosphoproteomic_data <- readRDS('./data/TKD_phospho.RDS') %>% mutate_at('gene_name', str_to_title)
+  # load('./data/phospho_toy_df.rda')
+  # phosphoproteomic_data <- phospho_toy_df %>%
+  #   mutate_at('gene_name', str_to_title)
   # path_fasta = './phospho.fasta'
-  # organism = 'human'
+  # organism = 'mouse'
   # activatory = TRUE
   # local = TRUE
   # GO_annotation = FALSE
@@ -446,17 +448,23 @@ phosphoscore_computation <- function(phosphoproteomic_data,
 
 
   exp_fc_sub <- phosphoscore_df_output$used_exp_data %>%
-    dplyr::mutate_at('PHOSPHO_KEY_GN_SEQ', toupper) %>%
-    dplyr::select(gene_name, PHOSPHO_KEY_GN_SEQ, ACTIVATION, aminoacid, position) %>%
+    #dplyr::mutate_at('PHOSPHO_KEY_GN_SEQ', toupper) %>%
+    dplyr::select(gene_name, PHOSPHO_KEY_GN_SEQ, aminoacid, position) %>%
     dplyr::distinct()
+
+  exp_fc_sub <- dplyr::left_join(exp_fc_sub,
+                                 phosphoscore_df %>%
+                                   dplyr::select(PHOSPHO_KEY_GN_SEQ, ACTIVATION, difference))
 
   exp_fc_sub <- exp_fc_sub %>%
     dplyr::mutate(aa = paste0(aminoacid, position),
-                  gene_name = (gene_name)) %>%
+                  gene_name = (gene_name),
+                  difference = as.character(round(exp_fc_sub$difference,2))) %>%
     dplyr::group_by(gene_name) %>%
     dplyr::summarise(n_sign_phos = dplyr::n(),
                      phos = paste0(aa, collapse = ';'),
-                     activ = paste0(ACTIVATION, collapse = ';'))
+                     act_rol = paste0(ACTIVATION, collapse =';'),
+                     phosphosite_fc = paste0(difference, collapse =';'))
 
   output <- dplyr::left_join(raw_output, exp_fc_sub, by = 'gene_name')
 
