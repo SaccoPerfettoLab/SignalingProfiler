@@ -204,6 +204,7 @@ get_all_shortest_path_custom <- function(start_nodes_gn, target_nodes_gn, organi
 #'
 #' @examples
 create_graph_from_paths <- function(all_paths_df, organism){
+
   if(organism == 'mouse'){
     PKN_table <- PKN_mouse
   }else if(organism == 'human'){
@@ -220,12 +221,12 @@ create_graph_from_paths <- function(all_paths_df, organism){
 
   nodes_paths_df <- dplyr::bind_rows(edges_paths_df %>% dplyr::select(ENTITY = ENTITYA, ID = IDA),
                                      edges_paths_df %>% dplyr::select(ENTITY = ENTITYB, ID = IDB)) %>%
-    dplyr::distinct() %>%
+    dplyr::distinct(ID,.keep_all = TRUE) %>% #
     dplyr::relocate(ID)
-
 
   graph <- igraph::graph_from_data_frame(d = edges_paths_df, vertices = nodes_paths_df)
 
   return(graph)
 }
+
 
