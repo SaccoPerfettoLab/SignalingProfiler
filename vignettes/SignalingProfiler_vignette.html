@@ -988,12 +988,12 @@ biologically relevant. So it is pretty much empirical.</p></li>
 <span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">max_length =</span> <span class="dv">4</span>)</span>
 <span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>                            </span>
 <span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>one_layer_toy</span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="co"># IGRAPH 88a04a7 DN-- 37 118 -- </span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="co"># IGRAPH 735215e DN-- 37 118 -- </span></span>
 <span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a><span class="co"># + attr: name (v/c), ENTITY (v/c), mf_naive (v/c), ENTITYA (e/c),</span></span>
 <span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a><span class="co"># | INTERACTION (e/n), ENTITYB (e/c), TYPEA (e/c), DATABASEA (e/c), TYPEB</span></span>
 <span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a><span class="co"># | (e/c), DATABASEB (e/c), MECHANISM (e/c), RESIDUE (e/c), SEQUENCE</span></span>
 <span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a><span class="co"># | (e/c), SCORE (e/n), GROUP (e/l), PHOSPHO_KEY_GN_SEQ (e/c)</span></span>
-<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a><span class="co"># + edges from 88a04a7 (vertex names):</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a><span class="co"># + edges from 735215e (vertex names):</span></span>
 <span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a><span class="co">#  [1] Q00342-&gt;Q60631 Q00342-&gt;P35235 Q60631-&gt;P00520 P35235-&gt;P05480 P35235-&gt;P05480</span></span>
 <span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a><span class="co">#  [6] P00520-&gt;P35991 P00520-&gt;P35991 P05480-&gt;P35991 P35991-&gt;P24604 Q00342-&gt;Q60631</span></span>
 <span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a><span class="co"># [11] Q00342-&gt;P35235 Q00342-&gt;P46414 Q60631-&gt;P00520 P35235-&gt;P70424 P35235-&gt;P05480</span></span>
@@ -1056,7 +1056,7 @@ estimated change of activity upon our perturbation. If
 <div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>receptor_list <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="st">&#39;Flt3&#39;</span> <span class="ot">=</span> <span class="sc">-</span><span class="dv">1</span>)</span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>carnival_input <span class="ot">&lt;-</span> <span class="fu">prepare_carnival_input</span>(one_layer_toy, </span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>                                         toy_prot_activity_df, receptor_list)</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>                                         toy_prot_activity_df, receptor_list, <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>)</span>
 <span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>                                                                             </span>
 <span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>                                                                                                          </span></code></pre></div>
 <p>An example of the result is in this built-in object</p>

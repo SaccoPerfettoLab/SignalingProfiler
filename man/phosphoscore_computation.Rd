@@ -9,6 +9,7 @@ phosphoscore_computation(
   organism,
   activatory,
   path_fasta = "./phospho.fasta",
+  blastp_path = NULL,
   local = FALSE,
   GO_annotation = FALSE
 )
@@ -21,6 +22,8 @@ phosphoscore_computation(
 \item{activatory}{boolean value}
 
 \item{path_fasta}{optional}
+
+\item{blastp_path}{optional, Windows path of blastp}
 
 \item{local}{DEVELOPMENTAL PURPOSES}
 

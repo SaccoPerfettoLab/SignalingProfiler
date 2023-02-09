@@ -4,7 +4,12 @@
 \alias{run_blast}
 \title{Title}
 \usage{
-run_blast(path_experimental_fasta_file, all = FALSE, local = FALSE)
+run_blast(
+  path_experimental_fasta_file,
+  all = FALSE,
+  blastp_path = NULL,
+  local = FALSE
+)
 }
 \arguments{
 \item{path_experimental_fasta_file}{string representing path of
@@ -13,6 +18,10 @@ phosphoproteomics data in fasta file}
 \item{all}{boolean value representing if you want all alingments
 or only the ones with same gene_name
 #' @param local FOR DEVELOPMENTAL PURPOSES TO DELETE}
+
+\item{blastp_path}{string specifying the blastp path on Windows}
+
+\item{local}{boolean TRUE or FALSE, for developing purposes}
 }
 \value{
 a list containing:
