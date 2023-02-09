@@ -501,7 +501,7 @@ Here, we prepare the input for the third step of Signaling Profiler.
 receptor_list <- list('Flt3' = -1)
 
 carnival_input <- prepare_carnival_input(one_layer_toy, 
-                                         toy_prot_activity_df, receptor_list)
+                                         toy_prot_activity_df, receptor_list, organism = 'mouse')
                                                                              
                                                                                                           
 ```

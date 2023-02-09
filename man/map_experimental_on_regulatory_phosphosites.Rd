@@ -9,6 +9,7 @@ map_experimental_on_regulatory_phosphosites(
   organism,
   activatory,
   path_fasta,
+  blastp_path = NULL,
   local = FALSE
 )
 }
@@ -18,6 +19,8 @@ map_experimental_on_regulatory_phosphosites(
 \item{organism}{string, human mouse or hybrid}
 
 \item{activatory}{boolean value, if relation activatory or all}
+
+\item{blastp_path}{path of blastp in windows}
 
 \item{local}{DEVELOPMENTAL PURPOSES TRUE OR FALSE}
 }

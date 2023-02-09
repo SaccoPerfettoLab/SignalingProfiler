@@ -4,7 +4,7 @@
 \alias{prepare_carnival_input}
 \title{prepare_carnival_input}
 \usage{
-prepare_carnival_input(naive_network, prediction_output, recept_list)
+prepare_carnival_input(naive_network, prediction_output, recept_list, organism)
 }
 \arguments{
 \item{naive_network}{naive network connecting inferred proteins}
@@ -12,6 +12,8 @@ prepare_carnival_input(naive_network, prediction_output, recept_list)
 \item{prediction_output}{inferred proteins from experimental data}
 
 \item{recept_list}{list of receptors with their desired activity or NULL if you don't have any}
+
+\item{organism}{string, 'human' or 'mouse'}
 }
 \value{
 inferred protein filtered for presence in naive network

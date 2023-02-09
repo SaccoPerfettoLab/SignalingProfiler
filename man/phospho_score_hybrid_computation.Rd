@@ -8,6 +8,7 @@ phospho_score_hybrid_computation(
   phosphoproteomic_data,
   organism,
   activatory,
+  blastp_path = NULL,
   path_fasta = "./phospho.fasta",
   local
 )
@@ -17,7 +18,11 @@ phospho_score_hybrid_computation(
 
 \item{organism}{boolean value, if activatory or all interactions}
 
+\item{blastp_path}{optional, path of Windows blastp exe file}
+
 \item{path_fasta}{optional, path of phosphoproteomic fasta file}
+
+\item{local}{}
 }
 \value{
 list containing used experimental data and phosphoscore dataframe
