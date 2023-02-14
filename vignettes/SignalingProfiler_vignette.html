@@ -924,21 +924,40 @@ user-specified receptor(s). These receptor(s) could represent:</p>
 <li>some mutated genes in your biological process;</li>
 </ul>
 <p>Here, we create what we call a <strong>naïve network</strong>, a
-graph connecting your proteins through ALL the possible SHORTEST causal
-paths of a user-specified length (1 to 4). We don’t consider the
-causality of the edges, just distance. As such, in this naïve network
-there may be two paths with same length, but different causal
-meaning.</p>
-<p>In this step, you are building the skeleton of the signal in your
+graph connecting your proteins through <strong>ALL</strong> the possible
+<strong>SHORTEST</strong> causal paths of a user-specified length (1 to
+4). We don’t consider the causality of the edges, just distance. As
+such, in the naïve network there may be two paths with same length, but
+different causal meaning.</p>
+<p>In this step, you are building the skeleton of the signal of your
 cellular model, looking across all the possible routes available in
-SIGNOR and PsP databases. These databases are available for both
+SIGNOR and PsP databases. We call the set of interactions <strong>Prior
+Knowledge Network (PKN)</strong>. These databases are available for both
 <em>human</em> and <em>mouse</em> organisms, as built-in objects in the
 package, in tabular (<code>PKN_mouse</code>, <code>PKN_human</code>) and
 igraph object format (<code>db_mouse</code>, <code>db_human</code>).</p>
+<div id="preprocessing-of-the-pkn" class="section level3">
+<h3>Preprocessing of the PKN</h3>
+<p>Since the <strong>PKN</strong> contains interactions coming from
+different experimental systems, a good practice is to keep only the
+interactions involving analytes expressed in your system, so quantified
+in at least one of your omics data sets.</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>PKN_expressed <span class="ot">&lt;-</span> <span class="fu">preprocess_PKN</span>(<span class="at">omics_data =</span> <span class="fu">list</span>(tr_toy_df, prot_toy_df, phospho_toy_df),</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>                                <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>)</span></code></pre></div>
+<p>You can work with the whole organism-specific PKN tables, otherwise
+(<code>PKN_mouse</code>, <code>PKN_human</code>).</p>
+</div>
+<div id="assess-coverage-of-the-pkn" class="section level3">
+<h3>Assess coverage of the PKN</h3>
 <p>Even if you inferred the activity of a protein, it may be absent in
-the databases. So a good practice is to check for database coverage of
+the PKN. As such, a good practice is to check for database coverage of
 your inferred proteins data set.</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coverage_of_inferred_proteins_in_db</span>(toy_prot_activity_df, <span class="st">&#39;mouse&#39;</span>, <span class="at">report =</span> <span class="cn">FALSE</span>) </span></code></pre></div>
+<p>If you set <code>report=TRUE</code>, a report file is written in your
+working directory.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coverage_of_inferred_proteins_in_db</span>(toy_prot_activity_df, <span class="st">&#39;mouse&#39;</span>, <span class="at">report =</span> <span class="cn">FALSE</span>) </span></code></pre></div>
+</div>
+<div id="how-to-build-a-naïve-network" class="section level3">
+<h3>How to build a naïve network?</h3>
 <p>You can build the naïve network in three ways:</p>
 <ul>
 <li><p>ONE LAYER NETWORK: from <strong>starting proteins</strong> (e.g.,
@@ -979,66 +998,55 @@ layers, deeper you go in the molecular mechanism behind your
 experimental condition; but, it is also true that longer path aren’t
 biologically relevant. So it is pretty much empirical.</p></li>
 </ul>
+</div>
 <div id="one-layer-network" class="section level3">
 <h3>One layer network</h3>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>one_layer_toy <span class="ot">&lt;-</span> <span class="fu">one_layer_naive_network</span>(<span class="at">starts_gn =</span> <span class="fu">c</span>(<span class="st">&#39;Flt3&#39;</span>),</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">targets_gn =</span> toy_prot_activity_df<span class="sc">$</span>gene_name,</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">max_length =</span> <span class="dv">4</span>)</span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>                            </span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>one_layer_toy</span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="co"># IGRAPH 735215e DN-- 37 118 -- </span></span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a><span class="co"># + attr: name (v/c), ENTITY (v/c), mf_naive (v/c), ENTITYA (e/c),</span></span>
-<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a><span class="co"># | INTERACTION (e/n), ENTITYB (e/c), TYPEA (e/c), DATABASEA (e/c), TYPEB</span></span>
-<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a><span class="co"># | (e/c), DATABASEB (e/c), MECHANISM (e/c), RESIDUE (e/c), SEQUENCE</span></span>
-<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a><span class="co"># | (e/c), SCORE (e/n), GROUP (e/l), PHOSPHO_KEY_GN_SEQ (e/c)</span></span>
-<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a><span class="co"># + edges from 735215e (vertex names):</span></span>
-<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a><span class="co">#  [1] Q00342-&gt;Q60631 Q00342-&gt;P35235 Q60631-&gt;P00520 P35235-&gt;P05480 P35235-&gt;P05480</span></span>
-<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a><span class="co">#  [6] P00520-&gt;P35991 P00520-&gt;P35991 P05480-&gt;P35991 P35991-&gt;P24604 Q00342-&gt;Q60631</span></span>
-<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a><span class="co"># [11] Q00342-&gt;P35235 Q00342-&gt;P46414 Q60631-&gt;P00520 P35235-&gt;P70424 P35235-&gt;P05480</span></span>
-<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a><span class="co"># [16] P35235-&gt;Q01279 P35235-&gt;Q01279 P35235-&gt;P05480 P46414-&gt;P97377 P00520-&gt;P19785</span></span>
-<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a><span class="co"># [21] P00520-&gt;P19785 P70424-&gt;P19785 P05480-&gt;P31750 P05480-&gt;P31750 P05480-&gt;P31750</span></span>
-<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a><span class="co"># + ... omitted several edges</span></span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>one_layer_toy <span class="ot">&lt;-</span> <span class="fu">one_layer_naive_network</span>(<span class="at">starts_gn =</span> <span class="fu">c</span>(<span class="st">&#39;Flt3&#39;</span>),</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">targets_gn =</span> toy_prot_activity_df<span class="sc">$</span>gene_name,</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">PKN_table =</span> PKN_expressed, <span class="co">#or PKN_mouse </span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">max_length =</span> <span class="dv">4</span>)</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>                            </span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>one_layer_toy</span></code></pre></div>
 </div>
 <div id="two-layers-network" class="section level3">
 <h3>Two layers network</h3>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="co"># divide proteins according to the molecular function</span></span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>kin_phos_other <span class="ot">&lt;-</span> toy_prot_activity_df <span class="sc">%&gt;%</span> </span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&#39;kin&#39;</span>, <span class="st">&#39;phos&#39;</span>, <span class="st">&#39;other&#39;</span>))</span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>tfs <span class="ot">&lt;-</span> toy_prot_activity_df <span class="sc">%&gt;%</span> </span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">==</span> <span class="st">&#39;tf&#39;</span>)</span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="co"># create the naïve network</span></span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>two_layers_toy <span class="ot">&lt;-</span> <span class="fu">two_layer_naive_network</span>(<span class="at">starts_gn =</span> <span class="fu">c</span>(<span class="st">&#39;Flt3&#39;</span>),</span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>                             <span class="at">intermediate_gn =</span> kin_phos_other<span class="sc">$</span>gene_name,</span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>                             <span class="at">targets_gn =</span> tfs<span class="sc">$</span>gene_name, </span>
-<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>                             <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>, </span>
-<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>                             <span class="at">max_length_1 =</span> <span class="dv">4</span>, </span>
-<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>                             <span class="at">max_length_2 =</span> <span class="dv">4</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="co"># divide proteins according to the molecular function</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>kin_phos_other <span class="ot">&lt;-</span> toy_prot_activity_df <span class="sc">%&gt;%</span> </span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&#39;kin&#39;</span>, <span class="st">&#39;phos&#39;</span>, <span class="st">&#39;other&#39;</span>))</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>tfs <span class="ot">&lt;-</span> toy_prot_activity_df <span class="sc">%&gt;%</span> </span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">==</span> <span class="st">&#39;tf&#39;</span>)</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="co"># create the naïve network</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>two_layers_toy <span class="ot">&lt;-</span> <span class="fu">two_layer_naive_network</span>(<span class="at">starts_gn =</span> <span class="fu">c</span>(<span class="st">&#39;Flt3&#39;</span>),</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>                             <span class="at">intermediate_gn =</span> kin_phos_other<span class="sc">$</span>gene_name,</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>                             <span class="at">targets_gn =</span> tfs<span class="sc">$</span>gene_name, </span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>                             <span class="at">PKN_table =</span> PKN_expressed, <span class="co">#or PKN_mouse</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>                             <span class="at">max_length_1 =</span> <span class="dv">4</span>, </span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>                             <span class="at">max_length_2 =</span> <span class="dv">4</span>)</span></code></pre></div>
 </div>
 <div id="three-layers-network" class="section level3">
 <h3>Three layers network</h3>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="co"># divide proteins according to the molecular function</span></span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>kin_phos <span class="ot">&lt;-</span> toy_prot_activity_df <span class="sc">%&gt;%</span> </span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&#39;kin&#39;</span>, <span class="st">&#39;phos&#39;</span>))</span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>other <span class="ot">&lt;-</span> toy_prot_activity_df <span class="sc">%&gt;%</span> </span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">==</span> <span class="st">&#39;other&#39;</span>)</span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>tfs <span class="ot">&lt;-</span> toy_prot_activity_df <span class="sc">%&gt;%</span> </span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">==</span> <span class="st">&#39;tf&#39;</span>)</span>
-<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a><span class="co"># create the naïve network</span></span>
-<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>three_layers_toy <span class="ot">&lt;-</span> <span class="fu">three_layer_naive_network</span>(<span class="at">starts_gn =</span> <span class="fu">c</span>(<span class="st">&#39;Flt3&#39;</span>),</span>
-<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">intermediate1_gn =</span> kin_phos<span class="sc">$</span>gene_name,</span>
-<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">intermediate2_gn =</span> other<span class="sc">$</span>gene_name,</span>
-<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">targets_gn =</span> tfs<span class="sc">$</span>gene_name,</span>
-<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">both_intermediates =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>, </span>
-<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">max_length_1 =</span> <span class="dv">4</span>,</span>
-<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">max_length_2 =</span> <span class="dv">1</span>,</span>
-<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">max_length_3 =</span> <span class="dv">4</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="co"># divide proteins according to the molecular function</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>kin_phos <span class="ot">&lt;-</span> toy_prot_activity_df <span class="sc">%&gt;%</span> </span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&#39;kin&#39;</span>, <span class="st">&#39;phos&#39;</span>))</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>other <span class="ot">&lt;-</span> toy_prot_activity_df <span class="sc">%&gt;%</span> </span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">==</span> <span class="st">&#39;other&#39;</span>)</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>tfs <span class="ot">&lt;-</span> toy_prot_activity_df <span class="sc">%&gt;%</span> </span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">==</span> <span class="st">&#39;tf&#39;</span>)</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a><span class="co"># create the naïve network</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>three_layers_toy <span class="ot">&lt;-</span> <span class="fu">three_layer_naive_network</span>(<span class="at">starts_gn =</span> <span class="fu">c</span>(<span class="st">&#39;Flt3&#39;</span>),</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">intermediate1_gn =</span> kin_phos<span class="sc">$</span>gene_name,</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">intermediate2_gn =</span> other<span class="sc">$</span>gene_name,</span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">targets_gn =</span> tfs<span class="sc">$</span>gene_name,</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">both_intermediates =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">PKN_table =</span> PKN_expressed, <span class="co">#or PKN_mouse</span></span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">max_length_1 =</span> <span class="dv">4</span>,</span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">max_length_2 =</span> <span class="dv">1</span>,</span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">max_length_3 =</span> <span class="dv">4</span>)</span></code></pre></div>
 </div>
 <div id="prepare-carnival-input" class="section level3">
 <h3>Prepare CARNIVAL input</h3>
@@ -1053,43 +1061,67 @@ network.</p></li>
 estimated change of activity upon our perturbation. If
 <code>receptor_list = NULL</code> you don’t add any receptor.</p></li>
 </ul>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>receptor_list <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="st">&#39;Flt3&#39;</span> <span class="ot">=</span> <span class="sc">-</span><span class="dv">1</span>)</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>carnival_input <span class="ot">&lt;-</span> <span class="fu">prepare_carnival_input</span>(one_layer_toy, </span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>                                         toy_prot_activity_df, receptor_list, <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>)</span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>                                                                             </span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>                                                                                                          </span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>receptor_list <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="st">&#39;Flt3&#39;</span> <span class="ot">=</span> <span class="sc">-</span><span class="dv">1</span>)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>carnival_input <span class="ot">&lt;-</span> <span class="fu">prepare_carnival_input</span>(one_layer_toy, </span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>                                         toy_prot_activity_df, receptor_list, <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>)</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>                                                                             </span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>                                                                                                          </span></code></pre></div>
 <p>An example of the result is in this built-in object</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>carnival_input_toy</span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="co"># # A tibble: 12 × 5</span></span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="co">#    UNIPROT gene_name mf    method             final_score</span></span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="co">#    &lt;chr&gt;   &lt;chr&gt;     &lt;chr&gt; &lt;chr&gt;                    &lt;dbl&gt;</span></span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="co">#  1 Q00342  Flt3      rec   user                    -1    </span></span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="co">#  2 P53762  Arnt      tf    VIPER                    3.50 </span></span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="co">#  3 P28658  Atxn10    other proteoscore             -0.576</span></span>
-<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="co">#  4 P11440  Cdk1      kin   VIPER+PhosphoScore      -0.554</span></span>
-<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a><span class="co">#  5 O08537  Esr2      tf    VIPER                   -2.17 </span></span>
-<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a><span class="co">#  6 P26323  Fli1      tf    VIPER                   -1.73 </span></span>
-<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a><span class="co">#  7 Q63844  Mapk3     kin   PhosphoScore            -1.98 </span></span>
-<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a><span class="co">#  8 Q61183  Papola    other PhosphoScore            -0.670</span></span>
-<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a><span class="co">#  9 Q8VDM4  Psmd2     other PhosphoScore            -0.813</span></span>
-<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 10 Q60864  Stip1     other proteoscore             -0.329</span></span>
-<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a><span class="co"># 11 P24604  Tec       kin   proteoscore              1.04 </span></span>
-<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a><span class="co"># 12 Q08639  Tfdp1     tf    VIPER                   -2.68</span></span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>carnival_input_toy</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="co"># # A tibble: 12 × 5</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="co">#    UNIPROT gene_name mf    method             final_score</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="co">#    &lt;chr&gt;   &lt;chr&gt;     &lt;chr&gt; &lt;chr&gt;                    &lt;dbl&gt;</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="co">#  1 Q00342  Flt3      rec   user                    -1    </span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="co">#  2 P53762  Arnt      tf    VIPER                    3.50 </span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="co">#  3 P28658  Atxn10    other proteoscore             -0.576</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a><span class="co">#  4 P11440  Cdk1      kin   VIPER+PhosphoScore      -0.554</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a><span class="co">#  5 O08537  Esr2      tf    VIPER                   -2.17 </span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="co">#  6 P26323  Fli1      tf    VIPER                   -1.73 </span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a><span class="co">#  7 Q63844  Mapk3     kin   PhosphoScore            -1.98 </span></span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a><span class="co">#  8 Q61183  Papola    other PhosphoScore            -0.670</span></span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a><span class="co">#  9 Q8VDM4  Psmd2     other PhosphoScore            -0.813</span></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 10 Q60864  Stip1     other proteoscore             -0.329</span></span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a><span class="co"># 11 P24604  Tec       kin   proteoscore              1.04 </span></span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a><span class="co"># 12 Q08639  Tfdp1     tf    VIPER                   -2.68</span></span></code></pre></div>
 </div>
 </div>
 <div id="step-3-optimization-of-naïve-network-and-creation-of-a-context-specific-model" class="section level2">
 <h2>Step 3) Optimization of naïve network and creation of a
 context-specific model</h2>
+<div id="setting-carnival-algorithm-parameters-ilp-solver" class="section level3">
+<h3>Setting CARNIVAL algorithm parameters (ILP solver)</h3>
 <p>This step optimizes the naïve network in a context-specific model
-through CARNIVAL algorithm. It is crucial to install the ILP solver
-required by CARNIVAL and to know its name and path.</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>solver <span class="ot">=</span> <span class="st">&#39;cplex&#39;</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>solver_path <span class="ot">=</span> <span class="st">&#39;/Applications/CPLEX_Studio221/cplex/bin/x86-64_osx/cplex&#39;</span> <span class="co">#for macOS</span></span></code></pre></div>
+through CARNIVAL algorithm.</p>
+<p>It is crucial to install the ILP solver (we suggest
+<strong><em>cplex</em></strong>) required by CARNIVAL and specify its
+name to set the default options of the algorithm.</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>solver <span class="ot">=</span> <span class="st">&#39;cplex&#39;</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>carnival_options <span class="ot">=</span> <span class="fu">default_CARNIVAL_options</span>(solver)</span></code></pre></div>
+<p>It is very important to know the <em>path</em> of the ILP
+software.<br />
+If you didn’t install it using the default path you can set the custom
+path here.</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="co">#for Windows</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>carnival_options<span class="sc">$</span>solverPath <span class="ot">=</span> <span class="st">&quot;C:/Program Files/CPLEX_solver/cplex/bin/x64_win64/cplex.exe&quot;</span> </span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="co">#for macOS</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>carnival_options<span class="sc">$</span>solverPath <span class="ot">=</span> <span class="st">&#39;/Applications/CPLEX_Studio221/cplex/bin/x86-64_osx/cplex&#39;</span> </span></code></pre></div>
+<p>Then, you can customize the parameters of the solver.<br />
+We suggest to first try using the default parameters.</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>carnival_options<span class="sc">$</span>threads <span class="ot">&lt;-</span> <span class="dv">2</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>carnival_options<span class="sc">$</span>mipGAP <span class="ot">&lt;-</span> <span class="fl">0.05</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>carnival_options<span class="sc">$</span>timelimit <span class="ot">&lt;-</span> <span class="dv">3600</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>carnival_options<span class="sc">$</span>cplexMemoryLimit <span class="ot">&lt;-</span> <span class="dv">8192</span></span></code></pre></div>
+</div>
+<div id="what-do-you-do-in-this-step" class="section level3">
+<h3>What do you do in this step?</h3>
 <p>The naïve network contains all the shortest paths among two proteins:
 this means that you may have two paths with same length but different
-causal meaning. CARNIVAL chooses the paths with causal effect coherent
-with proteins’ activities along the path.</p>
+causal meaning.</p>
+<p><strong>CARNIVAL chooses the paths with causal effect being coherent
+with proteins’ activities along the path.</strong></p>
 <p>To run CARNIVAL algorithm you need to:</p>
 <ul>
 <li><p>Create a tibble with the starting point(s) of the model
@@ -1101,62 +1133,62 @@ the file in your working directory)
 (<strong>naïve_network</strong>);</p></li>
 <li><p>Provide the whole inferred proteins tibble
 (<strong>proteins_df</strong>);</p></li>
-<li><p>If you use a ILP solver different than the default one you have
-to specify its name and path (it’s highly recommended to choose
-CPLEX);</p></li>
+<li><p>Provide the CARNIVAL options you created in the former step
+(<strong>carnival_options</strong>);</p></li>
 </ul>
 <p>It is important to stress that CARNIVAL will find the SMALLEST model
 connecting your inferred proteins with causal edges coherent with their
-activity. As such, you may loose some proteins. To keep the largest
-number of proteins and a greater number of mechanistic hypotheses, you
-can perform a two- or three-steps CARNIVAL.</p>
+activity. As such, you may lose some proteins.</p>
+<p>To keep the largest number of proteins and a greater number of
+mechanistic hypotheses, you can perform a two- or three-steps
+CARNIVAL.</p>
+</div>
 <div id="one-step-carnival" class="section level3">
 <h3>One step CARNIVAL</h3>
 <p>The simplest analysis is <em>connecting the receptor(s) to all the
 inferred protein</em>.</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>source_df <span class="ot">&lt;-</span> carnival_input_toy <span class="sc">%&gt;%</span></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">==</span> <span class="st">&#39;rec&#39;</span>)</span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>target_df <span class="ot">&lt;-</span> carnival_input_toy <span class="sc">%&gt;%</span></span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">!=</span> <span class="st">&#39;rec&#39;</span>)</span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>one_layer_toy <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_tsv</span>(<span class="st">&#39;./one_layer_naive.sif&#39;</span>,</span>
-<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">&#39;source&#39;</span>, <span class="st">&#39;interaction&#39;</span>, <span class="st">&#39;target&#39;</span>))</span>
-<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>output <span class="ot">&lt;-</span> <span class="fu">run_carnival_and_create_graph</span>(<span class="at">source_df =</span> source_df,</span>
-<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">target_df =</span> target_df,</span>
-<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">naive_network =</span> <span class="fu">unique</span>(one_layer_toy),</span>
-<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">proteins_df =</span> carnival_input_toy,</span>
-<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
-<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">solver_path =</span> solver_path, </span>
-<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">solver =</span> solver, </span>
-<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">path_sif =</span> <span class="st">&#39;./optimized_network.sif&#39;</span>,</span>
-<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">path_rds =</span> <span class="st">&#39;./optimized_network.RDS&#39;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>source_df <span class="ot">&lt;-</span> carnival_input_toy <span class="sc">%&gt;%</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">==</span> <span class="st">&#39;rec&#39;</span>)</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>target_df <span class="ot">&lt;-</span> carnival_input_toy <span class="sc">%&gt;%</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">!=</span> <span class="st">&#39;rec&#39;</span>)</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>one_layer_toy <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_tsv</span>(<span class="st">&#39;./one_layer_naive.sif&#39;</span>,</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">&#39;source&#39;</span>, <span class="st">&#39;interaction&#39;</span>, <span class="st">&#39;target&#39;</span>))</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>output <span class="ot">&lt;-</span> <span class="fu">run_carnival_and_create_graph</span>(<span class="at">source_df =</span> source_df,</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">target_df =</span> target_df,</span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">naive_network =</span> <span class="fu">unique</span>(one_layer_toy),</span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">proteins_df =</span> carnival_input_toy,</span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">carnival_options =</span> carnival_options,</span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">path_sif =</span> <span class="st">&#39;./optimized_network.sif&#39;</span>,</span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">path_rds =</span> <span class="st">&#39;./optimized_network.RDS&#39;</span>)</span></code></pre></div>
 <p>After CARNIVAL optimization, we can map on the causal edges found by
 CARNIVAL the phosphosites significantly modulated in our
 phosphoproteomic dataset.</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>optimized_graph_rds <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&#39;./optimized_network.RDS&#39;</span>)</span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>optimized_graph_sif <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_tsv</span>(<span class="st">&#39;./optimized_network.sif&#39;</span>,</span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">&#39;source&#39;</span>, <span class="st">&#39;interaction&#39;</span>, <span class="st">&#39;target&#39;</span>))</span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>output_final <span class="ot">&lt;-</span> <span class="fu">expand_and_map_edges</span>(<span class="at">optimized_graph_rds =</span> optimized_graph_rds, </span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>                     <span class="at">optimized_graph_sif =</span> optimized_graph_sif,</span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>                     <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>                     <span class="at">phospho_df =</span> phospho_toy_df,</span>
-<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>                     <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>                     <span class="at">path_sif =</span> <span class="st">&#39;optimized_network_validated.sif&#39;</span>,</span>
-<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>                     <span class="at">path_rds =</span> <span class="st">&#39;optimized_network_validated.rds&#39;</span>)</span>
-<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a><span class="co"># get the optimized network as igraph object</span></span>
-<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>output_final<span class="sc">$</span>igraph_network</span>
-<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a><span class="co"># get nodes in the optimized model</span></span>
-<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>output_final<span class="sc">$</span>nodes_df</span>
-<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a><span class="co"># get edges in the optimized model</span></span>
-<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a>output_final<span class="sc">$</span>edges_df</span></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>optimized_graph_rds <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&#39;./optimized_network.RDS&#39;</span>)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>optimized_graph_sif <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_tsv</span>(<span class="st">&#39;./optimized_network.sif&#39;</span>,</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">&#39;source&#39;</span>, <span class="st">&#39;interaction&#39;</span>, <span class="st">&#39;target&#39;</span>))</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>output_final <span class="ot">&lt;-</span> <span class="fu">expand_and_map_edges</span>(<span class="at">optimized_graph_rds =</span> optimized_graph_rds, </span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>                     <span class="at">optimized_graph_sif =</span> optimized_graph_sif,</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>                     <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>                     <span class="at">phospho_df =</span> phospho_toy_df,</span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>                     <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>                     <span class="at">path_sif =</span> <span class="st">&#39;optimized_network_validated.sif&#39;</span>,</span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>                     <span class="at">path_rds =</span> <span class="st">&#39;optimized_network_validated.rds&#39;</span>)</span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a><span class="co"># get the optimized network as igraph object</span></span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>output_final<span class="sc">$</span>igraph_network</span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a><span class="co"># get nodes in the optimized model</span></span>
+<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>output_final<span class="sc">$</span>nodes_df</span>
+<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a><span class="co"># get edges in the optimized model</span></span>
+<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a>output_final<span class="sc">$</span>edges_df</span></code></pre></div>
 <div id="a-toy-signaling-profiler-output" class="section level4">
 <h4>A toy Signaling Profiler output</h4>
 <p>The Signaling Profiler output is a list of three elements:</p>
@@ -1169,17 +1201,17 @@ model;</p></li>
 </ul>
 <div id="sp-output-graph" class="section level5">
 <h5>SP output graph</h5>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>toy_sp_output<span class="sc">$</span>igraph_network</span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="co"># IGRAPH 51b0010 DN-- 22 22 -- </span></span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="co"># + attr: name (v/c), gene_name (v/c), carnival_activity (v/n), mf (v/c),</span></span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="co"># | final_score (v/n), discordant (v/l), sign (e/c), carnival_weight</span></span>
-<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="co"># | (e/n), aminoacid (e/c), FC (e/c), is_quantified (e/l)</span></span>
-<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="co"># + edges from 51b0010 (vertex names):</span></span>
-<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a><span class="co">#  [1] P46414-&gt;P11440 P62137-&gt;Q63844 O54833-&gt;P53762 Q60737-&gt;P53762 Q00342-&gt;Q02248</span></span>
-<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a><span class="co">#  [6] P11440-&gt;Q61183 P11440-&gt;P62137 Q00342-&gt;Q60631 P11440-&gt;O54833 P11440-&gt;Q60737</span></span>
-<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a><span class="co"># [11] P11440-&gt;Q61501 P00520-&gt;O08759 P00520-&gt;P35991 O08759-&gt;Q8VDM4 Q61501-&gt;Q08639</span></span>
-<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a><span class="co"># [16] B2RWS6-&gt;P26323 Q02248-&gt;B2RWS6 Q60631-&gt;P00520 P00520-&gt;P19785 Q00342-&gt;P46414</span></span>
-<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a><span class="co"># [21] P35991-&gt;P24604 P19785-&gt;O08537</span></span></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>toy_sp_output<span class="sc">$</span>igraph_network</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="co"># IGRAPH 51b0010 DN-- 22 22 -- </span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="co"># + attr: name (v/c), gene_name (v/c), carnival_activity (v/n), mf (v/c),</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="co"># | final_score (v/n), discordant (v/l), sign (e/c), carnival_weight</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="co"># | (e/n), aminoacid (e/c), FC (e/c), is_quantified (e/l)</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a><span class="co"># + edges from 51b0010 (vertex names):</span></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a><span class="co">#  [1] P46414-&gt;P11440 P62137-&gt;Q63844 O54833-&gt;P53762 Q60737-&gt;P53762 Q00342-&gt;Q02248</span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a><span class="co">#  [6] P11440-&gt;Q61183 P11440-&gt;P62137 Q00342-&gt;Q60631 P11440-&gt;O54833 P11440-&gt;Q60737</span></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a><span class="co"># [11] P11440-&gt;Q61501 P00520-&gt;O08759 P00520-&gt;P35991 O08759-&gt;Q8VDM4 Q61501-&gt;Q08639</span></span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a><span class="co"># [16] B2RWS6-&gt;P26323 Q02248-&gt;B2RWS6 Q60631-&gt;P00520 P00520-&gt;P19785 Q00342-&gt;P46414</span></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a><span class="co"># [21] P35991-&gt;P24604 P19785-&gt;O08537</span></span></code></pre></div>
 </div>
 <div id="sp-output-proteins-table-nodes_df" class="section level5">
 <h5>SP output proteins table (nodes_df)</h5>
@@ -1204,24 +1236,24 @@ opposite sign;</li>
 </ul></li>
 <li><p>Molecular function annotation (<strong>mf</strong>);</p></li>
 </ul>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>toy_sp_output<span class="sc">$</span>nodes_df</span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="co"># # A tibble: 22 × 6</span></span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="co">#    name   gene_name carnival_activity mf    final_score discordant</span></span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="co">#    &lt;chr&gt;  &lt;chr&gt;                 &lt;dbl&gt; &lt;chr&gt;       &lt;dbl&gt; &lt;lgl&gt;     </span></span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="co">#  1 B2RWS6 Ep300                  -100 tf         NA     FALSE     </span></span>
-<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="co">#  2 O08537 Esr2                   -100 tf         -2.17  FALSE     </span></span>
-<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="co">#  3 O08759 Ube3a                   100 tf         NA     FALSE     </span></span>
-<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a><span class="co">#  4 O54833 Csnk2a2                 -50 kin        NA     FALSE     </span></span>
-<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a><span class="co">#  5 P00520 Abl1                   -100 kin        NA     FALSE     </span></span>
-<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a><span class="co">#  6 P11440 Cdk1                   -100 kin        -0.554 FALSE     </span></span>
-<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a><span class="co">#  7 P19785 Esr1                   -100 tf         NA     FALSE     </span></span>
-<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a><span class="co">#  8 P24604 Tec                     100 kin         1.04  FALSE     </span></span>
-<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a><span class="co">#  9 P26323 Fli1                   -100 tf         -1.73  FALSE     </span></span>
-<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 10 P35991 Btk                     100 kin        NA     FALSE     </span></span>
-<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a><span class="co"># # … with 12 more rows</span></span></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>toy_sp_output<span class="sc">$</span>nodes_df</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="co"># # A tibble: 22 × 6</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="co">#    name   gene_name carnival_activity mf    final_score discordant</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="co">#    &lt;chr&gt;  &lt;chr&gt;                 &lt;dbl&gt; &lt;chr&gt;       &lt;dbl&gt; &lt;lgl&gt;     </span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="co">#  1 B2RWS6 Ep300                  -100 tf         NA     FALSE     </span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="co">#  2 O08537 Esr2                   -100 tf         -2.17  FALSE     </span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="co">#  3 O08759 Ube3a                   100 tf         NA     FALSE     </span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a><span class="co">#  4 O54833 Csnk2a2                 -50 kin        NA     FALSE     </span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a><span class="co">#  5 P00520 Abl1                   -100 kin        NA     FALSE     </span></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a><span class="co">#  6 P11440 Cdk1                   -100 kin        -0.554 FALSE     </span></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a><span class="co">#  7 P19785 Esr1                   -100 tf         NA     FALSE     </span></span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a><span class="co">#  8 P24604 Tec                     100 kin         1.04  FALSE     </span></span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a><span class="co">#  9 P26323 Fli1                   -100 tf         -1.73  FALSE     </span></span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 10 P35991 Btk                     100 kin        NA     FALSE     </span></span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a><span class="co"># # … with 12 more rows</span></span></code></pre></div>
 </div>
-<div id="sp-output-interaction-table-edges_df" class="section level5">
-<h5>SP output interaction table (edges_df)</h5>
+<div id="sp-output-interactions-table-edges_df" class="section level5">
+<h5>SP output interactions table (edges_df)</h5>
 <p>The interactions among the proteins in the final context-specific
 model are reported in <code>toy_sp_output$edges_df</code> and they are
 annotated with different attributes:</p>
@@ -1248,27 +1280,27 @@ phosphosite matching that edge in your phosphoproteomic data
 set;</p></li>
 </ul></li>
 </ul>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>toy_sp_output<span class="sc">$</span>edges_df</span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="co"># # A tibble: 22 × 7</span></span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="co">#    source target sign  carnival_weight aminoacid FC    is_quantified</span></span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="co">#    &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt;           &lt;dbl&gt; &lt;chr&gt;     &lt;chr&gt; &lt;lgl&gt;        </span></span>
-<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="co">#  1 P46414 P11440 -1                100 &lt;NA&gt;      &lt;NA&gt;  FALSE        </span></span>
-<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a><span class="co">#  2 P62137 Q63844 -1                100 &lt;NA&gt;      &lt;NA&gt;  FALSE        </span></span>
-<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a><span class="co">#  3 O54833 P53762 -1                 50 &lt;NA&gt;      &lt;NA&gt;  FALSE        </span></span>
-<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a><span class="co">#  4 Q60737 P53762 -1                 50 &lt;NA&gt;      &lt;NA&gt;  FALSE        </span></span>
-<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a><span class="co">#  5 Q00342 Q02248 1                 100 &lt;NA&gt;      &lt;NA&gt;  FALSE        </span></span>
-<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a><span class="co">#  6 P11440 Q61183 1                 100 &lt;NA&gt;      &lt;NA&gt;  FALSE        </span></span>
-<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a><span class="co">#  7 P11440 P62137 -1                100 &lt;NA&gt;      &lt;NA&gt;  FALSE        </span></span>
-<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a><span class="co">#  8 Q00342 Q60631 1                 100 &lt;NA&gt;      &lt;NA&gt;  FALSE        </span></span>
-<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a><span class="co">#  9 P11440 O54833 1                  50 &lt;NA&gt;      &lt;NA&gt;  FALSE        </span></span>
-<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 10 P11440 Q60737 1                  50 &lt;NA&gt;      &lt;NA&gt;  FALSE        </span></span>
-<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a><span class="co"># # … with 12 more rows</span></span></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>toy_sp_output<span class="sc">$</span>edges_df</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="co"># # A tibble: 22 × 7</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="co">#    source target sign  carnival_weight aminoacid FC    is_quantified</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="co">#    &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt;           &lt;dbl&gt; &lt;chr&gt;     &lt;chr&gt; &lt;lgl&gt;        </span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="co">#  1 P46414 P11440 -1                100 &lt;NA&gt;      &lt;NA&gt;  FALSE        </span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a><span class="co">#  2 P62137 Q63844 -1                100 &lt;NA&gt;      &lt;NA&gt;  FALSE        </span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="co">#  3 O54833 P53762 -1                 50 &lt;NA&gt;      &lt;NA&gt;  FALSE        </span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a><span class="co">#  4 Q60737 P53762 -1                 50 &lt;NA&gt;      &lt;NA&gt;  FALSE        </span></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a><span class="co">#  5 Q00342 Q02248 1                 100 &lt;NA&gt;      &lt;NA&gt;  FALSE        </span></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a><span class="co">#  6 P11440 Q61183 1                 100 &lt;NA&gt;      &lt;NA&gt;  FALSE        </span></span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a><span class="co">#  7 P11440 P62137 -1                100 &lt;NA&gt;      &lt;NA&gt;  FALSE        </span></span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a><span class="co">#  8 Q00342 Q60631 1                 100 &lt;NA&gt;      &lt;NA&gt;  FALSE        </span></span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a><span class="co">#  9 P11440 O54833 1                  50 &lt;NA&gt;      &lt;NA&gt;  FALSE        </span></span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 10 P11440 Q60737 1                  50 &lt;NA&gt;      &lt;NA&gt;  FALSE        </span></span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a><span class="co"># # … with 12 more rows</span></span></code></pre></div>
 <p>If you want to visualize the network in Cytoscape, we suggest the
 usage of RCy3 package. You have to open Cytoscape on your laptop and
 then run the following command.</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>RCy3<span class="sc">::</span><span class="fu">createNetworkFromIgraph</span>(output_final<span class="sc">$</span>igraph_network, </span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>                              <span class="at">collection =</span> <span class="st">&#39;one_step_analysis&#39;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>RCy3<span class="sc">::</span><span class="fu">createNetworkFromIgraph</span>(output_final<span class="sc">$</span>igraph_network, </span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>                              <span class="at">collection =</span> <span class="st">&#39;one_step_analysis&#39;</span>)</span></code></pre></div>
 </div>
 </div>
 </div>
@@ -1282,72 +1314,70 @@ PHOSPHOPROTEINS;</li>
 the previous step to TRANSCRIPTION FACTORS;</li>
 </ol>
 <p>Finally, you perform the <em>union</em> of the two graphs.</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="co"># FIRST RUN: RECEPTOR to KIN, PHOS, OTHERS</span></span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>receptors_df <span class="ot">&lt;-</span> carnival_input_toy <span class="sc">%&gt;%</span></span>
-<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">==</span> <span class="st">&#39;rec&#39;</span>)</span>
-<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>target1_df <span class="ot">&lt;-</span> carnival_input_toy <span class="sc">%&gt;%</span></span>
-<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&#39;kin&#39;</span>, <span class="st">&#39;phos&#39;</span>, <span class="st">&#39;other&#39;</span>))</span>
-<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>one_layer_toy_df <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_tsv</span>(<span class="st">&#39;./one_layer_naive.sif&#39;</span>,</span>
-<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">&#39;source&#39;</span>, <span class="st">&#39;interaction&#39;</span>, <span class="st">&#39;target&#39;</span>))</span>
-<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>output1 <span class="ot">&lt;-</span> <span class="fu">run_carnival_and_create_graph</span>(<span class="at">source_df =</span> receptors_df,</span>
-<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">target_df =</span> target1_df,</span>
-<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">naive_network =</span> <span class="fu">unique</span>(one_layer_toy_df),</span>
-<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">proteins_df =</span> carnival_input_toy,</span>
-<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
-<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">solver_path =</span> solver_path, </span>
-<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">solver =</span> solver, </span>
-<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_sif =</span> <span class="st">&#39;./optimized_network1.sif&#39;</span>,</span>
-<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_rds =</span> <span class="st">&#39;./optimized_network1.RDS&#39;</span>)</span>
-<span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-23"><a href="#cb32-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-24"><a href="#cb32-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-25"><a href="#cb32-25" aria-hidden="true" tabindex="-1"></a><span class="co"># SECOND RUN: from KIN, PHOS, OTHERS to TFs</span></span>
-<span id="cb32-26"><a href="#cb32-26" aria-hidden="true" tabindex="-1"></a>run1_output_nodes <span class="ot">&lt;-</span> <span class="fu">convert_output_nodes_in_next_input</span>(output1)</span>
-<span id="cb32-27"><a href="#cb32-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-28"><a href="#cb32-28" aria-hidden="true" tabindex="-1"></a>source_df <span class="ot">&lt;-</span> run1_output_nodes <span class="sc">%&gt;%</span></span>
-<span id="cb32-29"><a href="#cb32-29" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&#39;kin&#39;</span>, <span class="st">&#39;phos&#39;</span>, <span class="st">&#39;other&#39;</span>))</span>
-<span id="cb32-30"><a href="#cb32-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-31"><a href="#cb32-31" aria-hidden="true" tabindex="-1"></a>target2_df <span class="ot">&lt;-</span> carnival_input_toy <span class="sc">%&gt;%</span></span>
-<span id="cb32-32"><a href="#cb32-32" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">==</span> <span class="st">&#39;tf&#39;</span>)</span>
-<span id="cb32-33"><a href="#cb32-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-34"><a href="#cb32-34" aria-hidden="true" tabindex="-1"></a>output2 <span class="ot">&lt;-</span> <span class="fu">run_carnival_and_create_graph</span>(<span class="at">source_df =</span> source_df,</span>
-<span id="cb32-35"><a href="#cb32-35" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">target_df =</span> target2_df,</span>
-<span id="cb32-36"><a href="#cb32-36" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">naive_network =</span> <span class="fu">unique</span>(one_layer_toy_df),</span>
-<span id="cb32-37"><a href="#cb32-37" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">proteins_df =</span> carnival_input_toy,</span>
-<span id="cb32-38"><a href="#cb32-38" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
-<span id="cb32-39"><a href="#cb32-39" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">solver_path =</span> solver_path, </span>
-<span id="cb32-40"><a href="#cb32-40" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">solver =</span> solver, </span>
-<span id="cb32-41"><a href="#cb32-41" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb32-42"><a href="#cb32-42" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_sif =</span> <span class="st">&#39;./optimized_network2.sif&#39;</span>,</span>
-<span id="cb32-43"><a href="#cb32-43" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_rds =</span> <span class="st">&#39;./optimized_network2.RDS&#39;</span>)</span>
-<span id="cb32-44"><a href="#cb32-44" aria-hidden="true" tabindex="-1"></a><span class="co"># UNION OF RUN1 and RUN2 graphs </span></span>
-<span id="cb32-45"><a href="#cb32-45" aria-hidden="true" tabindex="-1"></a>union <span class="ot">&lt;-</span> <span class="fu">union_of_graphs</span>(<span class="at">graph_1 =</span> output1<span class="sc">$</span>igraph_network, </span>
-<span id="cb32-46"><a href="#cb32-46" aria-hidden="true" tabindex="-1"></a>                         <span class="at">graph_2 =</span> output2<span class="sc">$</span>igraph_network, </span>
-<span id="cb32-47"><a href="#cb32-47" aria-hidden="true" tabindex="-1"></a>                         <span class="at">proteins_df =</span> carnival_input_toy, </span>
-<span id="cb32-48"><a href="#cb32-48" aria-hidden="true" tabindex="-1"></a>                         <span class="at">files =</span> <span class="cn">TRUE</span>, </span>
-<span id="cb32-49"><a href="#cb32-49" aria-hidden="true" tabindex="-1"></a>                         <span class="at">path_sif =</span> <span class="st">&#39;./union_network1.sif&#39;</span>, </span>
-<span id="cb32-50"><a href="#cb32-50" aria-hidden="true" tabindex="-1"></a>                         <span class="at">path_rds =</span> <span class="st">&#39;./union_network1.RDS&#39;</span>)</span>
-<span id="cb32-51"><a href="#cb32-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-52"><a href="#cb32-52" aria-hidden="true" tabindex="-1"></a><span class="co"># EXPANSION and MAPPING of PHOSPHOPROTEOMICS DATA ON EDGES</span></span>
-<span id="cb32-53"><a href="#cb32-53" aria-hidden="true" tabindex="-1"></a>union_graph_rds <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&#39;./union_network1.RDS&#39;</span>)</span>
-<span id="cb32-54"><a href="#cb32-54" aria-hidden="true" tabindex="-1"></a>union_graph_sif <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_tsv</span>(<span class="st">&#39;./union_network1.sif&#39;</span>,</span>
-<span id="cb32-55"><a href="#cb32-55" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">&#39;source&#39;</span>, <span class="st">&#39;interaction&#39;</span>, <span class="st">&#39;target&#39;</span>))</span>
-<span id="cb32-56"><a href="#cb32-56" aria-hidden="true" tabindex="-1"></a>union_output_final <span class="ot">&lt;-</span> <span class="fu">expand_and_map_edges</span>(<span class="at">optimized_graph_rds =</span> union_graph_rds, </span>
-<span id="cb32-57"><a href="#cb32-57" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">optimized_graph_sif =</span> union_graph_sif,</span>
-<span id="cb32-58"><a href="#cb32-58" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
-<span id="cb32-59"><a href="#cb32-59" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">phospho_df =</span> phospho_toy_df,</span>
-<span id="cb32-60"><a href="#cb32-60" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb32-61"><a href="#cb32-61" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">path_sif =</span> <span class="st">&#39;union_network_validated.sif&#39;</span>,</span>
-<span id="cb32-62"><a href="#cb32-62" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">path_rds =</span> <span class="st">&#39;union_network_validated.rds&#39;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="co"># FIRST RUN: RECEPTOR to KIN, PHOS, OTHERS</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>receptors_df <span class="ot">&lt;-</span> carnival_input_toy <span class="sc">%&gt;%</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">==</span> <span class="st">&#39;rec&#39;</span>)</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>target1_df <span class="ot">&lt;-</span> carnival_input_toy <span class="sc">%&gt;%</span></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&#39;kin&#39;</span>, <span class="st">&#39;phos&#39;</span>, <span class="st">&#39;other&#39;</span>))</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>one_layer_toy_df <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_tsv</span>(<span class="st">&#39;./one_layer_naive.sif&#39;</span>,</span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">&#39;source&#39;</span>, <span class="st">&#39;interaction&#39;</span>, <span class="st">&#39;target&#39;</span>))</span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>output1 <span class="ot">&lt;-</span> <span class="fu">run_carnival_and_create_graph</span>(<span class="at">source_df =</span> receptors_df,</span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">target_df =</span> target1_df,</span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">naive_network =</span> <span class="fu">unique</span>(one_layer_toy_df),</span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">proteins_df =</span> carnival_input_toy,</span>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
+<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">carnival_options =</span> carnival_options,</span>
+<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_sif =</span> <span class="st">&#39;./optimized_network1.sif&#39;</span>,</span>
+<span id="cb35-20"><a href="#cb35-20" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_rds =</span> <span class="st">&#39;./optimized_network1.RDS&#39;</span>)</span>
+<span id="cb35-21"><a href="#cb35-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-22"><a href="#cb35-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-23"><a href="#cb35-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-24"><a href="#cb35-24" aria-hidden="true" tabindex="-1"></a><span class="co"># SECOND RUN: from KIN, PHOS, OTHERS to TFs</span></span>
+<span id="cb35-25"><a href="#cb35-25" aria-hidden="true" tabindex="-1"></a>run1_output_nodes <span class="ot">&lt;-</span> <span class="fu">convert_output_nodes_in_next_input</span>(output1)</span>
+<span id="cb35-26"><a href="#cb35-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-27"><a href="#cb35-27" aria-hidden="true" tabindex="-1"></a>source_df <span class="ot">&lt;-</span> run1_output_nodes <span class="sc">%&gt;%</span></span>
+<span id="cb35-28"><a href="#cb35-28" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&#39;kin&#39;</span>, <span class="st">&#39;phos&#39;</span>, <span class="st">&#39;other&#39;</span>))</span>
+<span id="cb35-29"><a href="#cb35-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-30"><a href="#cb35-30" aria-hidden="true" tabindex="-1"></a>target2_df <span class="ot">&lt;-</span> carnival_input_toy <span class="sc">%&gt;%</span></span>
+<span id="cb35-31"><a href="#cb35-31" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">==</span> <span class="st">&#39;tf&#39;</span>)</span>
+<span id="cb35-32"><a href="#cb35-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-33"><a href="#cb35-33" aria-hidden="true" tabindex="-1"></a>output2 <span class="ot">&lt;-</span> <span class="fu">run_carnival_and_create_graph</span>(<span class="at">source_df =</span> source_df,</span>
+<span id="cb35-34"><a href="#cb35-34" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">target_df =</span> target2_df,</span>
+<span id="cb35-35"><a href="#cb35-35" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">naive_network =</span> <span class="fu">unique</span>(one_layer_toy_df),</span>
+<span id="cb35-36"><a href="#cb35-36" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">proteins_df =</span> carnival_input_toy,</span>
+<span id="cb35-37"><a href="#cb35-37" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
+<span id="cb35-38"><a href="#cb35-38" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">carnival_options =</span> carnival_options,</span>
+<span id="cb35-39"><a href="#cb35-39" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb35-40"><a href="#cb35-40" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_sif =</span> <span class="st">&#39;./optimized_network2.sif&#39;</span>,</span>
+<span id="cb35-41"><a href="#cb35-41" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_rds =</span> <span class="st">&#39;./optimized_network2.RDS&#39;</span>)</span>
+<span id="cb35-42"><a href="#cb35-42" aria-hidden="true" tabindex="-1"></a><span class="co"># UNION OF RUN1 and RUN2 graphs </span></span>
+<span id="cb35-43"><a href="#cb35-43" aria-hidden="true" tabindex="-1"></a>union <span class="ot">&lt;-</span> <span class="fu">union_of_graphs</span>(<span class="at">graph_1 =</span> output1<span class="sc">$</span>igraph_network, </span>
+<span id="cb35-44"><a href="#cb35-44" aria-hidden="true" tabindex="-1"></a>                         <span class="at">graph_2 =</span> output2<span class="sc">$</span>igraph_network, </span>
+<span id="cb35-45"><a href="#cb35-45" aria-hidden="true" tabindex="-1"></a>                         <span class="at">proteins_df =</span> carnival_input_toy, </span>
+<span id="cb35-46"><a href="#cb35-46" aria-hidden="true" tabindex="-1"></a>                         <span class="at">files =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb35-47"><a href="#cb35-47" aria-hidden="true" tabindex="-1"></a>                         <span class="at">path_sif =</span> <span class="st">&#39;./union_network1.sif&#39;</span>, </span>
+<span id="cb35-48"><a href="#cb35-48" aria-hidden="true" tabindex="-1"></a>                         <span class="at">path_rds =</span> <span class="st">&#39;./union_network1.RDS&#39;</span>)</span>
+<span id="cb35-49"><a href="#cb35-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-50"><a href="#cb35-50" aria-hidden="true" tabindex="-1"></a><span class="co"># EXPANSION and MAPPING of PHOSPHOPROTEOMICS DATA ON EDGES</span></span>
+<span id="cb35-51"><a href="#cb35-51" aria-hidden="true" tabindex="-1"></a>union_graph_rds <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&#39;./union_network1.RDS&#39;</span>)</span>
+<span id="cb35-52"><a href="#cb35-52" aria-hidden="true" tabindex="-1"></a>union_graph_sif <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_tsv</span>(<span class="st">&#39;./union_network1.sif&#39;</span>,</span>
+<span id="cb35-53"><a href="#cb35-53" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">&#39;source&#39;</span>, <span class="st">&#39;interaction&#39;</span>, <span class="st">&#39;target&#39;</span>))</span>
+<span id="cb35-54"><a href="#cb35-54" aria-hidden="true" tabindex="-1"></a>union_output_final <span class="ot">&lt;-</span> <span class="fu">expand_and_map_edges</span>(<span class="at">optimized_graph_rds =</span> union_graph_rds, </span>
+<span id="cb35-55"><a href="#cb35-55" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">optimized_graph_sif =</span> union_graph_sif,</span>
+<span id="cb35-56"><a href="#cb35-56" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
+<span id="cb35-57"><a href="#cb35-57" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">phospho_df =</span> phospho_toy_df,</span>
+<span id="cb35-58"><a href="#cb35-58" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb35-59"><a href="#cb35-59" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">path_sif =</span> <span class="st">&#39;union_network_validated.sif&#39;</span>,</span>
+<span id="cb35-60"><a href="#cb35-60" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">path_rds =</span> <span class="st">&#39;union_network_validated.rds&#39;</span>)</span></code></pre></div>
 <p>If you want to visualize the result, execute the following
 command.</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>RCy3<span class="sc">::</span><span class="fu">createNetworkFromIgraph</span>(union_output_final<span class="sc">$</span>igraph_network, </span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>                              <span class="at">collection =</span> <span class="st">&#39;two_steps_analysis&#39;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>RCy3<span class="sc">::</span><span class="fu">createNetworkFromIgraph</span>(union_output_final<span class="sc">$</span>igraph_network, </span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>                              <span class="at">collection =</span> <span class="st">&#39;two_steps_analysis&#39;</span>)</span></code></pre></div>
 </div>
 <div id="three-steps-carnival" class="section level3">
 <h3>Three steps CARNIVAL</h3>
@@ -1359,103 +1389,100 @@ command.</p>
 the previous steps to TRANSCRIPTION FACTORS;</li>
 </ol>
 <p>Finally, you perform the <em>union</em> of the three graphs.</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="co"># FIRST RUN: RECEPTOR to KIN, PHOS, OTHERS</span></span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>receptors_df <span class="ot">&lt;-</span> carnival_input_toy <span class="sc">%&gt;%</span></span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">==</span> <span class="st">&#39;rec&#39;</span>)</span>
-<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>target1_df <span class="ot">&lt;-</span> carnival_input_toy <span class="sc">%&gt;%</span></span>
-<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&#39;kin&#39;</span>, <span class="st">&#39;phos&#39;</span>, <span class="st">&#39;other&#39;</span>))</span>
-<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>one_layer_toy_df <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_tsv</span>(<span class="st">&#39;./one_layer_naive.sif&#39;</span>,</span>
-<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">&#39;source&#39;</span>, <span class="st">&#39;interaction&#39;</span>, <span class="st">&#39;target&#39;</span>))</span>
-<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>output1 <span class="ot">&lt;-</span> <span class="fu">run_carnival_and_create_graph</span>(<span class="at">source_df =</span> receptors_df,</span>
-<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">target_df =</span> target1_df,</span>
-<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">naive_network =</span> <span class="fu">unique</span>(one_layer_toy_df),</span>
-<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">proteins_df =</span> carnival_input_toy,</span>
-<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
-<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">solver_path =</span> solver_path, </span>
-<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">solver =</span> solver, </span>
-<span id="cb34-19"><a href="#cb34-19" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb34-20"><a href="#cb34-20" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_sif =</span> <span class="st">&#39;./optimized_network1.sif&#39;</span>,</span>
-<span id="cb34-21"><a href="#cb34-21" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_rds =</span> <span class="st">&#39;./optimized_network1.RDS&#39;</span>)</span>
-<span id="cb34-22"><a href="#cb34-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-23"><a href="#cb34-23" aria-hidden="true" tabindex="-1"></a>output1</span>
-<span id="cb34-24"><a href="#cb34-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-25"><a href="#cb34-25" aria-hidden="true" tabindex="-1"></a><span class="co"># SECOND RUN: from KIN, PHOS to OTHER</span></span>
-<span id="cb34-26"><a href="#cb34-26" aria-hidden="true" tabindex="-1"></a>run1_output_nodes <span class="ot">&lt;-</span> <span class="fu">convert_output_nodes_in_next_input</span>(output1)</span>
-<span id="cb34-27"><a href="#cb34-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-28"><a href="#cb34-28" aria-hidden="true" tabindex="-1"></a>source_df <span class="ot">&lt;-</span> run1_output_nodes <span class="sc">%&gt;%</span></span>
-<span id="cb34-29"><a href="#cb34-29" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&#39;kin&#39;</span>, <span class="st">&#39;phos&#39;</span>))</span>
-<span id="cb34-30"><a href="#cb34-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-31"><a href="#cb34-31" aria-hidden="true" tabindex="-1"></a>target2_df <span class="ot">&lt;-</span> run1_output_nodes <span class="sc">%&gt;%</span></span>
-<span id="cb34-32"><a href="#cb34-32" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&#39;other&#39;</span>))</span>
-<span id="cb34-33"><a href="#cb34-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-34"><a href="#cb34-34" aria-hidden="true" tabindex="-1"></a>output2 <span class="ot">&lt;-</span> <span class="fu">run_carnival_and_create_graph</span>(<span class="at">source_df =</span> source_df,</span>
-<span id="cb34-35"><a href="#cb34-35" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">target_df =</span> target2_df,</span>
-<span id="cb34-36"><a href="#cb34-36" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">naive_network =</span> <span class="fu">unique</span>(one_layer_toy_df),</span>
-<span id="cb34-37"><a href="#cb34-37" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">proteins_df =</span> carnival_input_toy,</span>
-<span id="cb34-38"><a href="#cb34-38" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
-<span id="cb34-39"><a href="#cb34-39" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">solver_path =</span> solver_path, </span>
-<span id="cb34-40"><a href="#cb34-40" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">solver =</span> solver, </span>
-<span id="cb34-41"><a href="#cb34-41" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb34-42"><a href="#cb34-42" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_sif =</span> <span class="st">&#39;./optimized_network2.sif&#39;</span>,</span>
-<span id="cb34-43"><a href="#cb34-43" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_rds =</span> <span class="st">&#39;./optimized_network2.RDS&#39;</span>)</span>
-<span id="cb34-44"><a href="#cb34-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-45"><a href="#cb34-45" aria-hidden="true" tabindex="-1"></a><span class="co">#THIRD RUN: from KIN, PHOS to OTHER to TFs</span></span>
-<span id="cb34-46"><a href="#cb34-46" aria-hidden="true" tabindex="-1"></a>run2_output_nodes <span class="ot">&lt;-</span> <span class="fu">convert_output_nodes_in_next_input</span>(output2)</span>
-<span id="cb34-47"><a href="#cb34-47" aria-hidden="true" tabindex="-1"></a>source2_df <span class="ot">&lt;-</span> run2_output_nodes <span class="sc">%&gt;%</span></span>
-<span id="cb34-48"><a href="#cb34-48" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&#39;kin&#39;</span>, <span class="st">&#39;phos&#39;</span>, <span class="st">&#39;other&#39;</span>))</span>
-<span id="cb34-49"><a href="#cb34-49" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-50"><a href="#cb34-50" aria-hidden="true" tabindex="-1"></a>target3_df <span class="ot">&lt;-</span> carnival_input_toy <span class="sc">%&gt;%</span></span>
-<span id="cb34-51"><a href="#cb34-51" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">==</span> <span class="st">&#39;tf&#39;</span>)</span>
-<span id="cb34-52"><a href="#cb34-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-53"><a href="#cb34-53" aria-hidden="true" tabindex="-1"></a>output3 <span class="ot">&lt;-</span> <span class="fu">run_carnival_and_create_graph</span>(<span class="at">source_df =</span> source2_df,</span>
-<span id="cb34-54"><a href="#cb34-54" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">target_df =</span> target3_df,</span>
-<span id="cb34-55"><a href="#cb34-55" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">naive_network =</span> <span class="fu">unique</span>(one_layer_toy_df),</span>
-<span id="cb34-56"><a href="#cb34-56" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">proteins_df =</span> carnival_input_toy,</span>
-<span id="cb34-57"><a href="#cb34-57" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
-<span id="cb34-58"><a href="#cb34-58" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">solver_path =</span> solver_path, </span>
-<span id="cb34-59"><a href="#cb34-59" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">solver =</span> solver, </span>
-<span id="cb34-60"><a href="#cb34-60" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb34-61"><a href="#cb34-61" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_sif =</span> <span class="st">&#39;./optimized_network2.sif&#39;</span>,</span>
-<span id="cb34-62"><a href="#cb34-62" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_rds =</span> <span class="st">&#39;./optimized_network2.RDS&#39;</span>)</span>
-<span id="cb34-63"><a href="#cb34-63" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-64"><a href="#cb34-64" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-65"><a href="#cb34-65" aria-hidden="true" tabindex="-1"></a><span class="co"># UNION OF RUN1, RUN2 AND RUN3 GRAPHS </span></span>
-<span id="cb34-66"><a href="#cb34-66" aria-hidden="true" tabindex="-1"></a>union_run1_run2 <span class="ot">&lt;-</span> <span class="fu">union_of_graphs</span>(<span class="at">graph_1 =</span> output1<span class="sc">$</span>igraph_network, </span>
-<span id="cb34-67"><a href="#cb34-67" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">graph_2 =</span> output2<span class="sc">$</span>igraph_network, </span>
-<span id="cb34-68"><a href="#cb34-68" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">proteins_df =</span> carnival_input_toy, </span>
-<span id="cb34-69"><a href="#cb34-69" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">files =</span> <span class="cn">TRUE</span>, </span>
-<span id="cb34-70"><a href="#cb34-70" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">path_sif =</span> <span class="st">&#39;./union_network1.sif&#39;</span>, </span>
-<span id="cb34-71"><a href="#cb34-71" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">path_rds =</span> <span class="st">&#39;./union_network1.RDS&#39;</span>)<span class="sc">$</span>network</span>
-<span id="cb34-72"><a href="#cb34-72" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-73"><a href="#cb34-73" aria-hidden="true" tabindex="-1"></a>union_run1_run2_run3 <span class="ot">&lt;-</span> <span class="fu">union_of_graphs</span>(<span class="at">graph_1 =</span> union_run1_run2,</span>
-<span id="cb34-74"><a href="#cb34-74" aria-hidden="true" tabindex="-1"></a>                               <span class="at">graph_2 =</span> output3<span class="sc">$</span>igraph_network, </span>
-<span id="cb34-75"><a href="#cb34-75" aria-hidden="true" tabindex="-1"></a>                               <span class="at">proteins_df =</span> carnival_input_toy, </span>
-<span id="cb34-76"><a href="#cb34-76" aria-hidden="true" tabindex="-1"></a>                               <span class="at">files =</span> <span class="cn">TRUE</span>, </span>
-<span id="cb34-77"><a href="#cb34-77" aria-hidden="true" tabindex="-1"></a>                               <span class="at">path_sif =</span> <span class="st">&#39;./union_network2.sif&#39;</span>, </span>
-<span id="cb34-78"><a href="#cb34-78" aria-hidden="true" tabindex="-1"></a>                               <span class="at">path_rds =</span> <span class="st">&#39;./union_network2.RDS&#39;</span>)</span>
-<span id="cb34-79"><a href="#cb34-79" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-80"><a href="#cb34-80" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-81"><a href="#cb34-81" aria-hidden="true" tabindex="-1"></a><span class="co"># EXPANSION and MAPPING of PHOSPHOPROTEOMICS DATA ON EDGES</span></span>
-<span id="cb34-82"><a href="#cb34-82" aria-hidden="true" tabindex="-1"></a>union2_graph_rds <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&#39;./union_network2.RDS&#39;</span>)</span>
-<span id="cb34-83"><a href="#cb34-83" aria-hidden="true" tabindex="-1"></a>union2_graph_sif <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_tsv</span>(<span class="st">&#39;./union_network2.sif&#39;</span>,</span>
-<span id="cb34-84"><a href="#cb34-84" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">&#39;source&#39;</span>, <span class="st">&#39;interaction&#39;</span>, <span class="st">&#39;target&#39;</span>))</span>
-<span id="cb34-85"><a href="#cb34-85" aria-hidden="true" tabindex="-1"></a>union2_output_final <span class="ot">&lt;-</span> <span class="fu">expand_and_map_edges</span>(<span class="at">optimized_graph_rds =</span> union2_graph_rds, </span>
-<span id="cb34-86"><a href="#cb34-86" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">optimized_graph_sif =</span> union2_graph_sif,</span>
-<span id="cb34-87"><a href="#cb34-87" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
-<span id="cb34-88"><a href="#cb34-88" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">phospho_df =</span> phospho_toy_df,</span>
-<span id="cb34-89"><a href="#cb34-89" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb34-90"><a href="#cb34-90" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">path_sif =</span> <span class="st">&#39;union2_network_validated.sif&#39;</span>,</span>
-<span id="cb34-91"><a href="#cb34-91" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">path_rds =</span> <span class="st">&#39;union2_network_validated.rds&#39;</span>)</span>
-<span id="cb34-92"><a href="#cb34-92" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-93"><a href="#cb34-93" aria-hidden="true" tabindex="-1"></a>union2_output_final</span>
-<span id="cb34-94"><a href="#cb34-94" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-95"><a href="#cb34-95" aria-hidden="true" tabindex="-1"></a><span class="co"># VISUALIZATION OF THE NETWORK</span></span>
-<span id="cb34-96"><a href="#cb34-96" aria-hidden="true" tabindex="-1"></a>RCy3<span class="sc">::</span><span class="fu">createNetworkFromIgraph</span>(union2_output_final<span class="sc">$</span>igraph_network, </span>
-<span id="cb34-97"><a href="#cb34-97" aria-hidden="true" tabindex="-1"></a>                              <span class="at">collection =</span> <span class="st">&#39;three_steps_analysis&#39;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="co"># FIRST RUN: RECEPTOR to KIN, PHOS, OTHERS</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>receptors_df <span class="ot">&lt;-</span> carnival_input_toy <span class="sc">%&gt;%</span></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">==</span> <span class="st">&#39;rec&#39;</span>)</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>target1_df <span class="ot">&lt;-</span> carnival_input_toy <span class="sc">%&gt;%</span></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&#39;kin&#39;</span>, <span class="st">&#39;phos&#39;</span>, <span class="st">&#39;other&#39;</span>))</span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>one_layer_toy_df <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_tsv</span>(<span class="st">&#39;./one_layer_naive.sif&#39;</span>,</span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">&#39;source&#39;</span>, <span class="st">&#39;interaction&#39;</span>, <span class="st">&#39;target&#39;</span>))</span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a>output1 <span class="ot">&lt;-</span> <span class="fu">run_carnival_and_create_graph</span>(<span class="at">source_df =</span> receptors_df,</span>
+<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">target_df =</span> target1_df,</span>
+<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">naive_network =</span> <span class="fu">unique</span>(one_layer_toy_df),</span>
+<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">proteins_df =</span> carnival_input_toy,</span>
+<span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
+<span id="cb37-17"><a href="#cb37-17" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">carnival_options =</span> carnival_options,</span>
+<span id="cb37-18"><a href="#cb37-18" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb37-19"><a href="#cb37-19" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_sif =</span> <span class="st">&#39;./optimized_network1.sif&#39;</span>,</span>
+<span id="cb37-20"><a href="#cb37-20" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_rds =</span> <span class="st">&#39;./optimized_network1.RDS&#39;</span>)</span>
+<span id="cb37-21"><a href="#cb37-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-22"><a href="#cb37-22" aria-hidden="true" tabindex="-1"></a>output1</span>
+<span id="cb37-23"><a href="#cb37-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-24"><a href="#cb37-24" aria-hidden="true" tabindex="-1"></a><span class="co"># SECOND RUN: from KIN, PHOS to OTHER</span></span>
+<span id="cb37-25"><a href="#cb37-25" aria-hidden="true" tabindex="-1"></a>run1_output_nodes <span class="ot">&lt;-</span> <span class="fu">convert_output_nodes_in_next_input</span>(output1)</span>
+<span id="cb37-26"><a href="#cb37-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-27"><a href="#cb37-27" aria-hidden="true" tabindex="-1"></a>source_df <span class="ot">&lt;-</span> run1_output_nodes <span class="sc">%&gt;%</span></span>
+<span id="cb37-28"><a href="#cb37-28" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&#39;kin&#39;</span>, <span class="st">&#39;phos&#39;</span>))</span>
+<span id="cb37-29"><a href="#cb37-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-30"><a href="#cb37-30" aria-hidden="true" tabindex="-1"></a>target2_df <span class="ot">&lt;-</span> run1_output_nodes <span class="sc">%&gt;%</span></span>
+<span id="cb37-31"><a href="#cb37-31" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&#39;other&#39;</span>))</span>
+<span id="cb37-32"><a href="#cb37-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-33"><a href="#cb37-33" aria-hidden="true" tabindex="-1"></a>output2 <span class="ot">&lt;-</span> <span class="fu">run_carnival_and_create_graph</span>(<span class="at">source_df =</span> source_df,</span>
+<span id="cb37-34"><a href="#cb37-34" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">target_df =</span> target2_df,</span>
+<span id="cb37-35"><a href="#cb37-35" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">naive_network =</span> <span class="fu">unique</span>(one_layer_toy_df),</span>
+<span id="cb37-36"><a href="#cb37-36" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">proteins_df =</span> carnival_input_toy,</span>
+<span id="cb37-37"><a href="#cb37-37" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
+<span id="cb37-38"><a href="#cb37-38" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">carnival_options =</span> carnival_options,</span>
+<span id="cb37-39"><a href="#cb37-39" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb37-40"><a href="#cb37-40" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_sif =</span> <span class="st">&#39;./optimized_network2.sif&#39;</span>,</span>
+<span id="cb37-41"><a href="#cb37-41" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_rds =</span> <span class="st">&#39;./optimized_network2.RDS&#39;</span>)</span>
+<span id="cb37-42"><a href="#cb37-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-43"><a href="#cb37-43" aria-hidden="true" tabindex="-1"></a><span class="co">#THIRD RUN: from KIN, PHOS to OTHER to TFs</span></span>
+<span id="cb37-44"><a href="#cb37-44" aria-hidden="true" tabindex="-1"></a>run2_output_nodes <span class="ot">&lt;-</span> <span class="fu">convert_output_nodes_in_next_input</span>(output2)</span>
+<span id="cb37-45"><a href="#cb37-45" aria-hidden="true" tabindex="-1"></a>source2_df <span class="ot">&lt;-</span> run2_output_nodes <span class="sc">%&gt;%</span></span>
+<span id="cb37-46"><a href="#cb37-46" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&#39;kin&#39;</span>, <span class="st">&#39;phos&#39;</span>, <span class="st">&#39;other&#39;</span>))</span>
+<span id="cb37-47"><a href="#cb37-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-48"><a href="#cb37-48" aria-hidden="true" tabindex="-1"></a>target3_df <span class="ot">&lt;-</span> carnival_input_toy <span class="sc">%&gt;%</span></span>
+<span id="cb37-49"><a href="#cb37-49" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">==</span> <span class="st">&#39;tf&#39;</span>)</span>
+<span id="cb37-50"><a href="#cb37-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-51"><a href="#cb37-51" aria-hidden="true" tabindex="-1"></a>output3 <span class="ot">&lt;-</span> <span class="fu">run_carnival_and_create_graph</span>(<span class="at">source_df =</span> source2_df,</span>
+<span id="cb37-52"><a href="#cb37-52" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">target_df =</span> target3_df,</span>
+<span id="cb37-53"><a href="#cb37-53" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">naive_network =</span> <span class="fu">unique</span>(one_layer_toy_df),</span>
+<span id="cb37-54"><a href="#cb37-54" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">proteins_df =</span> carnival_input_toy,</span>
+<span id="cb37-55"><a href="#cb37-55" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
+<span id="cb37-56"><a href="#cb37-56" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">carnival_options =</span> carnival_options,</span>
+<span id="cb37-57"><a href="#cb37-57" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb37-58"><a href="#cb37-58" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_sif =</span> <span class="st">&#39;./optimized_network2.sif&#39;</span>,</span>
+<span id="cb37-59"><a href="#cb37-59" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_rds =</span> <span class="st">&#39;./optimized_network2.RDS&#39;</span>)</span>
+<span id="cb37-60"><a href="#cb37-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-61"><a href="#cb37-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-62"><a href="#cb37-62" aria-hidden="true" tabindex="-1"></a><span class="co"># UNION OF RUN1, RUN2 AND RUN3 GRAPHS </span></span>
+<span id="cb37-63"><a href="#cb37-63" aria-hidden="true" tabindex="-1"></a>union_run1_run2 <span class="ot">&lt;-</span> <span class="fu">union_of_graphs</span>(<span class="at">graph_1 =</span> output1<span class="sc">$</span>igraph_network, </span>
+<span id="cb37-64"><a href="#cb37-64" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">graph_2 =</span> output2<span class="sc">$</span>igraph_network, </span>
+<span id="cb37-65"><a href="#cb37-65" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">proteins_df =</span> carnival_input_toy, </span>
+<span id="cb37-66"><a href="#cb37-66" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">files =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb37-67"><a href="#cb37-67" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">path_sif =</span> <span class="st">&#39;./union_network1.sif&#39;</span>, </span>
+<span id="cb37-68"><a href="#cb37-68" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">path_rds =</span> <span class="st">&#39;./union_network1.RDS&#39;</span>)<span class="sc">$</span>network</span>
+<span id="cb37-69"><a href="#cb37-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-70"><a href="#cb37-70" aria-hidden="true" tabindex="-1"></a>union_run1_run2_run3 <span class="ot">&lt;-</span> <span class="fu">union_of_graphs</span>(<span class="at">graph_1 =</span> union_run1_run2,</span>
+<span id="cb37-71"><a href="#cb37-71" aria-hidden="true" tabindex="-1"></a>                               <span class="at">graph_2 =</span> output3<span class="sc">$</span>igraph_network, </span>
+<span id="cb37-72"><a href="#cb37-72" aria-hidden="true" tabindex="-1"></a>                               <span class="at">proteins_df =</span> carnival_input_toy, </span>
+<span id="cb37-73"><a href="#cb37-73" aria-hidden="true" tabindex="-1"></a>                               <span class="at">files =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb37-74"><a href="#cb37-74" aria-hidden="true" tabindex="-1"></a>                               <span class="at">path_sif =</span> <span class="st">&#39;./union_network2.sif&#39;</span>, </span>
+<span id="cb37-75"><a href="#cb37-75" aria-hidden="true" tabindex="-1"></a>                               <span class="at">path_rds =</span> <span class="st">&#39;./union_network2.RDS&#39;</span>)</span>
+<span id="cb37-76"><a href="#cb37-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-77"><a href="#cb37-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-78"><a href="#cb37-78" aria-hidden="true" tabindex="-1"></a><span class="co"># EXPANSION and MAPPING of PHOSPHOPROTEOMICS DATA ON EDGES</span></span>
+<span id="cb37-79"><a href="#cb37-79" aria-hidden="true" tabindex="-1"></a>union2_graph_rds <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&#39;./union_network2.RDS&#39;</span>)</span>
+<span id="cb37-80"><a href="#cb37-80" aria-hidden="true" tabindex="-1"></a>union2_graph_sif <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_tsv</span>(<span class="st">&#39;./union_network2.sif&#39;</span>,</span>
+<span id="cb37-81"><a href="#cb37-81" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">&#39;source&#39;</span>, <span class="st">&#39;interaction&#39;</span>, <span class="st">&#39;target&#39;</span>))</span>
+<span id="cb37-82"><a href="#cb37-82" aria-hidden="true" tabindex="-1"></a>union2_output_final <span class="ot">&lt;-</span> <span class="fu">expand_and_map_edges</span>(<span class="at">optimized_graph_rds =</span> union2_graph_rds, </span>
+<span id="cb37-83"><a href="#cb37-83" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">optimized_graph_sif =</span> union2_graph_sif,</span>
+<span id="cb37-84"><a href="#cb37-84" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
+<span id="cb37-85"><a href="#cb37-85" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">phospho_df =</span> phospho_toy_df,</span>
+<span id="cb37-86"><a href="#cb37-86" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb37-87"><a href="#cb37-87" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">path_sif =</span> <span class="st">&#39;union2_network_validated.sif&#39;</span>,</span>
+<span id="cb37-88"><a href="#cb37-88" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">path_rds =</span> <span class="st">&#39;union2_network_validated.rds&#39;</span>)</span>
+<span id="cb37-89"><a href="#cb37-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-90"><a href="#cb37-90" aria-hidden="true" tabindex="-1"></a>union2_output_final</span>
+<span id="cb37-91"><a href="#cb37-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-92"><a href="#cb37-92" aria-hidden="true" tabindex="-1"></a><span class="co"># VISUALIZATION OF THE NETWORK</span></span>
+<span id="cb37-93"><a href="#cb37-93" aria-hidden="true" tabindex="-1"></a>RCy3<span class="sc">::</span><span class="fu">createNetworkFromIgraph</span>(union2_output_final<span class="sc">$</span>igraph_network, </span>
+<span id="cb37-94"><a href="#cb37-94" aria-hidden="true" tabindex="-1"></a>                              <span class="at">collection =</span> <span class="st">&#39;three_steps_analysis&#39;</span>)</span></code></pre></div>
 </div>
 </div>
 <div id="step-4-phenoscore-computation" class="section level2">
@@ -1478,38 +1505,38 @@ object <code>paths_to_pheno</code></li>
 <p>You can choose the phenotypes you desire to look at using the
 <code>desired_phenotype</code> parameter, or you can compute the
 activity for all annotated phenotypes.</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(paths_to_pheno<span class="sc">$</span>EndPathways)</span></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(paths_to_pheno<span class="sc">$</span>EndPathways)</span></code></pre></div>
 <p>To compute the <strong>phenoSCORE</strong> simply execute:</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="co"># all phenotypes</span></span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="fu">compute_phenoscore</span>(<span class="at">sp_output =</span> toy_sp_output, </span>
-<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">desired_phenotypes =</span> <span class="cn">NULL</span>, </span>
-<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">compact =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a><span class="co"># # A tibble: 484 × 8</span></span>
-<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a><span class="co">#    name   gene_name mf    final_score EndPathways        pheno…¹ Path_…² Path_…³</span></span>
-<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a><span class="co">#    &lt;chr&gt;  &lt;chr&gt;     &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;                &lt;dbl&gt; &lt;chr&gt;     &lt;dbl&gt;</span></span>
-<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a><span class="co">#  1 P11440 CDK1      kin        -0.554 AMYLOID_FIBRIL_FO…   0.554 CDK1--…       4</span></span>
-<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a><span class="co">#  2 P11440 CDK1      kin        -0.554 AUTOPHAGOSOME_FOR…  12.5   CDK1--…       4</span></span>
-<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a><span class="co">#  3 P11440 CDK1      kin        -0.554 AUTOPHAGOSOME_FOR…  12.5   CDK1--…       3</span></span>
-<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a><span class="co">#  4 P11440 CDK1      kin        -0.554 AUTOPHAGOSOME_FOR…  12.5   CDK1--…       4</span></span>
-<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a><span class="co">#  5 P11440 CDK1      kin        -0.554 AUTOPHAGOSOME_FOR…  12.5   CDK1--…       3</span></span>
-<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a><span class="co">#  6 P11440 CDK1      kin        -0.554 AUTOPHAGOSOME_FOR…  12.5   CDK1--…       3</span></span>
-<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a><span class="co">#  7 P11440 CDK1      kin        -0.554 AUTOPHAGOSOME_FOR…  12.5   CDK1--…       3</span></span>
-<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a><span class="co">#  8 P11440 CDK1      kin        -0.554 AUTOPHAGOSOME_FOR…  12.5   CDK1--…       4</span></span>
-<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a><span class="co">#  9 P11440 CDK1      kin        -0.554 AUTOPHAGOSOME_FOR…  12.5   CDK1--…       4</span></span>
-<span id="cb36-18"><a href="#cb36-18" aria-hidden="true" tabindex="-1"></a><span class="co"># 10 P11440 CDK1      kin        -0.554 AUTOPHAGOSOME_FOR…  12.5   CDK1--…       4</span></span>
-<span id="cb36-19"><a href="#cb36-19" aria-hidden="true" tabindex="-1"></a><span class="co"># # … with 474 more rows, and abbreviated variable names ¹​phenoSCORE,</span></span>
-<span id="cb36-20"><a href="#cb36-20" aria-hidden="true" tabindex="-1"></a><span class="co"># #   ²​Path_String, ³​Path_Length</span></span>
-<span id="cb36-21"><a href="#cb36-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-22"><a href="#cb36-22" aria-hidden="true" tabindex="-1"></a><span class="co"># only desired phenotypes</span></span>
-<span id="cb36-23"><a href="#cb36-23" aria-hidden="true" tabindex="-1"></a>toy_phenoscore_output <span class="ot">&lt;-</span> <span class="fu">compute_phenoscore</span>(<span class="at">sp_output =</span> toy_sp_output, </span>
-<span id="cb36-24"><a href="#cb36-24" aria-hidden="true" tabindex="-1"></a>                   <span class="at">desired_phenotypes =</span> <span class="st">&#39;G1/S_TRANSITION_CHECKPOINT&#39;</span>, </span>
-<span id="cb36-25"><a href="#cb36-25" aria-hidden="true" tabindex="-1"></a>                   <span class="at">compact =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>toy_phenoscore_output</span>
-<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="co"># # A tibble: 1 × 5</span></span>
-<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   EndPathways                phenoSCORE Regulators Regulators_Paths      N_Paths</span></span>
-<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="co">#   &lt;chr&gt;                           &lt;dbl&gt; &lt;chr&gt;      &lt;chr&gt;                   &lt;int&gt;</span></span>
-<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 1 G1/S_TRANSITION_CHECKPOINT      -1.11 CDK1       CDK1--&gt;RAD9A--&gt;TOPBP…       2</span></span></code></pre></div>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="co"># all phenotypes</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="fu">compute_phenoscore</span>(<span class="at">sp_output =</span> toy_sp_output, </span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">desired_phenotypes =</span> <span class="cn">NULL</span>, </span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">compact =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a><span class="co"># # A tibble: 484 × 8</span></span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a><span class="co">#    name   gene_name mf    final_score EndPathways        pheno…¹ Path_…² Path_…³</span></span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a><span class="co">#    &lt;chr&gt;  &lt;chr&gt;     &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;                &lt;dbl&gt; &lt;chr&gt;     &lt;dbl&gt;</span></span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a><span class="co">#  1 P11440 CDK1      kin        -0.554 AMYLOID_FIBRIL_FO…   0.554 CDK1--…       4</span></span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a><span class="co">#  2 P11440 CDK1      kin        -0.554 AUTOPHAGOSOME_FOR…  12.5   CDK1--…       4</span></span>
+<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a><span class="co">#  3 P11440 CDK1      kin        -0.554 AUTOPHAGOSOME_FOR…  12.5   CDK1--…       3</span></span>
+<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a><span class="co">#  4 P11440 CDK1      kin        -0.554 AUTOPHAGOSOME_FOR…  12.5   CDK1--…       4</span></span>
+<span id="cb39-13"><a href="#cb39-13" aria-hidden="true" tabindex="-1"></a><span class="co">#  5 P11440 CDK1      kin        -0.554 AUTOPHAGOSOME_FOR…  12.5   CDK1--…       3</span></span>
+<span id="cb39-14"><a href="#cb39-14" aria-hidden="true" tabindex="-1"></a><span class="co">#  6 P11440 CDK1      kin        -0.554 AUTOPHAGOSOME_FOR…  12.5   CDK1--…       3</span></span>
+<span id="cb39-15"><a href="#cb39-15" aria-hidden="true" tabindex="-1"></a><span class="co">#  7 P11440 CDK1      kin        -0.554 AUTOPHAGOSOME_FOR…  12.5   CDK1--…       3</span></span>
+<span id="cb39-16"><a href="#cb39-16" aria-hidden="true" tabindex="-1"></a><span class="co">#  8 P11440 CDK1      kin        -0.554 AUTOPHAGOSOME_FOR…  12.5   CDK1--…       4</span></span>
+<span id="cb39-17"><a href="#cb39-17" aria-hidden="true" tabindex="-1"></a><span class="co">#  9 P11440 CDK1      kin        -0.554 AUTOPHAGOSOME_FOR…  12.5   CDK1--…       4</span></span>
+<span id="cb39-18"><a href="#cb39-18" aria-hidden="true" tabindex="-1"></a><span class="co"># 10 P11440 CDK1      kin        -0.554 AUTOPHAGOSOME_FOR…  12.5   CDK1--…       4</span></span>
+<span id="cb39-19"><a href="#cb39-19" aria-hidden="true" tabindex="-1"></a><span class="co"># # … with 474 more rows, and abbreviated variable names ¹​phenoSCORE,</span></span>
+<span id="cb39-20"><a href="#cb39-20" aria-hidden="true" tabindex="-1"></a><span class="co"># #   ²​Path_String, ³​Path_Length</span></span>
+<span id="cb39-21"><a href="#cb39-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-22"><a href="#cb39-22" aria-hidden="true" tabindex="-1"></a><span class="co"># only desired phenotypes</span></span>
+<span id="cb39-23"><a href="#cb39-23" aria-hidden="true" tabindex="-1"></a>toy_phenoscore_output <span class="ot">&lt;-</span> <span class="fu">compute_phenoscore</span>(<span class="at">sp_output =</span> toy_sp_output, </span>
+<span id="cb39-24"><a href="#cb39-24" aria-hidden="true" tabindex="-1"></a>                   <span class="at">desired_phenotypes =</span> <span class="st">&#39;G1/S_TRANSITION_CHECKPOINT&#39;</span>, </span>
+<span id="cb39-25"><a href="#cb39-25" aria-hidden="true" tabindex="-1"></a>                   <span class="at">compact =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>toy_phenoscore_output</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="co"># # A tibble: 1 × 5</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   EndPathways                phenoSCORE Regulators Regulators_Paths      N_Paths</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a><span class="co">#   &lt;chr&gt;                           &lt;dbl&gt; &lt;chr&gt;      &lt;chr&gt;                   &lt;int&gt;</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 1 G1/S_TRANSITION_CHECKPOINT      -1.11 CDK1       CDK1--&gt;RAD9A--&gt;TOPBP…       2</span></span></code></pre></div>
 </div>
 </div>
 
