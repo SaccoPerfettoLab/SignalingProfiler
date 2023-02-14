@@ -2,17 +2,15 @@
 % Please edit documentation in R/carnival_analysis.R
 \name{run_carnival_and_create_graph}
 \alias{run_carnival_and_create_graph}
-\title{Title}
+\title{run_carnival_and_create_graph}
 \usage{
 run_carnival_and_create_graph(
   source_df,
   target_df,
   naive_network,
-  solver_path = NULL,
-  solver = NULL,
+  carnival_options,
   proteins_df,
   organism,
-  phospho_df,
   files = TRUE,
   path_sif = "./optimized_network.sif",
   path_rds = "./optimized_network.RDS"
@@ -25,15 +23,11 @@ run_carnival_and_create_graph(
 
 \item{naive_network}{tibble with naive network in SIF format}
 
-\item{solver_path}{path of the solver you use in CARNIVAL}
-
-\item{solver}{name of solver}
+\item{carnival_options}{list of options returned by default_CARNIVAL_options}
 
 \item{proteins_df}{all inferred proteins df}
 
 \item{organism}{string, organism you are using}
-
-\item{phospho_df}{tibble containing phosphoproteomics data}
 
 \item{files}{boolean value, TRUE if you want output files}
 
@@ -45,5 +39,5 @@ run_carnival_and_create_graph(
 list with igraph object, nodes df and edges df
 }
 \description{
-Title
+run_carnival_and_create_graph
 }

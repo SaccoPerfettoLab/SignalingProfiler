@@ -7,7 +7,7 @@
 one_layer_naive_network(
   starts_gn,
   targets_gn,
-  organism,
+  PKN_table,
   max_length,
   rds_path = "one_layer_naive.RDS",
   sif_path = "one_layer_naive.sif"
@@ -18,7 +18,7 @@ one_layer_naive_network(
 
 \item{targets_gn}{gene names of target nodes (e.g. transcription factors)}
 
-\item{organism}{string, 'human' or 'mouse'}
+\item{PKN_table}{tibble of all causal interactions}
 
 \item{max_length}{integer, 1 to 4 for max_length connecting start to end}
 

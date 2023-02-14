@@ -8,7 +8,7 @@ two_layer_naive_network(
   starts_gn,
   intermediate_gn,
   targets_gn,
-  organism,
+  PKN_table,
   max_length_1,
   max_length_2,
   rds_path = "two_layer_naive.RDS",
@@ -22,7 +22,7 @@ two_layer_naive_network(
 
 \item{targets_gn}{gene names of target nodes (e.g. transcription factors)}
 
-\item{organism}{string, 'human' or 'mouse'}
+\item{PKN_table}{tibble of all causal interactions}
 
 \item{max_length_1}{max_length of shortest path from start to intermediates}
 

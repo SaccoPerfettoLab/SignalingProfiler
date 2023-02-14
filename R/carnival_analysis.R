@@ -130,9 +130,9 @@ add_output_carnival_edges_attributes <- function(carnival_result){
   optimal_edges <- tibble::as_tibble(carnival_result$weightedSIF)
 
   edges_df <- tibble::tibble(source = gsub('_', '-',optimal_edges$Node1),
-                     target = gsub('_', '-',optimal_edges$Node2),
-                     sign = optimal_edges$Sign,
-                     carnival_weight = as.numeric(optimal_edges$Weight))
+                             target = gsub('_', '-',optimal_edges$Node2),
+                             sign = optimal_edges$Sign,
+                             carnival_weight = as.numeric(optimal_edges$Weight))
   return(edges_df)
 }
 
@@ -230,17 +230,84 @@ union_of_graphs <- function(graph_1, graph_2, proteins_df, files,
               edges_df = edges))
 }
 
+#' default_CARNIVAL_options
+#'
+#' @param solver string specifying solver
+#'
+#' @return list of CARNIVAL options
+#'
+#' @examples
+default_CARNIVAL_options = function(solver = NULL){
 
-#' Title
+  if(is.null(solver)){
+    stop("please call default_CARNIVAL_options(solver = 'cplex') with a
+        specific solver argument. Valid solvers are: 'lpSolve','cplex' or 'cbc'.")
+  }
+  solver_options = c("lpSolve","cplex","cbc")
+  solver <- match.arg(solver,choices = solver_options)
+
+  if(solver == "lpSolve"){
+    opts = CARNIVAL::defaultLpSolveCarnivalOptions()
+  }else if(solver == "cplex"){
+    opts = CARNIVAL::defaultCplexCarnivalOptions()
+  }else if(solver == "cbc"){
+    opts = CARNIVAL::defaultCbcSolveCarnivalOptions()
+  }
+  opts$keepLPFiles = FALSE
+
+  return(opts)
+}
+
+#' check_CARNIVAL_inputs
 #'
 #' @param source_df tibble with source nodes discretized among 1 and -1
 #' @param target_df tibble with target nodes in a continuous range of activity
 #' @param naive_network tibble with naive network in SIF format
-#' @param solver_path path of the solver you use in CARNIVAL
-#' @param solver name of solver
 #' @param proteins_df all inferred proteins df
 #' @param organism string, organism you are using
-#' @param phospho_df tibble containing phosphoproteomics data
+#'
+#' @return TRUE if everything is correct
+#'
+#' @examples
+check_CARNIVAL_inputs <- function(source_df, target_df,
+                                  naive_network, proteins_df,
+                                  organism){
+
+  # check the input proteins
+  stopifnot(is.data.frame(source_df))
+  stopifnot(all(c("UNIPROT","gene_name","mf","final_score") %in% names(source_df)))
+  stopifnot(ncol(source_df)>4)
+
+  # check the input proteins
+  stopifnot(is.data.frame(target_df))
+  stopifnot(all(c("UNIPROT","gene_name","mf","final_score") %in% names(target_df)))
+  stopifnot(ncol(target_df)>4)
+
+  # check naive network
+  stopifnot(is.data.frame(naive_network))
+  stopifnot(all(c("source","interaction","target" ) %in% names(naive_network)))
+  stopifnot(ncol(naive_network)==3)
+
+  # check meta informations for mapping attributes
+  stopifnot(is.data.frame(proteins_df))
+  stopifnot(all(c("UNIPROT","gene_name","mf","final_score", "method") %in% names(proteins_df)))
+  stopifnot(ncol(proteins_df)==5)
+
+  # check organism
+  stopifnot(typeof(organism) == 'character')
+  stopifnot(organism %in% c('mouse', 'human'))
+
+  return(TRUE)
+}
+
+#' run_carnival_and_create_graph
+#'
+#' @param source_df tibble with source nodes discretized among 1 and -1
+#' @param target_df tibble with target nodes in a continuous range of activity
+#' @param naive_network tibble with naive network in SIF format
+#' @param carnival_options list of options returned by default_CARNIVAL_options
+#' @param proteins_df all inferred proteins df
+#' @param organism string, organism you are using
 #' @param files boolean value, TRUE if you want output files
 #' @param path_sif path of the sif output file of network
 #' @param path_rds path of the rds output file of network
@@ -252,10 +319,9 @@ union_of_graphs <- function(graph_1, graph_2, proteins_df, files,
 run_carnival_and_create_graph <- function(source_df,
                                           target_df,
                                           naive_network,
-                                          solver_path = NULL, solver = NULL,
+                                          carnival_options,
                                           proteins_df,
                                           organism,
-                                          phospho_df,
                                           files = TRUE,
                                           path_sif = './optimized_network.sif',
                                           path_rds = './optimized_network.RDS'){
@@ -263,25 +329,27 @@ run_carnival_and_create_graph <- function(source_df,
   message(' ** RUNNING CARNIVAL ** ')
   message('Credits to Prof. Julio Saez-Rodriguez. For more information visit: https://saezlab.github.io/CARNIVAL/ ')
 
+  # check inputs
+  check_CARNIVAL_inputs(source_df = source_df,
+                        target_df = target_df,
+                        naive_network = naive_network,
+                        proteins_df = proteins_df,
+                        organism = organism)
+
+
   # discretize initiators
   source_df_disc <- create_discretized_initiators_for_carnival(source_df)
 
-  carnival_result <- CARNIVAL::runCARNIVAL( inputObj = formatting_proteins_for_carnival(source_df_disc)$t,
-                                            measObj = formatting_proteins_for_carnival(target_df)$t,
-                                            netObj = unique(naive_network), #removing duplicated edges
-                                            solverPath = solver_path,
-                                            solver = solver,
-                                            timelimit=7200,
-                                            mipGAP=0.05,
-                                            poolrelGAP=0.0001,
-                                            betaWeight = 0.2)
+  carnival_result <- CARNIVAL::runVanillaCarnival(perturbations = unlist(formatting_proteins_for_carnival(source_df_disc)$t),
+                                                  measurements = unlist(formatting_proteins_for_carnival(target_df)$t),
+                                                  priorKnowledgeNetwork = unique(naive_network),
+                                                  carnivalOptions = carnival_options)
 
   if(nrow(carnival_result$sifAll[[1]]) == 0){
     message('No network found for your experiment')
     return(NULL)
   }
 
-  # organism <- 'mouse'
   # format result
   nodes_df <- add_output_carnival_nodes_attributes(carnival_result,
                                                    proteins_df,
@@ -295,8 +363,12 @@ run_carnival_and_create_graph <- function(source_df,
   CARNIVAL_igraph_network <- igraph::graph_from_data_frame(edges_df,
                                                            nodes_df,
                                                            directed = TRUE)
+
   if(files == TRUE){
+    message(paste0('Creating optimized network file in tabular form in ', path_sif))
     igraphToSif(CARNIVAL_igraph_network, path_sif, 'sign')
+
+    message(paste0('Creating optimized network file in RDS object form in ', path_rds))
     saveRDS(CARNIVAL_igraph_network, path_rds)
   }
 
@@ -334,8 +406,12 @@ convert_output_nodes_in_next_input <- function(carnival_result){
 #' @export
 #'
 #' @examples
-expand_and_map_edges <- function(optimized_graph_rds, optimized_graph_sif,
-                                 organism, phospho_df, files, path_sif, path_rds){
+expand_and_map_edges <- function(optimized_graph_rds,
+                                 optimized_graph_sif,
+                                 organism, phospho_df,
+                                 files,
+                                 path_sif,
+                                 path_rds){
 
   # organism = 'mouse'
   # phospho_df <- phospho_toy_df
@@ -435,12 +511,12 @@ expand_and_map_edges <- function(optimized_graph_rds, optimized_graph_sif,
     dplyr::filter(!is.na(phosphosite_value)) %>%
     dplyr::group_by(source, target, sign) %>%
     dplyr::summarise(aminoacid = paste0(residue,collapse = ';'),
-              FC = paste0(as.character(phosphosite_value), collapse = ';'))
+                     FC = paste0(as.character(phosphosite_value), collapse = ';'))
 
   edges_df_new_final <- dplyr::left_join(edges_df_new %>%
                                            dplyr::select(source, target, sign, carnival_weight) %>%
                                            dplyr::distinct(),
-                                  edges_df_new_with_amino)
+                                         edges_df_new_with_amino)
 
   edges_df_new_final$is_quantified <- FALSE
   edges_df_new_final$is_quantified[is.na(edges_df_new_final$FC) == FALSE] <- TRUE

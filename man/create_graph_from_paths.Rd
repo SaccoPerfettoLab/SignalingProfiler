@@ -4,12 +4,12 @@
 \alias{create_graph_from_paths}
 \title{create_graph_from_paths}
 \usage{
-create_graph_from_paths(all_paths_df, organism)
+create_graph_from_paths(all_paths_df, PKN_table)
 }
 \arguments{
 \item{all_paths_df}{tibble with edges of shortest paths}
 
-\item{organism}{string, 'human' or 'mouse'}
+\item{PKN_table}{tibble of all causal interactions}
 }
 \value{
 igraph object of naive network

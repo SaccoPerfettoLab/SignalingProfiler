@@ -54,11 +54,13 @@ The two most important prerequisites for the usage are:
 2.  Download the ".tar.gz' file for your operating system. All the commands/binaries are in the *bin* sub-directory.
 
 #### Windows systems
-3. **Pay attention to the location where blast is installed, you will need it later** 
+
+3.  **Pay attention to the location where blast is installed, you will need it later**
 
 It should be something like: "C:\\Program Files\\NCBI\\blast-BLAST_VERSION+\\bin\\blastp".
 
-#### Unix-like systems 
+#### Unix-like systems
+
 3.  Add to \$PATH variable the bin blast sub-directory.
 
 ```{r eval = FALSE}
@@ -247,10 +249,10 @@ phosphoscore_mouse <- phosphoscore_computation(phosphoproteomic_data = phospho_t
 
 #### Activatory analysis in hybrid regulatory phosphosites
 
-**THIS ANALYSIS REQUIRES BLASTP INSTALLED**
-Please check the Prerequisites session.
+**THIS ANALYSIS REQUIRES BLASTP INSTALLED** Please check the Prerequisites session.
 
 ##### Unix-like systems
+
 ```{r eval = FALSE}
 phosphoscore_hybrid <- phosphoscore_computation(phosphoproteomic_data = phospho_toy_df, 
                                                organism = 'hybrid', 
@@ -260,10 +262,7 @@ phosphoscore_hybrid <- phosphoscore_computation(phosphoproteomic_data = phospho_
 
 ##### Windows systems
 
-For Windows system is dangerous to modify the PATH variable.
-As such, you should specify the path in your system of blastp.
-Since, unfortunately folders have spaces in Windows system, you need to pass the path as a string. So the first quotes represent the ones necessary for the argument itself, the second pairs of quotes represent the ones necessary to handle the spaces in the path!
-
+For Windows system is dangerous to modify the PATH variable. As such, you should specify the path in your system of blastp. Since, unfortunately folders have spaces in Windows system, you need to pass the path as a string. So the first quotes represent the ones necessary for the argument itself, the second pairs of quotes represent the ones necessary to handle the spaces in the path!
 
 ```{r eval = FALSE}
 phosphoscore_hybrid <- phosphoscore_computation(phosphoproteomic_data = phospho_toy_df, 
@@ -396,15 +395,32 @@ In this step, Signaling Profiler connects the proteins of Step1 to user-specifie
 -   target of a treatment;
 -   some mutated genes in your biological process;
 
-Here, we create what we call a **naïve network**, a graph connecting your proteins through ALL the possible SHORTEST causal paths of a user-specified length (1 to 4). We don't consider the causality of the edges, just distance. As such, in this naïve network there may be two paths with same length, but different causal meaning.
+Here, we create what we call a **naïve network**, a graph connecting your proteins through **ALL** the possible **SHORTEST** causal paths of a user-specified length (1 to 4). We don't consider the causality of the edges, just distance. As such, in the naïve network there may be two paths with same length, but different causal meaning.
 
-In this step, you are building the skeleton of the signal in your cellular model, looking across all the possible routes available in SIGNOR and PsP databases. These databases are available for both *human* and *mouse* organisms, as built-in objects in the package, in tabular (`PKN_mouse`, `PKN_human`) and igraph object format (`db_mouse`, `db_human`).
+In this step, you are building the skeleton of the signal of your cellular model, looking across all the possible routes available in SIGNOR and PsP databases. We call the set of interactions **Prior Knowledge Network (PKN)**. These databases are available for both *human* and *mouse* organisms, as built-in objects in the package, in tabular (`PKN_mouse`, `PKN_human`) and igraph object format (`db_mouse`, `db_human`).
 
-Even if you inferred the activity of a protein, it may be absent in the databases. So a good practice is to check for database coverage of your inferred proteins data set.
+### Preprocessing of the PKN
+
+Since the **PKN** contains interactions coming from different experimental systems, a good practice is to keep only the interactions involving analytes expressed in your system, so quantified in at least one of your omics data set.
+
+```{r eval = FALSE}
+PKN_expressed <- preprocess_PKN(omics_data = list(tr_toy_df, prot_toy_df, phospho_toy_df),
+                                organism = 'mouse')
+```
+
+You can work with the whole organism-specific PKN tables, otherwise (`PKN_mouse`, `PKN_human`).
+
+### Assess coverage of the PKN
+
+Even if you inferred the activity of a protein, it may be absent in the PKN. As such, a good practice is to check for database coverage of your inferred proteins data set.
+
+If you set `report=TRUE`, a report file is written in your working directory.
 
 ```{r eval = TRUE}
 coverage_of_inferred_proteins_in_db(toy_prot_activity_df, 'mouse', report = FALSE) 
 ```
+
+### How to build a naïve network?
 
 You can build the naïve network in three ways:
 
@@ -434,11 +450,11 @@ You can modulate the structure of the naïve network:
 
 ### One layer network
 
-```{r eval = TRUE}
+```{r eval = FALSE}
 #
 one_layer_toy <- one_layer_naive_network(starts_gn = c('Flt3'),
                                          targets_gn = toy_prot_activity_df$gene_name,
-                                         organism = 'mouse',
+                                         PKN_table = PKN_expressed, #or PKN_mouse 
                                          max_length = 4)
                             
 one_layer_toy
@@ -459,7 +475,7 @@ tfs <- toy_prot_activity_df %>%
 two_layers_toy <- two_layer_naive_network(starts_gn = c('Flt3'),
                              intermediate_gn = kin_phos_other$gene_name,
                              targets_gn = tfs$gene_name, 
-                             organism = 'mouse', 
+                             PKN_table = PKN_expressed, #or PKN_mouse
                              max_length_1 = 4, 
                              max_length_2 = 4)
 ```
@@ -482,7 +498,7 @@ three_layers_toy <- three_layer_naive_network(starts_gn = c('Flt3'),
                                           intermediate2_gn = other$gene_name,
                                           targets_gn = tfs$gene_name,
                                           both_intermediates = TRUE,
-                                          organism = 'mouse', 
+                                          PKN_table = PKN_expressed, #or PKN_mouse
                                           max_length_1 = 4,
                                           max_length_2 = 1,
                                           max_length_3 = 4)
@@ -514,14 +530,45 @@ carnival_input_toy
 
 ## Step 3) Optimization of naïve network and creation of a context-specific model
 
-This step optimizes the naïve network in a context-specific model through CARNIVAL algorithm. It is crucial to install the ILP solver required by CARNIVAL and to know its name and path.
+### Setting CARNIVAL algorithm parameters (ILP solver)
 
-```{r eval = TRUE}
+This step optimizes the naïve network in a context-specific model through CARNIVAL algorithm.
+
+It is crucial to install the ILP solver (we suggest ***cplex***) required by CARNIVAL and specify its name to set the default options of the algorithm.
+
+```{r eval = FALSE}
 solver = 'cplex'
-solver_path = '/Applications/CPLEX_Studio221/cplex/bin/x86-64_osx/cplex' #for macOS
+carnival_options = default_CARNIVAL_options(solver)
 ```
 
-The naïve network contains all the shortest paths among two proteins: this means that you may have two paths with same length but different causal meaning. CARNIVAL chooses the paths with causal effect coherent with proteins' activities along the path.
+It is very important to know the *path* of the ILP software.\
+If you didn't install it using the default path you can set the custom path here.
+
+```{r eval = FALSE}
+
+#for Windows
+carnival_options$solverPath = "C:/Program Files/CPLEX_solver/cplex/bin/x64_win64/cplex.exe" 
+
+#for macOS
+carnival_options$solverPath = '/Applications/CPLEX_Studio221/cplex/bin/x86-64_osx/cplex' 
+
+```
+
+Then, you can customize the parameters of the solver.\
+We suggest to first try using the default parameters.
+
+```{r eval = FALSE}
+carnival_options$threads <- 2
+carnival_options$mipGAP <- 0.05
+carnival_options$timelimit <- 3600
+carnival_options$cplexMemoryLimit <- 8192
+```
+
+### What do you do in this step?
+
+The naïve network contains all the shortest paths among two proteins: this means that you may have two paths with same length but different causal meaning.
+
+**CARNIVAL chooses the paths with causal effect being coherent with proteins' activities along the path.**
 
 To run CARNIVAL algorithm you need to:
 
@@ -533,9 +580,11 @@ To run CARNIVAL algorithm you need to:
 
 -   Provide the whole inferred proteins tibble (**proteins_df**);
 
--   If you use a ILP solver different than the default one you have to specify its name and path (it's highly recommended to choose CPLEX);
+-   Provide the CARNIVAL options you created in the former step (**carnival_options**);
 
-It is important to stress that CARNIVAL will find the SMALLEST model connecting your inferred proteins with causal edges coherent with their activity. As such, you may loose some proteins. To keep the largest number of proteins and a greater number of mechanistic hypotheses, you can perform a two- or three-steps CARNIVAL.
+It is important to stress that CARNIVAL will find the SMALLEST model connecting your inferred proteins with causal edges coherent with their activity. As such, you may lose some proteins.
+
+To keep the largest number of proteins and a greater number of mechanistic hypotheses, you can perform a two- or three-steps CARNIVAL.
 
 ### One step CARNIVAL
 
@@ -557,8 +606,7 @@ output <- run_carnival_and_create_graph(source_df = source_df,
                                         naive_network = unique(one_layer_toy),
                                         proteins_df = carnival_input_toy,
                                         organism = 'mouse',
-                                        solver_path = solver_path, 
-                                        solver = solver, 
+                                        carnival_options = carnival_options,
                                         files = TRUE,
                                         path_sif = './optimized_network.sif',
                                         path_rds = './optimized_network.RDS')
@@ -680,8 +728,7 @@ output1 <- run_carnival_and_create_graph(source_df = receptors_df,
                                          naive_network = unique(one_layer_toy_df),
                                          proteins_df = carnival_input_toy,
                                          organism = 'mouse',
-                                         solver_path = solver_path, 
-                                         solver = solver, 
+                                         carnival_options = carnival_options,
                                          files = TRUE,
                                          path_sif = './optimized_network1.sif',
                                          path_rds = './optimized_network1.RDS')
@@ -702,8 +749,7 @@ output2 <- run_carnival_and_create_graph(source_df = source_df,
                                          naive_network = unique(one_layer_toy_df),
                                          proteins_df = carnival_input_toy,
                                          organism = 'mouse',
-                                         solver_path = solver_path, 
-                                         solver = solver, 
+                                         carnival_options = carnival_options,
                                          files = TRUE,
                                          path_sif = './optimized_network2.sif',
                                          path_rds = './optimized_network2.RDS')
@@ -763,8 +809,7 @@ output1 <- run_carnival_and_create_graph(source_df = receptors_df,
                                          naive_network = unique(one_layer_toy_df),
                                          proteins_df = carnival_input_toy,
                                          organism = 'mouse',
-                                         solver_path = solver_path, 
-                                         solver = solver, 
+                                         carnival_options = carnival_options,
                                          files = TRUE,
                                          path_sif = './optimized_network1.sif',
                                          path_rds = './optimized_network1.RDS')
@@ -785,8 +830,7 @@ output2 <- run_carnival_and_create_graph(source_df = source_df,
                                          naive_network = unique(one_layer_toy_df),
                                          proteins_df = carnival_input_toy,
                                          organism = 'mouse',
-                                         solver_path = solver_path, 
-                                         solver = solver, 
+                                         carnival_options = carnival_options,
                                          files = TRUE,
                                          path_sif = './optimized_network2.sif',
                                          path_rds = './optimized_network2.RDS')
@@ -804,8 +848,7 @@ output3 <- run_carnival_and_create_graph(source_df = source2_df,
                                          naive_network = unique(one_layer_toy_df),
                                          proteins_df = carnival_input_toy,
                                          organism = 'mouse',
-                                         solver_path = solver_path, 
-                                         solver = solver, 
+                                         carnival_options = carnival_options,
                                          files = TRUE,
                                          path_sif = './optimized_network2.sif',
                                          path_rds = './optimized_network2.RDS')
@@ -847,15 +890,13 @@ RCy3::createNetworkFromIgraph(union2_output_final$igraph_network,
 ```
 
 ## Step 4) phenoSCORE computation
-Once you have your context-specific model, you can *in silico* validate it, computing the modulation of activity of
-relevant phenotypes for your context. We call this score **phenoSCORE**. 
-It is very useful, if you have some expectation about your model characteristics. 
-For example, if you are treating tumor cells you expect the APOPTOSIS phenotype to be activated.
 
-We compute the **phenoSCORE** using: 
+Once you have your context-specific model, you can *in silico* validate it, computing the modulation of activity of relevant phenotypes for your context. We call this score **phenoSCORE**. It is very useful, if you have some expectation about your model characteristics. For example, if you are treating tumor cells you expect the APOPTOSIS phenotype to be activated.
 
-- the nodes in the context-specific model whose activity has been inferred from experimental data;
-- paths table from SIGNOR proteins to SIGNOR phenotypes containing a different significant causal paths, derived from our in-house recently published [resource](link.it); it is available as built-in object `paths_to_pheno`
+We compute the **phenoSCORE** using:
+
+-   the nodes in the context-specific model whose activity has been inferred from experimental data;
+-   paths table from SIGNOR proteins to SIGNOR phenotypes containing a different significant causal paths, derived from our in-house recently published [resource](link.it); it is available as built-in object `paths_to_pheno`
 
 You can choose the phenotypes you desire to look at using the `desired_phenotype` parameter, or you can compute the activity for all annotated phenotypes.
 

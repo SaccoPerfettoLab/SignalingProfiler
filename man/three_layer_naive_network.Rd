@@ -9,7 +9,7 @@ three_layer_naive_network(
   intermediate1_gn,
   intermediate2_gn,
   targets_gn,
-  organism,
+  PKN_table,
   max_length_1,
   max_length_2,
   max_length_3,
@@ -27,7 +27,7 @@ three_layer_naive_network(
 
 \item{targets_gn}{gene names of targets nodes}
 
-\item{organism}{string, 'human' or 'mouse'}
+\item{PKN_table}{tibble of all causal interactions}
 
 \item{max_length_1}{max_length of shortest path from start to intermediates1}
 

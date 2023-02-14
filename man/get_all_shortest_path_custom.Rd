@@ -7,7 +7,7 @@
 get_all_shortest_path_custom(
   start_nodes_gn,
   target_nodes_gn,
-  organism,
+  PKN_table,
   max_length
 )
 }
@@ -16,7 +16,7 @@ get_all_shortest_path_custom(
 
 \item{target_nodes_gn}{vector of gene_names of target nodes}
 
-\item{organism}{string, 'mouse' or 'human'}
+\item{PKN_table}{tibble of all causal interactions}
 
 \item{max_length}{integer, 1 to 4}
 }
