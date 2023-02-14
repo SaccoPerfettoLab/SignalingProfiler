@@ -3,27 +3,19 @@
 #'
 #' @param v_start gene_name of starting node
 #' @param v_end gene_name of target node
-#' @param organism string, 'mouse' or 'human'
+#' @param PKN_table tibble of all causal interactions
 #' @param max_length max_length of the desired path, max = 4
 #'
 #' @return tibble of all shortest paths among start and end nodes
 #' @export
 #'
 #' @examples
-find_all_paths <- function(v_start, v_end, organism, max_length){
+find_all_paths <- function(v_start, v_end, PKN_table, max_length){
 
   # v_start = 'Cdk1'
   # v_end = 'Mapk3'
   # organism = 'mouse'
   # max_length = 5
-
-  if(organism == 'mouse'){
-    PKN_table <- PKN_mouse
-  }else if(organism == 'human'){
-    PKN_table <- PKN_human
-  }else{
-    stop('Please provide a valid organism')
-  }
 
   if(max_length > 4){
     stop('Max length is 4!')
@@ -168,14 +160,14 @@ find_all_paths <- function(v_start, v_end, organism, max_length){
 #'
 #' @param start_nodes_gn vector of gene_names of starting nodes
 #' @param target_nodes_gn vector of gene_names of target nodes
-#' @param organism string, 'mouse' or 'human'
+#' @param PKN_table tibble of all causal interactions
 #' @param max_length integer, 1 to 4
 #'
 #' @return
 #' @export
 #'
 #' @examples
-get_all_shortest_path_custom <- function(start_nodes_gn, target_nodes_gn, organism, max_length){
+get_all_shortest_path_custom <- function(start_nodes_gn, target_nodes_gn, PKN_table, max_length){
   # start_nodes_gn <- kinphos_gn
   # target_nodes_gn <- tfs_gn
   # path_length <- 'shortest'
@@ -183,7 +175,7 @@ get_all_shortest_path_custom <- function(start_nodes_gn, target_nodes_gn, organi
 
   for(i in c(1:length(start_nodes_gn))){
     for(j in c(1:length(target_nodes_gn))){
-      paths_df <- find_all_paths(start_nodes_gn[i], target_nodes_gn[j], organism, max_length)
+      paths_df <- find_all_paths(start_nodes_gn[i], target_nodes_gn[j], PKN_table = PKN_table, max_length)
 
       if( i == 1 & j == 1){
         all_paths_df <- paths_df
@@ -198,22 +190,18 @@ get_all_shortest_path_custom <- function(start_nodes_gn, target_nodes_gn, organi
 #' create_graph_from_paths
 #'
 #' @param all_paths_df tibble with edges of shortest paths
-#' @param organism string, 'human' or 'mouse'
+#' @param PKN_table tibble of all causal interactions
 #'
 #' @return igraph object of naive network
 #'
 #' @examples
-create_graph_from_paths <- function(all_paths_df, organism){
+create_graph_from_paths <- function(all_paths_df, PKN_table){
 
-  if(organism == 'mouse'){
-    PKN_table <- PKN_mouse
-  }else if(organism == 'human'){
-    PKN_table <- PKN_human
-  }else{
-    stop('Please provide a valid organism')
+  if(nrow(all_paths_df) == 0){
+    stop('SignalingProfiler ERROR: No paths found for you analytes. Try to not preprocessing the PKN')
   }
 
-  edges_paths_df <- dplyr::left_join(all_paths_df, PKN_table) %>%
+  edges_paths_df <- dplyr::left_join(all_paths_df, PKN_table, by = c('ENTITYA', 'INTERACTION', 'ENTITYB')) %>%
     dplyr::relocate(IDA, IDB)
 
   edges_paths_df$PHOSPHO_KEY_GN_SEQ <- ''

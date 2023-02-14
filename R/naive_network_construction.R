@@ -112,7 +112,7 @@ coverage_of_inferred_proteins_in_db <- function(prediction_output, organism, rep
 #'
 #' @param starts_gn gene names of starting nodes (e.g. receptors)
 #' @param targets_gn gene names of target nodes (e.g. transcription factors)
-#' @param organism string, 'human' or 'mouse'
+#' @param PKN_table tibble of all causal interactions
 #' @param max_length integer, 1 to 4 for max_length connecting start to end
 #' @param rds_path path of network rds file
 #' @param sif_path path of network sif file
@@ -122,12 +122,12 @@ coverage_of_inferred_proteins_in_db <- function(prediction_output, organism, rep
 #' @export
 #'
 #' @examples
-one_layer_naive_network <- function(starts_gn, targets_gn, organism, max_length,
+one_layer_naive_network <- function(starts_gn, targets_gn, PKN_table, max_length,
                                     rds_path = 'one_layer_naive.RDS',
                                     sif_path = 'one_layer_naive.sif'){
   message('One layer: shortest paths from receptor(s) to all proteins')
-  all_paths_df <- get_all_shortest_path_custom(starts_gn, targets_gn, organism, max_length)
-  network <- create_graph_from_paths(all_paths_df, organism)
+  all_paths_df <- get_all_shortest_path_custom(starts_gn, targets_gn, PKN_table, max_length)
+  network <- create_graph_from_paths(all_paths_df, PKN_table)
 
   # set node attributes
   igraph::V(network)$mf_naive <- 'unknown'
@@ -147,7 +147,7 @@ one_layer_naive_network <- function(starts_gn, targets_gn, organism, max_length,
 #' @param starts_gn gene names of starting nodes
 #' @param intermediate_gn gene names of intermediate nodes (e.g. kins and phos)
 #' @param targets_gn gene names of target nodes (e.g. transcription factors)
-#' @param organism string, 'human' or 'mouse'
+#' @param PKN_table tibble of all causal interactions
 #' @param max_length_1 max_length of shortest path from start to intermediates
 #' @param max_length_2 max_length of shortest path from intermediates to targets
 #' @param rds_path path of network rds file
@@ -158,19 +158,19 @@ one_layer_naive_network <- function(starts_gn, targets_gn, organism, max_length,
 #'
 #' @examples
 two_layer_naive_network <- function(starts_gn, intermediate_gn, targets_gn,
-                                    organism, max_length_1, max_length_2,
+                                    PKN_table, max_length_1, max_length_2,
                                     rds_path = 'two_layer_naive.RDS',
                                     sif_path = 'two_layer_naive.sif'){
 
 
   message(paste0('First layer: ', max_length_1, ' length paths from starting nodes to intermediates'))
-  all_paths_layer1_df <- get_all_shortest_path_custom(starts_gn, intermediate_gn, organism, max_length_1)
+  all_paths_layer1_df <- get_all_shortest_path_custom(starts_gn, intermediate_gn, PKN_table, max_length_1)
 
   message(paste0('Second layer: ', max_length_2, ' length paths from intermediates nodes to targets'))
-  all_paths_layer2_df <- get_all_shortest_path_custom(intermediate_gn, targets_gn, organism, max_length_2)
+  all_paths_layer2_df <- get_all_shortest_path_custom(intermediate_gn, targets_gn, PKN_table, max_length_2)
 
   all_paths_df <- dplyr::bind_rows(all_paths_layer1_df, all_paths_layer2_df)
-  network <- create_graph_from_paths(all_paths_df, organism)
+  network <- create_graph_from_paths(all_paths_df, PKN_table)
 
   # set node attributes
   igraph::V(network)$mf_naive <- 'unknown'
@@ -192,7 +192,7 @@ two_layer_naive_network <- function(starts_gn, intermediate_gn, targets_gn,
 #' @param intermediate1_gn gene names of intermediates1 nodes
 #' @param intermediate2_gn gene names of intermediates2 nodes
 #' @param targets_gn gene names of targets nodes
-#' @param organism string, 'human' or 'mouse'
+#' @param PKN_table tibble of all causal interactions
 #' @param max_length_1 max_length of shortest path from start to intermediates1
 #' @param max_length_2 max_length of shortest path from intermediates1 to intermediates2
 #' @param max_length_3  max_length of shortest path from intermediates2 to targets
@@ -207,7 +207,7 @@ two_layer_naive_network <- function(starts_gn, intermediate_gn, targets_gn,
 #' @examples
 #'
 three_layer_naive_network <- function(starts_gn, intermediate1_gn, intermediate2_gn,
-                                      targets_gn, organism,
+                                      targets_gn, PKN_table,
                                       max_length_1, max_length_2, max_length_3,
                                       both_intermediates = TRUE,
                                       rds_path = 'three_layer_naive.RDS',
@@ -215,27 +215,27 @@ three_layer_naive_network <- function(starts_gn, intermediate1_gn, intermediate2
 
   # create network
   message(paste0('First layer: ', max_length_1, ' length paths from starting nodes to intermediates1'))
-  all_paths_layer1_df <- get_all_shortest_path_custom(starts_gn, intermediate1_gn, organism, max_length_1)
+  all_paths_layer1_df <- get_all_shortest_path_custom(starts_gn, intermediate1_gn, PKN_table, max_length_1)
 
   message(paste0('Second layer: ', max_length_2, ' length paths from intermediates1 nodes to intermediates'))
-  all_paths_layer2_df <- get_all_shortest_path_custom(intermediate1_gn, targets_gn, organism, max_length_2)
+  all_paths_layer2_df <- get_all_shortest_path_custom(intermediate1_gn, targets_gn, PKN_table, max_length_2)
 
   # third layer
   if(both_intermediates == TRUE){
     message(paste0('Third layer: ', max_length_3, ' length paths from intermediates2 nodes to targets'))
     all_paths_layer3_df <- get_all_shortest_path_custom(c(intermediate1_gn, intermediate2_gn),
-                                                        targets_gn, organism, max_length_3)
+                                                        targets_gn, PKN_table, max_length_3)
 
   }else if(both_intermediates == FALSE){
     message(paste0('Third layer: ', max_length_3, ' length paths from intermediates2 nodes to targets'))
-    all_paths_layer3_df <- get_all_shortest_path_custom(intermediate2_gn, targets_gn, organism, max_length_3)
+    all_paths_layer3_df <- get_all_shortest_path_custom(intermediate2_gn, targets_gn, PKN_table, max_length_3)
   }else{
     error('Please provide a boolean value for both_intermediates parameter')
   }
 
 
   all_paths_df <- dplyr::bind_rows(all_paths_layer1_df, all_paths_layer2_df, all_paths_layer3_df)
-  network <- create_graph_from_paths(all_paths_df, organism)
+  network <- create_graph_from_paths(all_paths_df, PKN_table)
 
   # set node attributes
   igraph::V(network)$mf_naive <- 'unknown'

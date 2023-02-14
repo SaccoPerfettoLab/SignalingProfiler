@@ -4,14 +4,14 @@
 \alias{find_all_paths}
 \title{find_all_paths}
 \usage{
-find_all_paths(v_start, v_end, organism, max_length)
+find_all_paths(v_start, v_end, PKN_table, max_length)
 }
 \arguments{
 \item{v_start}{gene_name of starting node}
 
 \item{v_end}{gene_name of target node}
 
-\item{organism}{string, 'mouse' or 'human'}
+\item{PKN_table}{tibble of all causal interactions}
 
 \item{max_length}{max_length of the desired path, max = 4}
 }
