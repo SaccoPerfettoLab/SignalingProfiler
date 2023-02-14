@@ -401,7 +401,7 @@ In this step, you are building the skeleton of the signal of your cellular model
 
 ### Preprocessing of the PKN
 
-Since the **PKN** contains interactions coming from different experimental systems, a good practice is to keep only the interactions involving analytes expressed in your system, so quantified in at least one of your omics data set.
+Since the **PKN** contains interactions coming from different experimental systems, a good practice is to keep only the interactions involving analytes expressed in your system, so quantified in at least one of your omics data sets.
 
 ```{r eval = FALSE}
 PKN_expressed <- preprocess_PKN(omics_data = list(tr_toy_df, prot_toy_df, phospho_toy_df),
@@ -671,7 +671,7 @@ The proteins in the final context-specific model are reported in `toy_sp_output$
 toy_sp_output$nodes_df
 ```
 
-##### SP output interaction table (edges_df)
+##### SP output interactions table (edges_df)
 
 The interactions among the proteins in the final context-specific model are reported in `toy_sp_output$edges_df` and they are annotated with different attributes:
 
