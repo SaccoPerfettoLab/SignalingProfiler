@@ -350,22 +350,18 @@ run_footprint_based_analysis <- function(omic_data, analysis, organism,
   message(' ** RUNNING FOOTPRINT BASED ANALYSIS ** ')
   message('Credits to Prof. Julio Saez-Rodriguez. For more information read this article: Dugourd A, Saez-Rodriguez J. Footprint-based functional analysis of multiomic data. Curr Opin Syst Biol. 2019 Jun;15:82-90. doi: 10.1016/j.coisb.2019.04.002. PMID: 32685770; PMCID: PMC7357600.')
 
-  # omic_data <- readRDS('./data/JMD_phospho.RDS')
-  # # omic_data <- phospho_toy_df
-  # analysis <- 'ksea'
-  # organism <- 'mouse'
-  # reg_minsize <- 1
-  # exp_sign <- FALSE
-  # hypergeom_corr <- TRUE
-  # GO_annotation = TRUE
-
-  library(tidyverse)
   # run viper analysis
   viper_format <- create_viper_format(omic_data, analysis, significance = exp_sign)
 
 
   message('Starting VIPER analysis')
   output <- run_viper(viper_format, analysis, organism, reg_minsize)
+
+  # if no inferred protein from VIPER analysis
+  if(nrow(output) == 0){
+    stop('No inferred protein found!')
+  }
+
   if(hypergeom_corr == TRUE){
     message('Starting hypergeometric test correction')
     output <- weight_viper_score(run_hypergeometric_test(omic_data,output$sign, analysis, organism))
@@ -374,8 +370,6 @@ run_footprint_based_analysis <- function(omic_data, analysis, organism,
   }else{
     output_uniprot <- convert_gene_name_in_uniprotid(output$sign, organism)
   }
-
-  #output_uniprot$UNIPROT
 
   if(GO_annotation == TRUE){
     message('GO molecular function annotation')
@@ -386,8 +380,6 @@ run_footprint_based_analysis <- function(omic_data, analysis, organism,
     return(output_final)
   }
   return(output_uniprot)
-
-
 }
 
 ###############################################################################
@@ -418,15 +410,6 @@ phosphoscore_computation <- function(phosphoproteomic_data,
                                     GO_annotation = FALSE){
   message('** RUNNING PHOSPHOSCORE ANALYSIS **')
 
-  # load('./data/phospho_toy_df.rda')
-  # phosphoproteomic_data <- phospho_toy_df %>%
-  #   mutate_at('gene_name', str_to_title)
-  # path_fasta = './phospho.fasta'
-  # organism = 'mouse'
-  # activatory = TRUE
-  # local = TRUE
-  # GO_annotation = FALSE
-
   if(organism == 'mouse' | organism =='human'){
     phosphoscore_df_output <- map_experimental_on_regulatory_phosphosites(phosphoproteomic_data,
                                                                    organism, activatory, path_fasta)
@@ -440,15 +423,24 @@ phosphoscore_computation <- function(phosphoproteomic_data,
     stop('please provide a valid organism')
   }
 
+  # STOP HERE IF NO PHOSPHOSCORE IS FOUND
+  if(nrow(phosphoscore_df) == 0){
+    stop('No proteins found from PhosphoSCORE computation!')
+  }
+
+  # compute protein PhosphoSCORE averaging the contribute of each phosphosite
+
+  if('source_org' %in% colnames(phosphoscore_df)){
+    n_species <- length(unique(phosphoscore_df$source_org))
+  }
+
   raw_output <- phosphoscore_df %>%
     #tidyr::separate(PHOSPHO_KEY_GN_SEQ, into = c('h_gene_name', 'phosphoseq'), sep = '-') %>%
     #dplyr::select(-c('h_gene_name')) %>%
     dplyr::group_by(gene_name) %>%
     dplyr::summarize(phosphoscore = mean(inferred_activity))
 
-
   exp_fc_sub <- phosphoscore_df_output$used_exp_data %>%
-    #dplyr::mutate_at('PHOSPHO_KEY_GN_SEQ', toupper) %>%
     dplyr::select(gene_name, PHOSPHO_KEY_GN_SEQ, aminoacid, position) %>%
     dplyr::distinct()
 
@@ -456,6 +448,15 @@ phosphoscore_computation <- function(phosphoproteomic_data,
                                  phosphoscore_df %>%
                                    dplyr::select(PHOSPHO_KEY_GN_SEQ, ACTIVATION, difference),
                                  by = 'PHOSPHO_KEY_GN_SEQ')
+
+  if(organism %in% c('hybrid', 'mouse')){
+    exp_fc_sub <- exp_fc_sub %>%
+      dplyr::mutate_at('PHOSPHO_KEY_GN_SEQ', toupper) %>%
+      dplyr::distinct()
+
+    exp_fc_sub <- exp_fc_sub %>% dplyr::mutate(PHOSPHO_KEY_GN_SEQ = paste0(gene_name, '-',
+                                                                           sub('.*-', replacement = '', exp_fc_sub$PHOSPHO_KEY_GN_SEQ)))
+  }
 
   exp_fc_sub <- exp_fc_sub %>%
     dplyr::mutate(aa = paste0(aminoacid, position),
@@ -469,7 +470,7 @@ phosphoscore_computation <- function(phosphoproteomic_data,
 
   output <- dplyr::left_join(raw_output, exp_fc_sub, by = 'gene_name')
 
-  if(organism == 'hybrid' & 'source_org' %in% colnames(output)){
+  if(organism == 'hybrid' & n_species == 2){
     genes <- phosphoscore_df %>%
       dplyr::select(gene_name, source_org) %>%
       dplyr::distinct() %>%
@@ -779,15 +780,15 @@ phospho_score_hybrid_computation <- function(phosphoproteomic_data,
 
   }else if(is.list(phosphoscore_df_mouse_output) & is.list(phosphoscore_df_hybrid_output)){
     phosphoscore_df_mouse <- phosphoscore_df_mouse_output$phosphoscore_df %>%
-      dplyr::select(PHOSPHO_KEY_GN_SEQ, inferred_activity, gene_name)
+      dplyr::select(PHOSPHO_KEY_GN_SEQ, inferred_activity, gene_name, ACTIVATION, difference)
 
     phosphoscore_df_hybrid <- phosphoscore_df_hybrid_output$phosphoscore_df %>%
-      dplyr::select(PHOSPHO_KEY_GN_SEQ, inferred_activity, gene_name) %>%
+      dplyr::select(PHOSPHO_KEY_GN_SEQ, inferred_activity, gene_name, ACTIVATION, difference) %>%
       dplyr::mutate_at('gene_name', stringr::str_to_title)
 
     message('Computing Phosphoscore')
     joined_tables <- dplyr::full_join(phosphoscore_df_mouse, phosphoscore_df_hybrid,
-                                      by = c('PHOSPHO_KEY_GN_SEQ', 'gene_name'),
+                                      by = c('PHOSPHO_KEY_GN_SEQ', 'gene_name', 'ACTIVATION', 'difference'),
                                       suffix = c('.m', '.h')) %>%
       dplyr::distinct() %>%
       dplyr::arrange(PHOSPHO_KEY_GN_SEQ)
@@ -802,7 +803,7 @@ phospho_score_hybrid_computation <- function(phosphoproteomic_data,
     joined_tables$inferred_activity[joined_tables$source_org == 'mouse'] <- joined_tables$inferred_activity.m[joined_tables$source_org == 'mouse']
 
     phosphoscore_df_flag <- joined_tables %>%
-      dplyr::select(PHOSPHO_KEY_GN_SEQ, gene_name,source_org, inferred_activity)
+      dplyr::select(PHOSPHO_KEY_GN_SEQ, gene_name,source_org, inferred_activity, ACTIVATION, difference)
 
     # experimental used data
     used_exp_data_both <- dplyr::bind_rows(phosphoscore_df_mouse_output$used_exp_data,
