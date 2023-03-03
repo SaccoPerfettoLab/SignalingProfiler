@@ -237,6 +237,7 @@ union_of_graphs <- function(graph_1, graph_2, proteins_df, files,
 #' @return list of CARNIVAL options
 #'
 #' @examples
+#' @export
 default_CARNIVAL_options = function(solver = NULL){
 
   if(is.null(solver)){
