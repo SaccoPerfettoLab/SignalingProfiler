@@ -357,8 +357,9 @@ run_footprint_based_analysis <- function(omic_data, analysis, organism,
   message('Starting VIPER analysis')
   output <- run_viper(viper_format, analysis, organism, reg_minsize)
 
+
   # if no inferred protein from VIPER analysis
-  if(nrow(output) == 0){
+  if(nrow(output$sign) == 0){
     stop('No inferred protein found!')
   }
 
