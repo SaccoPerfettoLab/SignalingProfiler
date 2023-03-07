@@ -265,7 +265,7 @@ default_CARNIVAL_options = function(solver = NULL){
 #' @param target_df tibble with target nodes in a continuous range of activity
 #' @param naive_network tibble with naive network in SIF format
 #' @param proteins_df all inferred proteins df
-#' @param organism string, organism you are using
+#' @param organism string, organism you are usinggit
 #'
 #' @return TRUE if everything is correct
 #'
