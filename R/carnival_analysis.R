@@ -97,7 +97,7 @@ add_output_carnival_nodes_attributes <- function(carnival_result,
     dplyr::rename('UNIPROT' = 'Node','gene_name' = 'ENTITY')
 
   nodes_df <- dplyr::left_join(nodes_df, proteins_df, by = c('gene_name', 'UNIPROT')) %>%
-    dplyr::select(gene_name, carnival_activity, UNIPROT, mf, final_score)
+    dplyr::select(gene_name, carnival_activity, UNIPROT, mf, final_score, method)
 
   # annotate missing genes in the network
   message('GO Molecular Function annotation of optimized nodes')
@@ -389,7 +389,7 @@ run_carnival_and_create_graph <- function(source_df,
 #' @examples
 convert_output_nodes_in_next_input <- function(carnival_result){
   nodes <- carnival_result$nodes_df
-  formatted_nodes <- nodes %>% dplyr::select(UNIPROT, gene_name, final_score = carnival_activity, mf)
+  formatted_nodes <- nodes %>% dplyr::select(UNIPROT, gene_name, final_score = carnival_activity, mf, method)
   return(formatted_nodes)
 }
 
