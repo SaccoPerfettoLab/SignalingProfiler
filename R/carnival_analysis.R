@@ -100,8 +100,8 @@ add_output_carnival_nodes_attributes <- function(carnival_result,
     dplyr::select(gene_name, carnival_activity, UNIPROT, mf, final_score, method)
 
   # annotate missing genes in the network
-  message('GO Molecular Function annotation of optimized nodes')
-  nodes_df <- molecular_function_annotation(nodes_df)
+  #message('GO Molecular Function annotation of optimized nodes')
+  #nodes_df <- molecular_function_annotation(nodes_df)
 
   # add new attributes
   nodes_df$discordant <- FALSE
