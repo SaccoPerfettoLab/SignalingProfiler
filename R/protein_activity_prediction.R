@@ -471,13 +471,15 @@ phosphoscore_computation <- function(phosphoproteomic_data,
 
   output <- dplyr::left_join(raw_output, exp_fc_sub, by = 'gene_name')
 
-  if(organism == 'hybrid' & n_species == 2){
-    genes <- phosphoscore_df %>%
-      dplyr::select(gene_name, source_org) %>%
-      dplyr::distinct() %>%
-      dplyr::group_by(gene_name) %>%
-      dplyr::summarise(source_org = paste0(source_org, collapse = ';'))
-    output <- dplyr::left_join(output, genes, by = c('gene_name'))
+  if(organism == 'hybrid'){
+    if(n_species == 2){
+      genes <- phosphoscore_df %>%
+        dplyr::select(gene_name, source_org) %>%
+        dplyr::distinct() %>%
+        dplyr::group_by(gene_name) %>%
+        dplyr::summarise(source_org = paste0(source_org, collapse = ';'))
+      output <- dplyr::left_join(output, genes, by = c('gene_name'))
+    }
   }
 
   # add uniprot and molecular function
