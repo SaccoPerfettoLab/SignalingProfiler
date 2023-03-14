@@ -13,8 +13,7 @@
 igraphToSif <- function(inGraph, outfile="output.sif", edgeLabel="label") {
 
   if(file.exists(outfile)){
-    command1 <- paste0('rm ', outfile)
-    system(command1)
+    file.remove(outfile)
   }
 
   singletons <- as.list(igraph::get.vertex.attribute(inGraph, "name"))
