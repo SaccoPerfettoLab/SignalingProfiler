@@ -40,6 +40,7 @@ generateTFList <- function (df = df, top = 50, access_idx = 1){
 #' @param proteins_df dataframe with inferred proteins with specific mf
 #'
 #' @return a list of proteins as desired by CARNIVAL
+#' @export
 #'
 #' @examples
 formatting_proteins_for_carnival <- function(proteins_df){
