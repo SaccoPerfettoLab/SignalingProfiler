@@ -10,6 +10,7 @@ run_footprint_based_analysis(
   organism,
   reg_minsize,
   exp_sign,
+  integrated_regulons = FALSE,
   hypergeom_corr,
   GO_annotation = FALSE
 )
@@ -25,6 +26,8 @@ run_footprint_based_analysis(
 
 \item{exp_sign}{boolean value, TRUE use only significant analytes,
 FALSE: all measured analytes}
+
+\item{integrated_regulons}{boolean value, default FALSE; if TRUE uses regulons derived from experimental data}
 
 \item{hypergeom_corr}{boolean value, TRUE apply hypergeometric correction,
 FALSE no correction}

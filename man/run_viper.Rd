@@ -4,7 +4,13 @@
 \alias{run_viper}
 \title{Run VIPER analysis}
 \usage{
-run_viper(viper_format, analysis, organism, reg_minsize)
+run_viper(
+  viper_format,
+  analysis,
+  organism,
+  reg_minsize,
+  integrated_regulons = FALSE
+)
 }
 \arguments{
 \item{viper_format}{omic dataset in VIPER format}
@@ -14,6 +20,8 @@ run_viper(viper_format, analysis, organism, reg_minsize)
 \item{organism}{string reporting the organism}
 
 \item{reg_minsize}{viper function param: minimum regulon size to consider}
+
+\item{integrated_regulons}{boolean value, default FALSE; if TRUE, uses regulons derived from experimental data}
 }
 \value{
 a list containing significantly enriched proteins and

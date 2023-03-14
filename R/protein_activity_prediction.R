@@ -70,13 +70,14 @@ create_viper_format <- function(omic_data, analysis, significance){
 #' @param analysis string representing 'tfea' or 'ksea' analysis
 #' @param organism string reporting the organism
 #' @param reg_minsize viper function param: minimum regulon size to consider
+#' @param integrated_regulons boolean value, default FALSE; if TRUE, uses regulons derived from experimental data
 #'
 #' @return a list containing significantly enriched proteins and
 #' all inferred proteins
 #' @export
 #'
 #' @examples
-run_viper <- function(viper_format, analysis, organism, reg_minsize){
+run_viper <- function(viper_format, analysis, organism, reg_minsize, integrated_regulons = FALSE){
 
   # viper_format <- v
   # analysis <- 'ksea'
@@ -97,7 +98,11 @@ run_viper <- function(viper_format, analysis, organism, reg_minsize){
 
   }else if(analysis == 'ksea'){
     if(organism == 'human'){
-      regulons <- ksea_db_human
+      if(integrated_regulons == TRUE){
+        regulons <- ksea_db_human_atlas
+      }else{
+        regulons <- ksea_db_human
+      }
     }else if(organism == 'mouse'){
       regulons <- ksea_db_mouse
     }else{
@@ -336,7 +341,9 @@ filter_VIPER_output <- function(inferred_proteins_mf, analysis){
 #' FALSE: all measured analytes
 #' @param hypergeom_corr boolean value, TRUE apply hypergeometric correction,
 #' FALSE no correction
+#' @param integrated_regulons boolean value, default FALSE; if TRUE uses regulons derived from experimental data
 #' @param GO_annotation boolean value, TRUE perform GO molecular function annotaiton, FALSE default value
+#'
 #' @return dataset of inferred proteins: transcription factor (tfea)
 #' or kinases and phosphatases (ksea)
 #' @export
@@ -344,6 +351,7 @@ filter_VIPER_output <- function(inferred_proteins_mf, analysis){
 #' @examples
 run_footprint_based_analysis <- function(omic_data, analysis, organism,
                                          reg_minsize, exp_sign,
+                                         integrated_regulons = FALSE,
                                          hypergeom_corr,
                                          GO_annotation = FALSE){
 
@@ -355,7 +363,7 @@ run_footprint_based_analysis <- function(omic_data, analysis, organism,
 
 
   message('Starting VIPER analysis')
-  output <- run_viper(viper_format, analysis, organism, reg_minsize)
+  output <- run_viper(viper_format, analysis, organism, reg_minsize, integrated_regulons)
 
 
   # if no inferred protein from VIPER analysis

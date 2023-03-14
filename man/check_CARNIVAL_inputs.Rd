@@ -21,7 +21,7 @@ check_CARNIVAL_inputs(
 
 \item{proteins_df}{all inferred proteins df}
 
-\item{organism}{string, organism you are using}
+\item{organism}{string, organism you are usinggit}
 }
 \value{
 TRUE if everything is correct
