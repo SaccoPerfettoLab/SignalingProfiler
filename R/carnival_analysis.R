@@ -331,6 +331,8 @@ run_carnival_and_create_graph <- function(source_df,
   message(' ** RUNNING CARNIVAL ** ')
   message('Credits to Prof. Julio Saez-Rodriguez. For more information visit: https://saezlab.github.io/CARNIVAL/ ')
 
+  source_df <- keep_only_present_perturbation(source_df, naive_network)
+
   # check inputs
   check_CARNIVAL_inputs(source_df = source_df,
                         target_df = target_df,
@@ -536,5 +538,25 @@ expand_and_map_edges <- function(optimized_graph_rds,
   return(list(igraph_network = CARNIVAL_graph,
               nodes_df = nodes_df,
               edges_df = edges_df_new_final))
+}
+
+
+#' keep_only_present_perturbation
+#'
+#' @param source_df dataframe with receptors
+#' @param naive_network dataframe with naive network interactions
+#'
+#' @return dataframe with receptors present in the naive network
+#' @export
+#'
+#' @examples
+keep_only_present_perturbation <- function(source_df, naive_network){
+
+  naive_graph <- igraph::graph_from_data_frame(naive_network)
+
+  source_df_present <- source_df %>%
+    dplyr::filter(source_df$UNIPROT %in% igraph::V(naive_graph)$name)
+
+  return(source_df_present)
 }
 
