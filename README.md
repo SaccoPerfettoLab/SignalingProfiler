@@ -11,6 +11,8 @@ Signaling Profiler is a R based pipeline that integrates transcriptomics, proteo
 
 This network provides mechanistics hypoteses about the remodeling of the signal due to your case.
 
+# <img src="./img/SP_workflow_README.png" align="center"/>
+
 ## Installation
 
 To install Signaling Profiler execute the following command in R.
