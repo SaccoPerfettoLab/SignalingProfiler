@@ -25,6 +25,8 @@ knitr::opts_chunk$set(
 )
 ```
 
+<img src="./img/SP_workflow_TUTORIAL.png" align="center"/>
+
 # Introduction
 
 Signaling Profiler is a modelling pipeline described in [Massacci, Venafra et al. (2022)](https://www.biorxiv.org/content/10.1101/2022.05.16.492070v1) that combines transcriptomics, proteomics and phosphoproteomics with prior knowledge annotated in public databases, such as SIGNOR and PhosphoSitePlus.
@@ -430,9 +432,11 @@ Otherwise, you can work with the whole organism-specific PKN tables stored in th
 Even if you inferred the activity of a protein, it may be absent in the PKN. As such, a good practice is to check for database coverage of your inferred proteins data set.
 
 If you set `report=TRUE`, a report file is written in your working directory.
+If you are using the human PKN extended with atlas interactions, set `with_atlas=TRUE`.
 
-```{r eval = TRUE}
-coverage_of_inferred_proteins_in_db(toy_prot_activity_df, 'mouse', report = FALSE) 
+```{r eval = FALSE}
+coverage_of_inferred_proteins_in_db(toy_prot_activity_df, organism = 'mouse', 
+                                    with_atlas = FALSE, report = FALSE) 
 ```
 
 ### How to build a naïve network?
