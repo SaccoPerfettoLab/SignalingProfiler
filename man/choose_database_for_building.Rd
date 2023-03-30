@@ -4,10 +4,12 @@
 \alias{choose_database_for_building}
 \title{choose_database_for_building}
 \usage{
-choose_database_for_building(organism, format)
+choose_database_for_building(organism, with_atlas = FALSE, format)
 }
 \arguments{
 \item{organism}{'human' or 'mouse''}
+
+\item{with_atlas}{Boolean value, default FALSE, if TRUE uses atlas}
 
 \item{format}{'igraph', 'table'}
 }
