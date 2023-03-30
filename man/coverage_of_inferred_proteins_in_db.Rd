@@ -4,12 +4,19 @@
 \alias{coverage_of_inferred_proteins_in_db}
 \title{coverage_of_inferred_proteins_in_db}
 \usage{
-coverage_of_inferred_proteins_in_db(prediction_output, organism, report)
+coverage_of_inferred_proteins_in_db(
+  prediction_output,
+  organism,
+  with_atlas = FALSE,
+  report
+)
 }
 \arguments{
 \item{prediction_output}{concatenation of inferred proteins from omics data}
 
 \item{organism}{'human' or 'mouse'}
+
+\item{with_atlas}{Boolean value, default FALSE, if TRUE uses atlas}
 
 \item{report}{boolean value, if TRUE returns a file containing
 the report of the proteins' coverage analysis, if FALSE print it}
