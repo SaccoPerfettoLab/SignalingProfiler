@@ -45,22 +45,31 @@ igraphToSif <- function(inGraph, outfile="output.sif", edgeLabel="label") {
 #'
 #' @param organism 'human' or 'mouse''
 #' @param format 'igraph', 'table'
+#' @param with_atlas Boolean value, default FALSE, if TRUE uses atlas
 #'
 #' @return built-in database as igraph object or tibble
 #' @export
 #'
 #' @examples
-choose_database_for_building <- function(organism ,format){
+choose_database_for_building <- function(organism, with_atlas = FALSE, format){
   # db choosing
   if(organism == 'mouse'){
     if(format == 'igraph'){
-      pkn <- db_mouse
+      if(with_atlas == TRUE){
+        stop('If organism is \'mouse\' with_atlas parameter must be FALSE')
+      }else{
+        pkn <- db_mouse
+      }
     }else if(format == 'table'){
       pkn <- PKN_mouse
     }else{error('Please provide a valid format among igraph or table')}
   }else if(organism == 'human'){
     if(format == 'igraph'){
-      pkn <- db_human
+      if(with_atlas == TRUE){
+        pkn <- db_human_atlas
+      }else{
+        pkn <- db_human
+      }
     }else if(format == 'table'){
       pkn <- PKN_human
     }else{error('Please provide a valid format among igraph or table')}
@@ -76,16 +85,18 @@ choose_database_for_building <- function(organism ,format){
 #' @param organism 'human' or 'mouse'
 #' @param report boolean value, if TRUE returns a file containing
 #' the report of the proteins' coverage analysis, if FALSE print it
+#' @param with_atlas Boolean value, default FALSE, if TRUE uses atlas
 #'
 #' @return print information about coverage or annotates them in a file
 #' @export
 #'
 #' @examples
-coverage_of_inferred_proteins_in_db <- function(prediction_output, organism, report){
+coverage_of_inferred_proteins_in_db <- function(prediction_output, organism,
+                                                with_atlas = FALSE, report){
 
   # organism <- 'mouse'
   # report <- TRUE
-  pkn <- choose_database_for_building(organism, 'igraph')
+  pkn <- choose_database_for_building(organism, with_atlas, 'igraph')
 
   if(report == TRUE){sink('report.txt')}
 
