@@ -25,7 +25,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-<img src="./img/SP_workflow_TUTORIAL.png" align="center"/>
+<img src="./img/SP_package_workflow_TUTORIAL.png" align="center"/>
 
 # Introduction
 
