@@ -399,16 +399,31 @@ Here, we create what we call a **naïve network**, a graph connecting your prote
 
 In this step, you are building the skeleton of the signal of your cellular model, looking across all the possible routes available in SIGNOR and PsP databases. We call the set of interactions **Prior Knowledge Network (PKN)**. These databases are available for both *human* and *mouse* organisms, as built-in objects in the package, in tabular (`PKN_mouse`, `PKN_human`) and igraph object format (`db_mouse`, `db_human`).
 
-### Preprocessing of the PKN
+### Choose and preprocess the PKN
+
+The first step is to choose the Prior Knowledge Network (PKN).
+
+Signaling Profiler allow you to use built-in PKNs for **mouse** and **human** or to exploit a **custom PKN.**
+For the custom PKN you have to provide the path of the file and this allow you to use old version of PKNs, available in the PKN_old_release folder of our GitHub page. 
+
+For **human** you can choose between a PKN containing the interactions from only databases, or a PKN containing interactions also derived from the [kinome atlas](https://www.nature.com/articles/s41586-022-05575-3), specifying the `with_atlas = TRUE`. 
+
+```{r eval = FALSE}
+PKN_table <- choose_PKN(organism = 'mouse', 
+                        with_atlas = FALSE,
+                        custom = FALSE,
+                        custom_path = NULL)
+```
 
 Since the **PKN** contains interactions coming from different experimental systems, a good practice is to keep only the interactions involving analytes expressed in your system, so quantified in at least one of your omics data sets.
 
 ```{r eval = FALSE}
+
 PKN_expressed <- preprocess_PKN(omics_data = list(tr_toy_df, prot_toy_df, phospho_toy_df),
-                                organism = 'mouse')
+                                PKN_table = PKN_table)
 ```
 
-You can work with the whole organism-specific PKN tables, otherwise (`PKN_mouse`, `PKN_human`).
+Otherwise, you can work with the whole organism-specific PKN tables stored in the built-in variable (`PKN_mouse`, `PKN_human`, `PKN_human_atlas`).
 
 ### Assess coverage of the PKN
 

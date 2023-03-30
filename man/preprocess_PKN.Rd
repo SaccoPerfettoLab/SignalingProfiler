@@ -4,15 +4,15 @@
 \alias{preprocess_PKN}
 \title{preprocess_PKN}
 \usage{
-preprocess_PKN(omics_data, organism)
+preprocess_PKN(omics_data, PKN_table)
 }
 \arguments{
 \item{omics_data}{list of all the omics data you have}
 
-\item{organism}{string, 'mouse' or 'human'}
+\item{PKN_table}{table derived by choose_PKN}
 }
 \value{
-table of PKN with interactions involving expressed proteins in your system
+table of PKN with interactions between proteins expressed in your system
 }
 \description{
 preprocess_PKN
