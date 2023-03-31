@@ -17,7 +17,8 @@ run_carnival_and_create_graph(
 )
 }
 \arguments{
-\item{source_df}{tibble with source nodes discretized among 1 and -1}
+\item{source_df}{if NULL, inverse CARNIVAL,
+otherwise, tibble with source nodes discretized among 1 and -1}
 
 \item{target_df}{tibble with target nodes in a continuous range of activity}
 
