@@ -928,34 +928,48 @@ RCy3::createNetworkFromIgraph(output_final$igraph_network,
 
 ## Step 4) phenoSCORE computation
 
-Once you have your context-specific model, you can *in silico* validate it, computing the modulation of activity of relevant phenotypes for your context. We call this score **phenoSCORE**. It is very useful, if you have some expectation about your model characteristics. For example, if you are treating tumor cells you expect the APOPTOSIS phenotype to be activated.
+Once you have your context-specific model, you can *in silico* validate it, computing the modulation of activity of relevant phenotypes for your context. We call this score **phenoSCORE**. It is very useful, especially when you have some expectations about your model characteristics. 
+For example, if you are treating tumor cells you may expect the APOPTOSIS phenotype to be activated.
 
 We compute the **phenoSCORE** using:
 
 -   the nodes in the context-specific model whose activity has been inferred from experimental data;
--   paths table from SIGNOR proteins to SIGNOR phenotypes containing a different significant causal paths, derived from our in-house recently published [resource](link.it); it is available as built-in object `paths_to_pheno`
+-   paths table from SIGNOR proteins to SIGNOR phenotypes containing a different significant causal paths, derived from our in-house recently published resource [ProxPath](https://www.biorxiv.org/content/10.1101/2023.01.09.523265v1.full.pdf); it is available as built-in object `paths_to_pheno`
+
+Briefly, **ProxPath** reports the regulators of phenotypes.
+Regulators are defined as proteins connected to the phenotype with a maximum
+of 4-steps-length path. The user can choose closer regulators to the phenotype
+modulating the length of the path with the `max_path_length` parameter.
 
 You can choose the phenotypes you desire to look at using the `desired_phenotype` parameter, or you can compute the activity for all annotated phenotypes.
 
 ```{r eval = FALSE}
+# Execute this command to see all the available phenotypes
 unique(paths_to_pheno$EndPathways)
 ```
 
+If two phenotype regulators are in the same linear cascade in the network, 
+`remove_cascade = TRUE` allows to consider only the regulator
+at the end of the signaling cascade. 
+
 To compute the **phenoSCORE** simply execute:
 
-```{r eval = TRUE}
+```{r eval = FALSE}
 # all phenotypes
-compute_phenoscore(sp_output = toy_sp_output, 
+toy_phenoscore_output <- compute_phenoscore(sp_output = toy_sp_output, 
                    desired_phenotypes = NULL, 
+                   max_path_length = 4, 
+                   remove_cascade = TRUE,
                    compact = FALSE)
 
 # only desired phenotypes
-toy_phenoscore_output <- compute_phenoscore(sp_output = toy_sp_output, 
-                   desired_phenotypes = 'G1/S_TRANSITION_CHECKPOINT', 
+compute_phenoscore(sp_output = toy_sp_output, 
+                   desired_phenotypes = 'G2/M_TRANSITION', 
+                   max_path_length = 4, 
+                   remove_cascade = TRUE,
                    compact = TRUE)
-
 ```
 
-```{r eval = TRUE}
-toy_phenoscore_output
+```{r eval = FALSE}
+head(toy_phenoscore_output)
 ```

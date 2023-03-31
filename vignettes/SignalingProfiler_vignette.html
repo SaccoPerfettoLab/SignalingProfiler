@@ -1548,52 +1548,46 @@ then run the following command.</p>
 <p>Once you have your context-specific model, you can <em>in silico</em>
 validate it, computing the modulation of activity of relevant phenotypes
 for your context. We call this score <strong>phenoSCORE</strong>. It is
-very useful, if you have some expectation about your model
-characteristics. For example, if you are treating tumor cells you expect
-the APOPTOSIS phenotype to be activated.</p>
+very useful, especially when you have some expectations about your model
+characteristics. For example, if you are treating tumor cells you may
+expect the APOPTOSIS phenotype to be activated.</p>
 <p>We compute the <strong>phenoSCORE</strong> using:</p>
 <ul>
 <li>the nodes in the context-specific model whose activity has been
 inferred from experimental data;</li>
 <li>paths table from SIGNOR proteins to SIGNOR phenotypes containing a
 different significant causal paths, derived from our in-house recently
-published <a href="link.it">resource</a>; it is available as built-in
-object <code>paths_to_pheno</code></li>
+published resource <a href="https://www.biorxiv.org/content/10.1101/2023.01.09.523265v1.full.pdf">ProxPath</a>;
+it is available as built-in object <code>paths_to_pheno</code></li>
 </ul>
+<p>Briefly, <strong>ProxPath</strong> reports the regulators of
+phenotypes. Regulators are defined as proteins connected to the
+phenotype with a maximum of 4-steps-length path. The user can choose
+closer regulators to the phenotype modulating the length of the path
+with the <code>max_path_length</code> parameter.</p>
 <p>You can choose the phenotypes you desire to look at using the
 <code>desired_phenotype</code> parameter, or you can compute the
 activity for all annotated phenotypes.</p>
-<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(paths_to_pheno<span class="sc">$</span>EndPathways)</span></code></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Execute this command to see all the available phenotypes</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(paths_to_pheno<span class="sc">$</span>EndPathways)</span></code></pre></div>
+<p>If two phenotype regulators are in the same linear cascade in the
+network, <code>remove_cascade = TRUE</code> allows to consider only the
+regulator at the end of the signaling cascade.</p>
 <p>To compute the <strong>phenoSCORE</strong> simply execute:</p>
 <div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co"># all phenotypes</span></span>
-<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="fu">compute_phenoscore</span>(<span class="at">sp_output =</span> toy_sp_output, </span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>toy_phenoscore_output <span class="ot">&lt;-</span> <span class="fu">compute_phenoscore</span>(<span class="at">sp_output =</span> toy_sp_output, </span>
 <span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">desired_phenotypes =</span> <span class="cn">NULL</span>, </span>
-<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">compact =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a><span class="co"># # A tibble: 961 × 8</span></span>
-<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a><span class="co">#    name   gene_name mf    final_score EndPathways        pheno…¹ Path_…² Path_…³</span></span>
-<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a><span class="co">#    &lt;chr&gt;  &lt;chr&gt;     &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;                &lt;dbl&gt; &lt;chr&gt;     &lt;dbl&gt;</span></span>
-<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a><span class="co">#  1 P11440 CDK1      kin        -0.554 ACTION_POTENTIAL_    2.86  CDK1--…       3</span></span>
-<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a><span class="co">#  2 P11440 CDK1      kin        -0.554 ACTION_POTENTIAL_    2.86  CDK1--…       4</span></span>
-<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a><span class="co">#  3 P11440 CDK1      kin        -0.554 ACTION_POTENTIAL_    2.86  CDK1--…       3</span></span>
-<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a><span class="co">#  4 P11440 CDK1      kin        -0.554 ACTION_POTENTIAL_    2.86  CDK1--…       4</span></span>
-<span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a><span class="co">#  5 P11440 CDK1      kin        -0.554 AMYLOID_FIBRIL_FO…   0.554 CDK1--…       4</span></span>
-<span id="cb41-13"><a href="#cb41-13" aria-hidden="true" tabindex="-1"></a><span class="co">#  6 P11440 CDK1      kin        -0.554 AUTOPHAGOSOME_FOR…  11.2   CDK1--…       3</span></span>
-<span id="cb41-14"><a href="#cb41-14" aria-hidden="true" tabindex="-1"></a><span class="co">#  7 P11440 CDK1      kin        -0.554 AUTOPHAGOSOME_FOR…  11.2   CDK1--…       4</span></span>
-<span id="cb41-15"><a href="#cb41-15" aria-hidden="true" tabindex="-1"></a><span class="co">#  8 P11440 CDK1      kin        -0.554 AUTOPHAGOSOME_FOR…  11.2   CDK1--…       4</span></span>
-<span id="cb41-16"><a href="#cb41-16" aria-hidden="true" tabindex="-1"></a><span class="co">#  9 P11440 CDK1      kin        -0.554 AUTOPHAGOSOME_FOR…  11.2   CDK1--…       3</span></span>
-<span id="cb41-17"><a href="#cb41-17" aria-hidden="true" tabindex="-1"></a><span class="co"># 10 P11440 CDK1      kin        -0.554 AUTOPHAGOSOME_FOR…  11.2   CDK1--…       4</span></span>
-<span id="cb41-18"><a href="#cb41-18" aria-hidden="true" tabindex="-1"></a><span class="co"># # … with 951 more rows, and abbreviated variable names ¹​phenoSCORE,</span></span>
-<span id="cb41-19"><a href="#cb41-19" aria-hidden="true" tabindex="-1"></a><span class="co"># #   ²​Path_String, ³​Path_Length</span></span>
-<span id="cb41-20"><a href="#cb41-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-21"><a href="#cb41-21" aria-hidden="true" tabindex="-1"></a><span class="co"># only desired phenotypes</span></span>
-<span id="cb41-22"><a href="#cb41-22" aria-hidden="true" tabindex="-1"></a>toy_phenoscore_output <span class="ot">&lt;-</span> <span class="fu">compute_phenoscore</span>(<span class="at">sp_output =</span> toy_sp_output, </span>
-<span id="cb41-23"><a href="#cb41-23" aria-hidden="true" tabindex="-1"></a>                   <span class="at">desired_phenotypes =</span> <span class="st">&#39;G1/S_TRANSITION_CHECKPOINT&#39;</span>, </span>
-<span id="cb41-24"><a href="#cb41-24" aria-hidden="true" tabindex="-1"></a>                   <span class="at">compact =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>toy_phenoscore_output</span>
-<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="co"># # A tibble: 1 × 5</span></span>
-<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   EndPathways                phenoSCORE Regulators Regulators_Paths      N_Paths</span></span>
-<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a><span class="co">#   &lt;chr&gt;                           &lt;dbl&gt; &lt;chr&gt;      &lt;chr&gt;                   &lt;int&gt;</span></span>
-<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 1 G1/S_TRANSITION_CHECKPOINT      -1.11 CDK1       CDK1--&gt;RAD9A--&gt;TOPBP…       2</span></span></code></pre></div>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">max_path_length =</span> <span class="dv">4</span>, </span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">remove_cascade =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>                   <span class="at">compact =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a><span class="co"># only desired phenotypes</span></span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a><span class="fu">compute_phenoscore</span>(<span class="at">sp_output =</span> toy_sp_output, </span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>                   <span class="at">desired_phenotypes =</span> <span class="st">&#39;G2/M_TRANSITION&#39;</span>, </span>
+<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a>                   <span class="at">max_path_length =</span> <span class="dv">4</span>, </span>
+<span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a>                   <span class="at">remove_cascade =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb41-13"><a href="#cb41-13" aria-hidden="true" tabindex="-1"></a>                   <span class="at">compact =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(toy_phenoscore_output)</span></code></pre></div>
 </div>
 </div>
 
