@@ -4,7 +4,13 @@
 \alias{compute_phenoscore}
 \title{compute_phenoscore}
 \usage{
-compute_phenoscore(sp_output, desired_phenotypes, compact = TRUE)
+compute_phenoscore(
+  sp_output,
+  desired_phenotypes,
+  compact = TRUE,
+  max_path_length = 4,
+  remove_cascade = TRUE
+)
 }
 \arguments{
 \item{sp_output}{Signaling Profiler output list}
@@ -12,6 +18,10 @@ compute_phenoscore(sp_output, desired_phenotypes, compact = TRUE)
 \item{desired_phenotypes}{NULL if you want all phenotypes, vector of phenotypes name in uppercase}
 
 \item{compact}{TRUE if you want a compact result, FALSE otherwise}
+
+\item{max_path_length}{integer, from 1 to 4, path length of}
+
+\item{remove_cascade}{default TRUE}
 }
 \value{
 phenoSCORE table
