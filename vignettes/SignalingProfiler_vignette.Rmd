@@ -25,7 +25,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-
 ![**Signaling Profiler Workflow**](../img/SP_package_workflow_TUTORIAL.png)
 
 # Introduction
@@ -93,7 +92,6 @@ The Signaling Profiler package provides a flexible way to create signaling netwo
 In the Signaling Profiler package there are *toy datasets* to show the format of omic data tables and to perform some tests.
 
 ```{r eval = FALSE}
-
 # toy omics datasets
 tr_toy_df
 prot_toy_df
@@ -112,7 +110,6 @@ carnival_input_toy
 
 # toy Signaling Profiler output
 toy_sp_output
-
 ```
 
 ## Input data tables
@@ -280,7 +277,6 @@ phosphoscore_hybrid <- phosphoscore_computation(phosphoproteomic_data = phospho_
 Once you have computed the proteins' activity with footprint-based approaches and PhosphoSCORE you can average the scores. This should be done separately for transcription factors and kinases and phosphatases.
 
 ```{r eval = FALSE}
-
 # for transcription factors
 combined_tf <- combine_footprint_and_phosphoscore(footprint_output = tf_activity_foot,
                                                   phosphoscore_df =  phosphoscore_mouse, 
@@ -290,7 +286,6 @@ combined_tf <- combine_footprint_and_phosphoscore(footprint_output = tf_activity
 combined_kin_phos <- combine_footprint_and_phosphoscore(footprint_output = kin_phos_activity_foot,
                                                   phosphoscore_df =  phosphoscore_mouse, 
                                                   analysis =  'ksea')
-
 ```
 
 ### Step 1C) ProteoSCORE
@@ -298,7 +293,6 @@ combined_kin_phos <- combine_footprint_and_phosphoscore(footprint_output = kin_p
 If you want to consider the significant modulation of proteins' abundance as a proxy of activity, you can use the *ProteoSCORE* analysis. For example, if a protein is down-regulated in its quantity, it will be considered down-regulated in its activity.
 
 ```{r eval = FALSE}
-
 proteoscore_df <- activity_from_proteomics(prot_df = prot_toy_df, 
                                            organism = 'mouse')
 
@@ -307,10 +301,8 @@ proteoscore_df <- activity_from_proteomics(prot_df = prot_toy_df,
 You can combine the activity inferred from the previous methods with ProteoScore output.
 
 ```{r eval = FALSE}
-
 activity_proteo_combined_df <- combine_activityscore_proteoscore(activity_score = combined_tf, 
                                                                  proteo_score = proteoscore_df)
-
 ```
 
 ### Discussion about the first step
@@ -330,7 +322,6 @@ toy_prot_activity_df
 ### A simple inference workflow
 
 ```{r eval = FALSE}
-
 # ** STEP 1A **
 # infer the activity of transcription factors from transcriptomics data
 tf_activity_foot <- run_footprint_based_analysis(omic_data = tr_toy_df, 
@@ -359,7 +350,6 @@ phosphoscore_hybrid <- phosphoscore_computation(phosphoproteomic_data = phospho_
 
 # ** STEP 1AB **
 # combine footprint analysis and phosphoscore anlaysis
-
 combined_tf <- combine_footprint_and_phosphoscore(footprint_output = tf_activity_foot,
                                                   phosphoscore_df =  phosphoscore_hybrid, 
                                                   analysis =  'tfea')
@@ -388,7 +378,6 @@ proteoscore_df <- activity_from_proteomics(prot_df = prot_toy_df,
                                            organism = 'mouse')
 
 toy_prot_activity_df <- combine_activityscore_proteoscore(toy_activity_df, proteoscore_df)
-
 ```
 
 ## Step2) Naïve network creation
@@ -406,10 +395,9 @@ In this step, you are building the skeleton of the signal of your cellular model
 
 The first step is to choose the Prior Knowledge Network (PKN).
 
-Signaling Profiler allow you to use built-in PKNs for **mouse** and **human** or to exploit a **custom PKN.**
-For the custom PKN you have to provide the path of the file and this allow you to use old version of PKNs, available in the PKN_old_release folder of our GitHub page. 
+Signaling Profiler allow you to use built-in PKNs for **mouse** and **human** or to exploit a **custom PKN.** For the custom PKN you have to provide the path of the file and this allow you to use old version of PKNs, available in the PKN_old_release folder of our GitHub page.
 
-For **human** you can choose between a PKN containing the interactions from only databases, or a PKN containing interactions also derived from the [kinome atlas](https://www.nature.com/articles/s41586-022-05575-3), specifying the `with_atlas = TRUE`. 
+For **human** you can choose between a PKN containing the interactions from only databases, or a PKN containing interactions also derived from the [kinome atlas](https://www.nature.com/articles/s41586-022-05575-3), specifying the `with_atlas = TRUE`.
 
 ```{r eval = FALSE}
 PKN_table <- choose_PKN(organism = 'mouse', 
@@ -421,7 +409,6 @@ PKN_table <- choose_PKN(organism = 'mouse',
 Since the **PKN** contains interactions coming from different experimental systems, a good practice is to keep only the interactions involving analytes expressed in your system, so quantified in at least one of your omics data sets.
 
 ```{r eval = FALSE}
-
 PKN_expressed <- preprocess_PKN(omics_data = list(tr_toy_df, prot_toy_df, phospho_toy_df),
                                 PKN_table = PKN_table)
 ```
@@ -432,12 +419,13 @@ Otherwise, you can work with the whole organism-specific PKN tables stored in th
 
 Even if you inferred the activity of a protein, it may be absent in the PKN. As such, a good practice is to check for database coverage of your inferred proteins data set.
 
-If you set `report=TRUE`, a report file is written in your working directory.
-If you are using the human PKN extended with atlas interactions, set `with_atlas=TRUE`.
+If you set `report=TRUE`, a report file is written in your working directory. If you are using the human PKN extended with atlas interactions, set `with_atlas=TRUE`.
 
 ```{r eval = FALSE}
-coverage_of_inferred_proteins_in_db(toy_prot_activity_df, organism = 'mouse', 
-                                    with_atlas = FALSE, report = FALSE) 
+coverage_of_inferred_proteins_in_db(toy_prot_activity_df, 
+                                    organism = 'mouse', 
+                                    with_atlas = FALSE, 
+                                    report = FALSE) 
 ```
 
 ### How to build a naïve network?
@@ -471,20 +459,17 @@ You can modulate the structure of the naïve network:
 ### One layer network
 
 ```{r eval = FALSE}
-#
 one_layer_toy <- one_layer_naive_network(starts_gn = c('Flt3'),
                                          targets_gn = toy_prot_activity_df$gene_name,
                                          PKN_table = PKN_expressed, #or PKN_mouse 
                                          max_length = 4)
                             
 one_layer_toy
-
 ```
 
 ### Two layers network
 
 ```{r eval = FALSE}
-
 # divide proteins according to the molecular function
 kin_phos_other <- toy_prot_activity_df %>% 
   dplyr::filter(mf %in% c('kin', 'phos', 'other'))
@@ -503,7 +488,6 @@ two_layers_toy <- two_layer_naive_network(starts_gn = c('Flt3'),
 ### Three layers network
 
 ```{r eval = FALSE}
-
 # divide proteins according to the molecular function
 kin_phos <- toy_prot_activity_df %>% 
   dplyr::filter(mf %in% c('kin', 'phos'))
@@ -522,7 +506,6 @@ three_layers_toy <- three_layer_naive_network(starts_gn = c('Flt3'),
                                           max_length_1 = 4,
                                           max_length_2 = 1,
                                           max_length_3 = 4)
-
 ```
 
 ### Prepare CARNIVAL input
@@ -537,9 +520,9 @@ Here, we prepare the input for the third step of Signaling Profiler.
 receptor_list <- list('Flt3' = -1)
 
 carnival_input <- prepare_carnival_input(one_layer_toy, 
-                                         toy_prot_activity_df, receptor_list, organism = 'mouse')
-                                                                             
-                                                                                                          
+                                         toy_prot_activity_df, 
+                                         receptor_list, 
+                                         organism = 'mouse')
 ```
 
 An example of the result is in this built-in object
@@ -565,7 +548,6 @@ It is very important to know the *path* of the ILP software.\
 If you didn't install it using the default path you can set the custom path here.
 
 ```{r eval = FALSE}
-
 #for Windows
 carnival_options$solverPath = "C:/Program Files/CPLEX_solver/cplex/bin/x64_win64/cplex.exe" 
 
@@ -606,12 +588,13 @@ It is important to stress that CARNIVAL will find the SMALLEST model connecting 
 
 To keep the largest number of proteins and a greater number of mechanistic hypotheses, you can perform a two- or three-steps CARNIVAL.
 
-### One step CARNIVAL
+### Vanilla CARNIVAL analysis (with perturbations/receptors)
+
+#### One step CARNIVAL
 
 The simplest analysis is *connecting the receptor(s) to all the inferred protein*.
 
 ```{r eval = FALSE}
-
 source_df <- carnival_input_toy %>%
   dplyr::filter(mf == 'rec')
 
@@ -657,72 +640,7 @@ output_final$nodes_df
 output_final$edges_df
 ```
 
-#### A toy Signaling Profiler output
-
-The Signaling Profiler output is a list of three elements:
-
--   a graph as **igraph object** representing the context-specific mechanistic model;
-
--   a table of all the proteins (nodes) in the final model;
-
--   a table of all the interactions among the proteins in the model;
-
-##### SP output graph
-
-```{r eval = TRUE}
-toy_sp_output$igraph_network
-```
-
-##### SP output proteins table (nodes_df)
-
-The proteins in the final context-specific model are reported in `toy_sp_output$nodes_df` and they are annotated with different attributes:
-
--   Protein identifiers: **UNIPROT ID** (name) and **gene name**;
-
--   Two different activity scores:
-
-    -   **final_score**: it is the activity derived from experimental data;
-    -   **carnival_activity**: it is the activity computed by CARNIVAL algorithm ranging between -100 and +100; usually it has the *same sign* as the **final_score**, but sometimes CARNIVAL changes the node activity because the neighbour proteins suggest the opposite activity sign;
-    -   **discordant:** it is TRUE if **final_score** and **carnival_activity** have opposite sign;
-
--   Molecular function annotation (**mf**);
-
-```{r eval = TRUE}
-toy_sp_output$nodes_df
-```
-
-##### SP output interactions table (edges_df)
-
-The interactions among the proteins in the final context-specific model are reported in `toy_sp_output$edges_df` and they are annotated with different attributes:
-
--   UNIPROT IDs of the nodes connected (**source** and **target**);
-
--   **sign** reporting if the interaction is activatory (1) or inhibitory (-1);
-
--   **carnival_weight**: since CARNIVAL may return more than one solustion, this attribute reports the frequency of the edge in the different solutions returned (e.g. 100 means that the edge is present in all the solutions!);
-
--   annotation from phosphoproteomics data:
-
-    -   **aminoacid**: reports the phosphosites in SIGNOR and PsP matching that interaction; if the phosphosite has a \* it means that it is *significantly modulated among your two conditions*;
-
-    -   **FC**: reports the fold-change of phosphorylation among your two conditions of the phosphosite matched on the interaction;
-
-    -   **is quantified** is TRUE if you quantified the phosphosite matching that edge in your phosphoproteomic data set;
-
-```{r eval = TRUE}
-toy_sp_output$edges_df
-```
-
-If you want to visualize the network in Cytoscape, we suggest the usage of RCy3 package. You have to open Cytoscape on your laptop and then run the following command.
-
-```{r eval = FALSE}
-
-RCy3::createNetworkFromIgraph(output_final$igraph_network, 
-                              collection = 'one_step_analysis')
-
-```
-
-### Two steps CARNIVAL
+#### Two steps CARNIVAL
 
 Another type of analysis is to perform a two-steps CARNIVAL:
 
@@ -802,7 +720,7 @@ RCy3::createNetworkFromIgraph(union_output_final$igraph_network,
                               collection = 'two_steps_analysis')
 ```
 
-### Three steps CARNIVAL
+#### Three steps CARNIVAL
 
 The last type of analysis is to perform a three-steps CARNIVAL:
 
@@ -813,7 +731,6 @@ The last type of analysis is to perform a three-steps CARNIVAL:
 Finally, you perform the *union* of the three graphs.
 
 ```{r eval = FALSE}
-
 # FIRST RUN: RECEPTOR to KIN, PHOS, OTHERS
 receptors_df <- carnival_input_toy %>%
   dplyr::filter(mf == 'rec')
@@ -833,8 +750,6 @@ output1 <- run_carnival_and_create_graph(source_df = receptors_df,
                                          files = TRUE,
                                          path_sif = './optimized_network1.sif',
                                          path_rds = './optimized_network1.RDS')
-
-output1
 
 # SECOND RUN: from KIN, PHOS to OTHER
 run1_output_nodes <- convert_output_nodes_in_next_input(output1)
@@ -873,7 +788,6 @@ output3 <- run_carnival_and_create_graph(source_df = source2_df,
                                          path_sif = './optimized_network2.sif',
                                          path_rds = './optimized_network2.RDS')
 
-
 # UNION OF RUN1, RUN2 AND RUN3 GRAPHS 
 union_run1_run2 <- union_of_graphs(graph_1 = output1$igraph_network, 
                                       graph_2 = output2$igraph_network, 
@@ -889,7 +803,6 @@ union_run1_run2_run3 <- union_of_graphs(graph_1 = union_run1_run2,
                                path_sif = './union_network2.sif', 
                                path_rds = './union_network2.RDS')
 
-
 # EXPANSION and MAPPING of PHOSPHOPROTEOMICS DATA ON EDGES
 union2_graph_rds <- readRDS('./union_network2.RDS')
 union2_graph_sif <- readr::read_tsv('./union_network2.sif',
@@ -902,11 +815,115 @@ union2_output_final <- expand_and_map_edges(optimized_graph_rds = union2_graph_r
                                            path_sif = 'union2_network_validated.sif',
                                            path_rds = 'union2_network_validated.rds')
 
-union2_output_final
-
 # VISUALIZATION OF THE NETWORK
 RCy3::createNetworkFromIgraph(union2_output_final$igraph_network, 
                               collection = 'three_steps_analysis')
+```
+
+### Inverse CARNIVAL analysis (No perturbations/receptors)
+
+If you haven't information about the targets of the perturbation (hence, you haven't a starting point), you can exploit the inverse CARNIVAL flavor. This flavor allows you to connect your modulated protein. The algorithm starts from the bottom of the signaling cascade and rises to the top, stopping at putative perturbed nodes upstream the proteins modulated in your conditions (contained in `target_df)`.
+
+To run this flavor, simply set `source_df = NULL`.
+
+```{r eval = FALSE}
+# input preparation: remove 'receptors' from the carnival_input_toy table simulating you haven't a starting point 
+target_df <- carnival_input_toy %>%
+  dplyr::filter(mf != 'rec')
+
+one_layer_toy <- readr::read_tsv('./one_layer_naive.sif',
+                                 col_names = c('source', 'interaction', 'target'))
+
+# inverse CARNIVAL analysis 
+output <- run_carnival_and_create_graph(source_df = NULL,
+                                        target_df = target_df,
+                                        naive_network = unique(one_layer_toy),
+                                        proteins_df = carnival_input_toy,
+                                        organism = 'mouse',
+                                        carnival_options = carnival_options,
+                                        files = TRUE,
+                                        path_sif = './inv_optimized_network.sif',
+                                        path_rds = './inv_optimized_network.RDS')
+
+inv_optimized_graph_rds <- readRDS('./inv_optimized_network.sif')
+inv_optimized_graph_sif <- readr::read_tsv('./inv_optimized_network.RDS',
+                                       col_names = c('source', 'interaction', 'target'))
+
+# mapping experimental data on the optimized network
+inv_output_final <- expand_and_map_edges(optimized_graph_rds = inv_optimized_graph_rds, 
+                     optimized_graph_sif = inv_optimized_graph_sif,
+                     organism = 'mouse',
+                     phospho_df = phospho_toy_df,
+                     files = TRUE,
+                     path_sif = 'inv_optimized_network_validated.sif',
+                     path_rds = 'inv_optimized_network_validated.rds')
+
+# VISUALIZATION OF THE NETWORK
+RCy3::createNetworkFromIgraph(inv_output_final$igraph_network, 
+                              collection = 'inv_CARNIVAL_analysis')
+```
+
+### Signaling Profiler output
+
+The Signaling Profiler output is a list of three elements:
+
+-   a graph as **igraph object** representing the context-specific mechanistic model;
+
+-   a table of all the proteins (nodes) in the final model;
+
+-   a table of all the interactions among the proteins in the model;
+
+#### SP output graph
+
+```{r eval = FALSE}
+toy_sp_output$igraph_network
+```
+
+#### SP output proteins table (nodes_df)
+
+The proteins in the final context-specific model are reported in `toy_sp_output$nodes_df` and they are annotated with different attributes:
+
+-   Protein identifiers: **UNIPROT ID** (name) and **gene name**;
+
+-   Two different activity scores:
+
+    -   **final_score**: it is the activity derived from experimental data;
+    -   **carnival_activity**: it is the activity computed by CARNIVAL algorithm ranging between -100 and +100; usually it has the *same sign* as the **final_score**, but sometimes CARNIVAL changes the node activity because the neighbour proteins suggest the opposite activity sign;
+    -   **discordant:** it is TRUE if **final_score** and **carnival_activity** have opposite sign;
+
+-   Molecular function annotation (**mf**);
+
+```{r eval = TRUE}
+toy_sp_output$nodes_df
+```
+
+#### SP output interactions table (edges_df)
+
+The interactions among the proteins in the final context-specific model are reported in `toy_sp_output$edges_df` and they are annotated with different attributes:
+
+-   UNIPROT IDs of the nodes connected (**source** and **target**);
+
+-   **sign** reporting if the interaction is activatory (1) or inhibitory (-1);
+
+-   **carnival_weight**: since CARNIVAL may return more than one solustion, this attribute reports the frequency of the edge in the different solutions returned (e.g. 100 means that the edge is present in all the solutions!);
+
+-   annotation from phosphoproteomics data:
+
+    -   **aminoacid**: reports the phosphosites in SIGNOR and PsP matching that interaction; if the phosphosite has a \* it means that it is *significantly modulated among your two conditions*;
+
+    -   **FC**: reports the fold-change of phosphorylation among your two conditions of the phosphosite matched on the interaction;
+
+    -   **is quantified** is TRUE if you quantified the phosphosite matching that edge in your phosphoproteomic data set;
+
+```{r eval = TRUE}
+toy_sp_output$edges_df
+```
+
+If you want to visualize the network in Cytoscape, we suggest the usage of RCy3 package. You have to open Cytoscape on your laptop and then run the following command.
+
+```{r eval = FALSE}
+RCy3::createNetworkFromIgraph(output_final$igraph_network, 
+                              collection = 'one_step_analysis')
 ```
 
 ## Step 4) phenoSCORE computation
@@ -927,7 +944,6 @@ unique(paths_to_pheno$EndPathways)
 To compute the **phenoSCORE** simply execute:
 
 ```{r eval = TRUE}
-
 # all phenotypes
 compute_phenoscore(sp_output = toy_sp_output, 
                    desired_phenotypes = NULL, 

@@ -276,9 +276,11 @@ check_CARNIVAL_inputs <- function(source_df, target_df,
                                   organism){
 
   # check the input proteins
-  stopifnot(is.data.frame(source_df))
-  stopifnot(all(c("UNIPROT","gene_name","mf","final_score") %in% names(source_df)))
-  stopifnot(ncol(source_df)>4)
+  if(!is.null(source_df)){
+    stopifnot(is.data.frame(source_df))
+    stopifnot(all(c("UNIPROT","gene_name","mf","final_score") %in% names(source_df)))
+    stopifnot(ncol(source_df)>4)
+  }
 
   # check the input proteins
   stopifnot(is.data.frame(target_df))
@@ -304,7 +306,8 @@ check_CARNIVAL_inputs <- function(source_df, target_df,
 
 #' run_carnival_and_create_graph
 #'
-#' @param source_df tibble with source nodes discretized among 1 and -1
+#' @param source_df if NULL, inverse CARNIVAL,
+#' otherwise, tibble with source nodes discretized among 1 and -1
 #' @param target_df tibble with target nodes in a continuous range of activity
 #' @param naive_network tibble with naive network in SIF format
 #' @param carnival_options list of options returned by default_CARNIVAL_options
@@ -328,41 +331,59 @@ run_carnival_and_create_graph <- function(source_df,
                                           path_sif = './optimized_network.sif',
                                           path_rds = './optimized_network.RDS'){
 
-  message(' ** RUNNING CARNIVAL ** ')
-  message('Credits to Prof. Julio Saez-Rodriguez. For more information visit: https://saezlab.github.io/CARNIVAL/ ')
+  if(is.null(source_df)){
+    message(' ** Running inverse CARNIVAL (No perturbations) ** ')
+    message('Credits to Prof. Julio Saez-Rodriguez. For more information visit: https://saezlab.github.io/CARNIVAL/ ')
+    check_CARNIVAL_inputs(source_df = source_df,
+                          target_df = target_df,
+                          naive_network = naive_network,
+                          proteins_df = proteins_df,
+                          organism = organism)
 
-  source_df <- keep_only_present_perturbation(source_df, naive_network)
+    carnival_result <- CARNIVAL::runInverseCarnival(measurements = unlist(formatting_proteins_for_carnival(target_df)$t),
+                                                    priorKnowledgeNetwork = unique(naive_network),
+                                                    carnivalOptions = carnival_options)
+  }else{
+    message(' ** Running vanilla CARNIVAL (With perturbations) ** ')
+    message('Credits to Prof. Julio Saez-Rodriguez. For more information visit: https://saezlab.github.io/CARNIVAL/ ')
 
-  # check inputs
-  check_CARNIVAL_inputs(source_df = source_df,
-                        target_df = target_df,
-                        naive_network = naive_network,
-                        proteins_df = proteins_df,
-                        organism = organism)
+    # check inputs
+    check_CARNIVAL_inputs(source_df = source_df,
+                          target_df = target_df,
+                          naive_network = naive_network,
+                          proteins_df = proteins_df,
+                          organism = organism)
 
+    # keep only present perturbation
+    source_df <- keep_only_present_perturbation(source_df, naive_network)
 
-  # discretize initiators
-  source_df_disc <- create_discretized_initiators_for_carnival(source_df)
+    # discretize initiators
+    source_df_disc <- create_discretized_initiators_for_carnival(source_df)
 
-  carnival_result <- CARNIVAL::runVanillaCarnival(perturbations = unlist(formatting_proteins_for_carnival(source_df_disc)$t),
-                                                  measurements = unlist(formatting_proteins_for_carnival(target_df)$t),
-                                                  priorKnowledgeNetwork = unique(naive_network),
-                                                  carnivalOptions = carnival_options)
+    carnival_result <- CARNIVAL::runVanillaCarnival(perturbations = unlist(formatting_proteins_for_carnival(source_df_disc)$t),
+                                                    measurements = unlist(formatting_proteins_for_carnival(target_df)$t),
+                                                    priorKnowledgeNetwork = unique(naive_network),
+                                                    carnivalOptions = carnival_options)
+  }
 
   if(nrow(carnival_result$sifAll[[1]]) == 0){
     message('No network found for your experiment')
     return(NULL)
   }
 
-  # format result
+  # add attributes to the edges
+  edges_df <- add_output_carnival_edges_attributes(carnival_result) %>%
+    dplyr::filter(carnival_weight != 0)
+
+  # keep only nodes not 0 or 0 involved in relations in the network
   nodes_df <- add_output_carnival_nodes_attributes(carnival_result,
                                                    proteins_df,
                                                    organism) %>%
-    dplyr::filter(carnival_activity != 0) %>%
+    #keep nodes that have an activity OR that are 0 but are involved in some interactions
+    dplyr::filter(carnival_activity != 0 |
+                    carnival_activity == 0 & (UNIPROT %in% edges_df$source | UNIPROT %in% edges_df$target)) %>%
     dplyr::distinct()
 
-  edges_df <- add_output_carnival_edges_attributes(carnival_result) %>%
-    dplyr::filter(carnival_weight != 0)
 
   CARNIVAL_igraph_network <- igraph::graph_from_data_frame(edges_df,
                                                            nodes_df,
