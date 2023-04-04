@@ -10,6 +10,7 @@ expand_and_map_edges(
   organism,
   phospho_df,
   files,
+  with_atlas = FALSE,
   path_sif,
   path_rds
 )
@@ -24,6 +25,8 @@ expand_and_map_edges(
 \item{phospho_df}{tibble of phosphoproteomics data}
 
 \item{files}{boolean value, TRUE if you want output files}
+
+\item{with_atlas}{Boolean value, FALSE default, if TRUE uses integrated regulons}
 
 \item{path_sif}{string of the path  of output sif file}
 

@@ -625,6 +625,7 @@ output <- run_carnival_and_create_graph(source_df = source_df,
                                         organism = 'mouse',
                                         carnival_options = carnival_options,
                                         files = TRUE,
+                                        with_atlas = FALSE,
                                         path_sif = './optimized_network.sif',
                                         path_rds = './optimized_network.RDS')
 ```
@@ -641,6 +642,7 @@ output_final <- expand_and_map_edges(optimized_graph_rds = optimized_graph_rds,
                      organism = 'mouse',
                      phospho_df = phospho_toy_df,
                      files = TRUE,
+                      with_atlas = FALSE,
                      path_sif = 'optimized_network_validated.sif',
                      path_rds = 'optimized_network_validated.rds')
 
@@ -682,6 +684,7 @@ output1 <- run_carnival_and_create_graph(source_df = receptors_df,
                                          organism = 'mouse',
                                          carnival_options = carnival_options,
                                          files = TRUE,
+                                         with_atlas = FALSE,
                                          path_sif = './optimized_network1.sif',
                                          path_rds = './optimized_network1.RDS')
 
@@ -703,6 +706,7 @@ output2 <- run_carnival_and_create_graph(source_df = source_df,
                                          organism = 'mouse',
                                          carnival_options = carnival_options,
                                          files = TRUE,
+                                         with_atlas = FALSE,
                                          path_sif = './optimized_network2.sif',
                                          path_rds = './optimized_network2.RDS')
 # UNION OF RUN1 and RUN2 graphs 
@@ -722,6 +726,7 @@ union_output_final <- expand_and_map_edges(optimized_graph_rds = union_graph_rds
                                      organism = 'mouse',
                                      phospho_df = phospho_toy_df,
                                      files = TRUE,
+                                     with_atlas = FALSE,
                                      path_sif = 'union_network_validated.sif',
                                      path_rds = 'union_network_validated.rds')
 
@@ -762,6 +767,7 @@ output1 <- run_carnival_and_create_graph(source_df = receptors_df,
                                          organism = 'mouse',
                                          carnival_options = carnival_options,
                                          files = TRUE,
+                                         with_atlas = FALSE,
                                          path_sif = './optimized_network1.sif',
                                          path_rds = './optimized_network1.RDS')
 
@@ -781,6 +787,7 @@ output2 <- run_carnival_and_create_graph(source_df = source_df,
                                          organism = 'mouse',
                                          carnival_options = carnival_options,
                                          files = TRUE,
+                                         with_atlas = FALSE,
                                          path_sif = './optimized_network2.sif',
                                          path_rds = './optimized_network2.RDS')
 
@@ -799,6 +806,7 @@ output3 <- run_carnival_and_create_graph(source_df = source2_df,
                                          organism = 'mouse',
                                          carnival_options = carnival_options,
                                          files = TRUE,
+                                         with_atlas = FALSE,
                                          path_sif = './optimized_network2.sif',
                                          path_rds = './optimized_network2.RDS')
 
@@ -826,6 +834,7 @@ union2_output_final <- expand_and_map_edges(optimized_graph_rds = union2_graph_r
                                            organism = 'mouse',
                                            phospho_df = phospho_toy_df,
                                            files = TRUE,
+                                           with_atlas = FALSE,
                                            path_sif = 'union2_network_validated.sif',
                                            path_rds = 'union2_network_validated.rds')
 
@@ -856,6 +865,7 @@ output <- run_carnival_and_create_graph(source_df = NULL,
                                         organism = 'mouse',
                                         carnival_options = carnival_options,
                                         files = TRUE,
+                                        with_atlas = FALSE,
                                         path_sif = './inv_optimized_network.sif',
                                         path_rds = './inv_optimized_network.RDS')
 
@@ -869,6 +879,7 @@ inv_output_final <- expand_and_map_edges(optimized_graph_rds = inv_optimized_gra
                      organism = 'mouse',
                      phospho_df = phospho_toy_df,
                      files = TRUE,
+                     with_atlas = FALSE,
                      path_sif = 'inv_optimized_network_validated.sif',
                      path_rds = 'inv_optimized_network_validated.rds')
 

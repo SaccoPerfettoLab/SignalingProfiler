@@ -61,6 +61,7 @@ formatting_proteins_for_carnival <- function(proteins_df){
 #' @param carnival_result runCARNIVAL output
 #' @param proteins_df inferred proteins df
 #' @param organism string, 'mouse' or 'human'
+#' @param with_atlas Boolean value, default FALSE, if TRUE uses regulons
 #'
 #' @return dataframe with nodes and attributes
 #' @export
@@ -68,18 +69,30 @@ formatting_proteins_for_carnival <- function(proteins_df){
 #' @examples
 add_output_carnival_nodes_attributes <- function(carnival_result,
                                                  proteins_df,
-                                                 organism){
+                                                 organism,
+                                                 with_atlas = FALSE){
 
   # get db and protein db for adding attributes
   if(organism == 'mouse'){
-    PKN_proteins <- PKN_proteins_mouse
-    db <- db_mouse
+    if(with_atlas == TRUE){
+      stop('If organism is \'mouse\' with_atlas parameter must be FALSE')
+    }else{
+      PKN_proteins <- PKN_proteins_mouse
+      db <- db_mouse
+    }
   }else if(organism == 'human'){
-    PKN_proteins <- PKN_proteins_human
-    db <- db_human
+    if(with_atlas == TRUE){
+      PKN_proteins <- PKN_proteins_human_atlas
+      db <- db_human_atlas
+    }else{
+      PKN_proteins <- PKN_proteins_human
+      db <- db_human
+    }
   }else{
     error('Please provide a valide organism')
   }
+
+
 
 
   nodes <- tibble::as_tibble(carnival_result$nodesAttributes)
@@ -316,6 +329,7 @@ check_CARNIVAL_inputs <- function(source_df, target_df,
 #' @param files boolean value, TRUE if you want output files
 #' @param path_sif path of the sif output file of network
 #' @param path_rds path of the rds output file of network
+#' @param with_atlas Boolean value, default FALSE, if TRUE uses regulons
 #'
 #' @return list with igraph object, nodes df and edges df
 #' @export
@@ -327,6 +341,7 @@ run_carnival_and_create_graph <- function(source_df,
                                           carnival_options,
                                           proteins_df,
                                           organism,
+                                          with_atlas = FALSE,
                                           files = TRUE,
                                           path_sif = './optimized_network.sif',
                                           path_rds = './optimized_network.RDS'){
@@ -378,7 +393,8 @@ run_carnival_and_create_graph <- function(source_df,
   # keep only nodes not 0 or 0 involved in relations in the network
   nodes_df <- add_output_carnival_nodes_attributes(carnival_result,
                                                    proteins_df,
-                                                   organism) %>%
+                                                   organism,
+                                                   with_atlas = with_atlas) %>%
     #keep nodes that have an activity OR that are 0 but are involved in some interactions
     dplyr::filter(carnival_activity != 0 |
                     carnival_activity == 0 & (UNIPROT %in% edges_df$source | UNIPROT %in% edges_df$target)) %>%
@@ -426,6 +442,7 @@ convert_output_nodes_in_next_input <- function(carnival_result){
 #' @param files # boolean value, TRUE if you want output files
 #' @param path_sif # string of the path  of output sif file
 #' @param path_rds # string of the path of RDS file
+#' @param with_atlas # Boolean value, FALSE default, if TRUE uses integrated regulons
 #'
 #' @return # list with igraph object, optimized nodes df and optimized edges df
 #' @export
@@ -435,12 +452,15 @@ expand_and_map_edges <- function(optimized_graph_rds,
                                  optimized_graph_sif,
                                  organism, phospho_df,
                                  files,
+                                 with_atlas = FALSE,
                                  path_sif,
                                  path_rds){
 
   # organism = 'mouse'
   # phospho_df <- phospho_toy_df
-  db <- choose_database_for_building(organism, format = 'table')
+  db <- choose_database_for_building(organism,
+                                     format = 'table',
+                                     with_atlas = with_atlas)
 
   optimized_graph_sif <- optimized_graph_sif %>% dplyr::mutate_at('interaction', as.character)
   db <- db %>% dplyr::mutate_at('INTERACTION', as.character)
