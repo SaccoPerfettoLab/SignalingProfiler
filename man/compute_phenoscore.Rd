@@ -9,7 +9,8 @@ compute_phenoscore(
   desired_phenotypes,
   compact = TRUE,
   max_path_length = 4,
-  remove_cascade = TRUE
+  remove_cascade = TRUE,
+  use_carnival_activity = FALSE
 )
 }
 \arguments{
@@ -22,6 +23,9 @@ compute_phenoscore(
 \item{max_path_length}{integer, from 1 to 4, path length of}
 
 \item{remove_cascade}{default TRUE}
+
+\item{use_carnival_activity}{Boolean value, TRUE uses all proteins in network,
+FALSE only experimentally derived proteins}
 }
 \value{
 phenoSCORE table

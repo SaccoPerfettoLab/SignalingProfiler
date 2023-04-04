@@ -11,6 +11,7 @@ run_carnival_and_create_graph(
   carnival_options,
   proteins_df,
   organism,
+  with_atlas = FALSE,
   files = TRUE,
   path_sif = "./optimized_network.sif",
   path_rds = "./optimized_network.RDS"
@@ -29,6 +30,8 @@ otherwise, tibble with source nodes discretized among 1 and -1}
 \item{proteins_df}{all inferred proteins df}
 
 \item{organism}{string, organism you are using}
+
+\item{with_atlas}{Boolean value, default FALSE, if TRUE uses regulons}
 
 \item{files}{boolean value, TRUE if you want output files}
 

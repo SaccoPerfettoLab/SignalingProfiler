@@ -4,7 +4,12 @@
 \alias{add_output_carnival_nodes_attributes}
 \title{add_output_carnival_nodes_attributes}
 \usage{
-add_output_carnival_nodes_attributes(carnival_result, proteins_df, organism)
+add_output_carnival_nodes_attributes(
+  carnival_result,
+  proteins_df,
+  organism,
+  with_atlas = FALSE
+)
 }
 \arguments{
 \item{carnival_result}{runCARNIVAL output}
@@ -12,6 +17,8 @@ add_output_carnival_nodes_attributes(carnival_result, proteins_df, organism)
 \item{proteins_df}{inferred proteins df}
 
 \item{organism}{string, 'mouse' or 'human'}
+
+\item{with_atlas}{Boolean value, default FALSE, if TRUE uses regulons}
 }
 \value{
 dataframe with nodes and attributes

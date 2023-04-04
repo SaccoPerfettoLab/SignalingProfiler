@@ -61,7 +61,11 @@ choose_database_for_building <- function(organism, with_atlas = FALSE, format){
         pkn <- db_mouse
       }
     }else if(format == 'table'){
-      pkn <- PKN_mouse
+      if(with_atlas == TRUE){
+        stop('If organism is \'mouse\' with_atlas parameter must be FALSE')
+      }else{
+        pkn <- PKN_mouse
+      }
     }else{error('Please provide a valid format among igraph or table')}
   }else if(organism == 'human'){
     if(format == 'igraph'){
@@ -71,7 +75,11 @@ choose_database_for_building <- function(organism, with_atlas = FALSE, format){
         pkn <- db_human
       }
     }else if(format == 'table'){
-      pkn <- PKN_human
+      if(with_atlas == TRUE){
+        pkn <- PKN_human_atlas
+      }else{
+        pkn <- PKN_human
+      }
     }else{error('Please provide a valid format among igraph or table')}
   }else{error('Please provide a valid organism')}
   return(pkn)

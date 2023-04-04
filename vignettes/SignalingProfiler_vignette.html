@@ -1193,8 +1193,9 @@ inferred protein</em>.</p>
 <span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
 <span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">carnival_options =</span> carnival_options,</span>
 <span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">path_sif =</span> <span class="st">&#39;./optimized_network.sif&#39;</span>,</span>
-<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">path_rds =</span> <span class="st">&#39;./optimized_network.RDS&#39;</span>)</span></code></pre></div>
+<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">with_atlas =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">path_sif =</span> <span class="st">&#39;./optimized_network.sif&#39;</span>,</span>
+<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">path_rds =</span> <span class="st">&#39;./optimized_network.RDS&#39;</span>)</span></code></pre></div>
 <p>After CARNIVAL optimization, we can map on the causal edges found by
 CARNIVAL the phosphosites significantly modulated in our
 phosphoproteomic dataset.</p>
@@ -1207,17 +1208,18 @@ phosphoproteomic dataset.</p>
 <span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>                     <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
 <span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>                     <span class="at">phospho_df =</span> phospho_toy_df,</span>
 <span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>                     <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>                     <span class="at">path_sif =</span> <span class="st">&#39;optimized_network_validated.sif&#39;</span>,</span>
-<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>                     <span class="at">path_rds =</span> <span class="st">&#39;optimized_network_validated.rds&#39;</span>)</span>
-<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a><span class="co"># get the optimized network as igraph object</span></span>
-<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>output_final<span class="sc">$</span>igraph_network</span>
-<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a><span class="co"># get nodes in the optimized model</span></span>
-<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a>output_final<span class="sc">$</span>nodes_df</span>
-<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a><span class="co"># get edges in the optimized model</span></span>
-<span id="cb31-20"><a href="#cb31-20" aria-hidden="true" tabindex="-1"></a>output_final<span class="sc">$</span>edges_df</span></code></pre></div>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>                      <span class="at">with_atlas =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>                     <span class="at">path_sif =</span> <span class="st">&#39;optimized_network_validated.sif&#39;</span>,</span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>                     <span class="at">path_rds =</span> <span class="st">&#39;optimized_network_validated.rds&#39;</span>)</span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a><span class="co"># get the optimized network as igraph object</span></span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a>output_final<span class="sc">$</span>igraph_network</span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a><span class="co"># get nodes in the optimized model</span></span>
+<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a>output_final<span class="sc">$</span>nodes_df</span>
+<span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-20"><a href="#cb31-20" aria-hidden="true" tabindex="-1"></a><span class="co"># get edges in the optimized model</span></span>
+<span id="cb31-21"><a href="#cb31-21" aria-hidden="true" tabindex="-1"></a>output_final<span class="sc">$</span>edges_df</span></code></pre></div>
 </div>
 <div id="two-steps-carnival" class="section level4">
 <h4>Two steps CARNIVAL</h4>
@@ -1247,48 +1249,51 @@ the previous step to TRANSCRIPTION FACTORS;</li>
 <span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
 <span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">carnival_options =</span> carnival_options,</span>
 <span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_sif =</span> <span class="st">&#39;./optimized_network1.sif&#39;</span>,</span>
-<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_rds =</span> <span class="st">&#39;./optimized_network1.RDS&#39;</span>)</span>
-<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">with_atlas =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_sif =</span> <span class="st">&#39;./optimized_network1.sif&#39;</span>,</span>
+<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_rds =</span> <span class="st">&#39;./optimized_network1.RDS&#39;</span>)</span>
 <span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb32-23"><a href="#cb32-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-24"><a href="#cb32-24" aria-hidden="true" tabindex="-1"></a><span class="co"># SECOND RUN: from KIN, PHOS, OTHERS to TFs</span></span>
-<span id="cb32-25"><a href="#cb32-25" aria-hidden="true" tabindex="-1"></a>run1_output_nodes <span class="ot">&lt;-</span> <span class="fu">convert_output_nodes_in_next_input</span>(output1)</span>
-<span id="cb32-26"><a href="#cb32-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-27"><a href="#cb32-27" aria-hidden="true" tabindex="-1"></a>source_df <span class="ot">&lt;-</span> run1_output_nodes <span class="sc">%&gt;%</span></span>
-<span id="cb32-28"><a href="#cb32-28" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&#39;kin&#39;</span>, <span class="st">&#39;phos&#39;</span>, <span class="st">&#39;other&#39;</span>))</span>
-<span id="cb32-29"><a href="#cb32-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-30"><a href="#cb32-30" aria-hidden="true" tabindex="-1"></a>target2_df <span class="ot">&lt;-</span> carnival_input_toy <span class="sc">%&gt;%</span></span>
-<span id="cb32-31"><a href="#cb32-31" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">==</span> <span class="st">&#39;tf&#39;</span>)</span>
-<span id="cb32-32"><a href="#cb32-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-33"><a href="#cb32-33" aria-hidden="true" tabindex="-1"></a>output2 <span class="ot">&lt;-</span> <span class="fu">run_carnival_and_create_graph</span>(<span class="at">source_df =</span> source_df,</span>
-<span id="cb32-34"><a href="#cb32-34" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">target_df =</span> target2_df,</span>
-<span id="cb32-35"><a href="#cb32-35" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">naive_network =</span> <span class="fu">unique</span>(one_layer_toy_df),</span>
-<span id="cb32-36"><a href="#cb32-36" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">proteins_df =</span> carnival_input_toy,</span>
-<span id="cb32-37"><a href="#cb32-37" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
-<span id="cb32-38"><a href="#cb32-38" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">carnival_options =</span> carnival_options,</span>
-<span id="cb32-39"><a href="#cb32-39" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb32-40"><a href="#cb32-40" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_sif =</span> <span class="st">&#39;./optimized_network2.sif&#39;</span>,</span>
-<span id="cb32-41"><a href="#cb32-41" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_rds =</span> <span class="st">&#39;./optimized_network2.RDS&#39;</span>)</span>
-<span id="cb32-42"><a href="#cb32-42" aria-hidden="true" tabindex="-1"></a><span class="co"># UNION OF RUN1 and RUN2 graphs </span></span>
-<span id="cb32-43"><a href="#cb32-43" aria-hidden="true" tabindex="-1"></a>union <span class="ot">&lt;-</span> <span class="fu">union_of_graphs</span>(<span class="at">graph_1 =</span> output1<span class="sc">$</span>igraph_network, </span>
-<span id="cb32-44"><a href="#cb32-44" aria-hidden="true" tabindex="-1"></a>                         <span class="at">graph_2 =</span> output2<span class="sc">$</span>igraph_network, </span>
-<span id="cb32-45"><a href="#cb32-45" aria-hidden="true" tabindex="-1"></a>                         <span class="at">proteins_df =</span> carnival_input_toy, </span>
-<span id="cb32-46"><a href="#cb32-46" aria-hidden="true" tabindex="-1"></a>                         <span class="at">files =</span> <span class="cn">TRUE</span>, </span>
-<span id="cb32-47"><a href="#cb32-47" aria-hidden="true" tabindex="-1"></a>                         <span class="at">path_sif =</span> <span class="st">&#39;./union_network1.sif&#39;</span>, </span>
-<span id="cb32-48"><a href="#cb32-48" aria-hidden="true" tabindex="-1"></a>                         <span class="at">path_rds =</span> <span class="st">&#39;./union_network1.RDS&#39;</span>)</span>
-<span id="cb32-49"><a href="#cb32-49" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-50"><a href="#cb32-50" aria-hidden="true" tabindex="-1"></a><span class="co"># EXPANSION and MAPPING of PHOSPHOPROTEOMICS DATA ON EDGES</span></span>
-<span id="cb32-51"><a href="#cb32-51" aria-hidden="true" tabindex="-1"></a>union_graph_rds <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&#39;./union_network1.RDS&#39;</span>)</span>
-<span id="cb32-52"><a href="#cb32-52" aria-hidden="true" tabindex="-1"></a>union_graph_sif <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_tsv</span>(<span class="st">&#39;./union_network1.sif&#39;</span>,</span>
-<span id="cb32-53"><a href="#cb32-53" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">&#39;source&#39;</span>, <span class="st">&#39;interaction&#39;</span>, <span class="st">&#39;target&#39;</span>))</span>
-<span id="cb32-54"><a href="#cb32-54" aria-hidden="true" tabindex="-1"></a>union_output_final <span class="ot">&lt;-</span> <span class="fu">expand_and_map_edges</span>(<span class="at">optimized_graph_rds =</span> union_graph_rds, </span>
-<span id="cb32-55"><a href="#cb32-55" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">optimized_graph_sif =</span> union_graph_sif,</span>
-<span id="cb32-56"><a href="#cb32-56" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
-<span id="cb32-57"><a href="#cb32-57" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">phospho_df =</span> phospho_toy_df,</span>
-<span id="cb32-58"><a href="#cb32-58" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb32-59"><a href="#cb32-59" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">path_sif =</span> <span class="st">&#39;union_network_validated.sif&#39;</span>,</span>
-<span id="cb32-60"><a href="#cb32-60" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">path_rds =</span> <span class="st">&#39;union_network_validated.rds&#39;</span>)</span></code></pre></div>
+<span id="cb32-24"><a href="#cb32-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-25"><a href="#cb32-25" aria-hidden="true" tabindex="-1"></a><span class="co"># SECOND RUN: from KIN, PHOS, OTHERS to TFs</span></span>
+<span id="cb32-26"><a href="#cb32-26" aria-hidden="true" tabindex="-1"></a>run1_output_nodes <span class="ot">&lt;-</span> <span class="fu">convert_output_nodes_in_next_input</span>(output1)</span>
+<span id="cb32-27"><a href="#cb32-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-28"><a href="#cb32-28" aria-hidden="true" tabindex="-1"></a>source_df <span class="ot">&lt;-</span> run1_output_nodes <span class="sc">%&gt;%</span></span>
+<span id="cb32-29"><a href="#cb32-29" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&#39;kin&#39;</span>, <span class="st">&#39;phos&#39;</span>, <span class="st">&#39;other&#39;</span>))</span>
+<span id="cb32-30"><a href="#cb32-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-31"><a href="#cb32-31" aria-hidden="true" tabindex="-1"></a>target2_df <span class="ot">&lt;-</span> carnival_input_toy <span class="sc">%&gt;%</span></span>
+<span id="cb32-32"><a href="#cb32-32" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">==</span> <span class="st">&#39;tf&#39;</span>)</span>
+<span id="cb32-33"><a href="#cb32-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-34"><a href="#cb32-34" aria-hidden="true" tabindex="-1"></a>output2 <span class="ot">&lt;-</span> <span class="fu">run_carnival_and_create_graph</span>(<span class="at">source_df =</span> source_df,</span>
+<span id="cb32-35"><a href="#cb32-35" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">target_df =</span> target2_df,</span>
+<span id="cb32-36"><a href="#cb32-36" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">naive_network =</span> <span class="fu">unique</span>(one_layer_toy_df),</span>
+<span id="cb32-37"><a href="#cb32-37" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">proteins_df =</span> carnival_input_toy,</span>
+<span id="cb32-38"><a href="#cb32-38" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
+<span id="cb32-39"><a href="#cb32-39" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">carnival_options =</span> carnival_options,</span>
+<span id="cb32-40"><a href="#cb32-40" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb32-41"><a href="#cb32-41" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">with_atlas =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb32-42"><a href="#cb32-42" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_sif =</span> <span class="st">&#39;./optimized_network2.sif&#39;</span>,</span>
+<span id="cb32-43"><a href="#cb32-43" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_rds =</span> <span class="st">&#39;./optimized_network2.RDS&#39;</span>)</span>
+<span id="cb32-44"><a href="#cb32-44" aria-hidden="true" tabindex="-1"></a><span class="co"># UNION OF RUN1 and RUN2 graphs </span></span>
+<span id="cb32-45"><a href="#cb32-45" aria-hidden="true" tabindex="-1"></a>union <span class="ot">&lt;-</span> <span class="fu">union_of_graphs</span>(<span class="at">graph_1 =</span> output1<span class="sc">$</span>igraph_network, </span>
+<span id="cb32-46"><a href="#cb32-46" aria-hidden="true" tabindex="-1"></a>                         <span class="at">graph_2 =</span> output2<span class="sc">$</span>igraph_network, </span>
+<span id="cb32-47"><a href="#cb32-47" aria-hidden="true" tabindex="-1"></a>                         <span class="at">proteins_df =</span> carnival_input_toy, </span>
+<span id="cb32-48"><a href="#cb32-48" aria-hidden="true" tabindex="-1"></a>                         <span class="at">files =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb32-49"><a href="#cb32-49" aria-hidden="true" tabindex="-1"></a>                         <span class="at">path_sif =</span> <span class="st">&#39;./union_network1.sif&#39;</span>, </span>
+<span id="cb32-50"><a href="#cb32-50" aria-hidden="true" tabindex="-1"></a>                         <span class="at">path_rds =</span> <span class="st">&#39;./union_network1.RDS&#39;</span>)</span>
+<span id="cb32-51"><a href="#cb32-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-52"><a href="#cb32-52" aria-hidden="true" tabindex="-1"></a><span class="co"># EXPANSION and MAPPING of PHOSPHOPROTEOMICS DATA ON EDGES</span></span>
+<span id="cb32-53"><a href="#cb32-53" aria-hidden="true" tabindex="-1"></a>union_graph_rds <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&#39;./union_network1.RDS&#39;</span>)</span>
+<span id="cb32-54"><a href="#cb32-54" aria-hidden="true" tabindex="-1"></a>union_graph_sif <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_tsv</span>(<span class="st">&#39;./union_network1.sif&#39;</span>,</span>
+<span id="cb32-55"><a href="#cb32-55" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">&#39;source&#39;</span>, <span class="st">&#39;interaction&#39;</span>, <span class="st">&#39;target&#39;</span>))</span>
+<span id="cb32-56"><a href="#cb32-56" aria-hidden="true" tabindex="-1"></a>union_output_final <span class="ot">&lt;-</span> <span class="fu">expand_and_map_edges</span>(<span class="at">optimized_graph_rds =</span> union_graph_rds, </span>
+<span id="cb32-57"><a href="#cb32-57" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">optimized_graph_sif =</span> union_graph_sif,</span>
+<span id="cb32-58"><a href="#cb32-58" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
+<span id="cb32-59"><a href="#cb32-59" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">phospho_df =</span> phospho_toy_df,</span>
+<span id="cb32-60"><a href="#cb32-60" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb32-61"><a href="#cb32-61" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">with_atlas =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb32-62"><a href="#cb32-62" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">path_sif =</span> <span class="st">&#39;union_network_validated.sif&#39;</span>,</span>
+<span id="cb32-63"><a href="#cb32-63" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">path_rds =</span> <span class="st">&#39;union_network_validated.rds&#39;</span>)</span></code></pre></div>
 <p>If you want to visualize the result, execute the following
 command.</p>
 <div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>RCy3<span class="sc">::</span><span class="fu">createNetworkFromIgraph</span>(union_output_final<span class="sc">$</span>igraph_network, </span>
@@ -1321,76 +1326,80 @@ the previous steps to TRANSCRIPTION FACTORS;</li>
 <span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
 <span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">carnival_options =</span> carnival_options,</span>
 <span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_sif =</span> <span class="st">&#39;./optimized_network1.sif&#39;</span>,</span>
-<span id="cb34-19"><a href="#cb34-19" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_rds =</span> <span class="st">&#39;./optimized_network1.RDS&#39;</span>)</span>
-<span id="cb34-20"><a href="#cb34-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-21"><a href="#cb34-21" aria-hidden="true" tabindex="-1"></a><span class="co"># SECOND RUN: from KIN, PHOS to OTHER</span></span>
-<span id="cb34-22"><a href="#cb34-22" aria-hidden="true" tabindex="-1"></a>run1_output_nodes <span class="ot">&lt;-</span> <span class="fu">convert_output_nodes_in_next_input</span>(output1)</span>
-<span id="cb34-23"><a href="#cb34-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-24"><a href="#cb34-24" aria-hidden="true" tabindex="-1"></a>source_df <span class="ot">&lt;-</span> run1_output_nodes <span class="sc">%&gt;%</span></span>
-<span id="cb34-25"><a href="#cb34-25" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&#39;kin&#39;</span>, <span class="st">&#39;phos&#39;</span>))</span>
-<span id="cb34-26"><a href="#cb34-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-27"><a href="#cb34-27" aria-hidden="true" tabindex="-1"></a>target2_df <span class="ot">&lt;-</span> run1_output_nodes <span class="sc">%&gt;%</span></span>
-<span id="cb34-28"><a href="#cb34-28" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&#39;other&#39;</span>))</span>
-<span id="cb34-29"><a href="#cb34-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-30"><a href="#cb34-30" aria-hidden="true" tabindex="-1"></a>output2 <span class="ot">&lt;-</span> <span class="fu">run_carnival_and_create_graph</span>(<span class="at">source_df =</span> source_df,</span>
-<span id="cb34-31"><a href="#cb34-31" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">target_df =</span> target2_df,</span>
-<span id="cb34-32"><a href="#cb34-32" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">naive_network =</span> <span class="fu">unique</span>(one_layer_toy_df),</span>
-<span id="cb34-33"><a href="#cb34-33" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">proteins_df =</span> carnival_input_toy,</span>
-<span id="cb34-34"><a href="#cb34-34" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
-<span id="cb34-35"><a href="#cb34-35" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">carnival_options =</span> carnival_options,</span>
-<span id="cb34-36"><a href="#cb34-36" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb34-37"><a href="#cb34-37" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_sif =</span> <span class="st">&#39;./optimized_network2.sif&#39;</span>,</span>
-<span id="cb34-38"><a href="#cb34-38" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_rds =</span> <span class="st">&#39;./optimized_network2.RDS&#39;</span>)</span>
-<span id="cb34-39"><a href="#cb34-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-40"><a href="#cb34-40" aria-hidden="true" tabindex="-1"></a><span class="co">#THIRD RUN: from KIN, PHOS to OTHER to TFs</span></span>
-<span id="cb34-41"><a href="#cb34-41" aria-hidden="true" tabindex="-1"></a>run2_output_nodes <span class="ot">&lt;-</span> <span class="fu">convert_output_nodes_in_next_input</span>(output2)</span>
-<span id="cb34-42"><a href="#cb34-42" aria-hidden="true" tabindex="-1"></a>source2_df <span class="ot">&lt;-</span> run2_output_nodes <span class="sc">%&gt;%</span></span>
-<span id="cb34-43"><a href="#cb34-43" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&#39;kin&#39;</span>, <span class="st">&#39;phos&#39;</span>, <span class="st">&#39;other&#39;</span>))</span>
-<span id="cb34-44"><a href="#cb34-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-45"><a href="#cb34-45" aria-hidden="true" tabindex="-1"></a>target3_df <span class="ot">&lt;-</span> carnival_input_toy <span class="sc">%&gt;%</span></span>
-<span id="cb34-46"><a href="#cb34-46" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">==</span> <span class="st">&#39;tf&#39;</span>)</span>
-<span id="cb34-47"><a href="#cb34-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-48"><a href="#cb34-48" aria-hidden="true" tabindex="-1"></a>output3 <span class="ot">&lt;-</span> <span class="fu">run_carnival_and_create_graph</span>(<span class="at">source_df =</span> source2_df,</span>
-<span id="cb34-49"><a href="#cb34-49" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">target_df =</span> target3_df,</span>
-<span id="cb34-50"><a href="#cb34-50" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">naive_network =</span> <span class="fu">unique</span>(one_layer_toy_df),</span>
-<span id="cb34-51"><a href="#cb34-51" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">proteins_df =</span> carnival_input_toy,</span>
-<span id="cb34-52"><a href="#cb34-52" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
-<span id="cb34-53"><a href="#cb34-53" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">carnival_options =</span> carnival_options,</span>
-<span id="cb34-54"><a href="#cb34-54" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb34-55"><a href="#cb34-55" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_sif =</span> <span class="st">&#39;./optimized_network2.sif&#39;</span>,</span>
-<span id="cb34-56"><a href="#cb34-56" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_rds =</span> <span class="st">&#39;./optimized_network2.RDS&#39;</span>)</span>
-<span id="cb34-57"><a href="#cb34-57" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-58"><a href="#cb34-58" aria-hidden="true" tabindex="-1"></a><span class="co"># UNION OF RUN1, RUN2 AND RUN3 GRAPHS </span></span>
-<span id="cb34-59"><a href="#cb34-59" aria-hidden="true" tabindex="-1"></a>union_run1_run2 <span class="ot">&lt;-</span> <span class="fu">union_of_graphs</span>(<span class="at">graph_1 =</span> output1<span class="sc">$</span>igraph_network, </span>
-<span id="cb34-60"><a href="#cb34-60" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">graph_2 =</span> output2<span class="sc">$</span>igraph_network, </span>
-<span id="cb34-61"><a href="#cb34-61" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">proteins_df =</span> carnival_input_toy, </span>
-<span id="cb34-62"><a href="#cb34-62" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">files =</span> <span class="cn">TRUE</span>, </span>
-<span id="cb34-63"><a href="#cb34-63" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">path_sif =</span> <span class="st">&#39;./union_network1.sif&#39;</span>, </span>
-<span id="cb34-64"><a href="#cb34-64" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">path_rds =</span> <span class="st">&#39;./union_network1.RDS&#39;</span>)<span class="sc">$</span>network</span>
-<span id="cb34-65"><a href="#cb34-65" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-66"><a href="#cb34-66" aria-hidden="true" tabindex="-1"></a>union_run1_run2_run3 <span class="ot">&lt;-</span> <span class="fu">union_of_graphs</span>(<span class="at">graph_1 =</span> union_run1_run2,</span>
-<span id="cb34-67"><a href="#cb34-67" aria-hidden="true" tabindex="-1"></a>                               <span class="at">graph_2 =</span> output3<span class="sc">$</span>igraph_network, </span>
-<span id="cb34-68"><a href="#cb34-68" aria-hidden="true" tabindex="-1"></a>                               <span class="at">proteins_df =</span> carnival_input_toy, </span>
-<span id="cb34-69"><a href="#cb34-69" aria-hidden="true" tabindex="-1"></a>                               <span class="at">files =</span> <span class="cn">TRUE</span>, </span>
-<span id="cb34-70"><a href="#cb34-70" aria-hidden="true" tabindex="-1"></a>                               <span class="at">path_sif =</span> <span class="st">&#39;./union_network2.sif&#39;</span>, </span>
-<span id="cb34-71"><a href="#cb34-71" aria-hidden="true" tabindex="-1"></a>                               <span class="at">path_rds =</span> <span class="st">&#39;./union_network2.RDS&#39;</span>)</span>
-<span id="cb34-72"><a href="#cb34-72" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-73"><a href="#cb34-73" aria-hidden="true" tabindex="-1"></a><span class="co"># EXPANSION and MAPPING of PHOSPHOPROTEOMICS DATA ON EDGES</span></span>
-<span id="cb34-74"><a href="#cb34-74" aria-hidden="true" tabindex="-1"></a>union2_graph_rds <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&#39;./union_network2.RDS&#39;</span>)</span>
-<span id="cb34-75"><a href="#cb34-75" aria-hidden="true" tabindex="-1"></a>union2_graph_sif <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_tsv</span>(<span class="st">&#39;./union_network2.sif&#39;</span>,</span>
-<span id="cb34-76"><a href="#cb34-76" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">&#39;source&#39;</span>, <span class="st">&#39;interaction&#39;</span>, <span class="st">&#39;target&#39;</span>))</span>
-<span id="cb34-77"><a href="#cb34-77" aria-hidden="true" tabindex="-1"></a>union2_output_final <span class="ot">&lt;-</span> <span class="fu">expand_and_map_edges</span>(<span class="at">optimized_graph_rds =</span> union2_graph_rds, </span>
-<span id="cb34-78"><a href="#cb34-78" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">optimized_graph_sif =</span> union2_graph_sif,</span>
-<span id="cb34-79"><a href="#cb34-79" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
-<span id="cb34-80"><a href="#cb34-80" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">phospho_df =</span> phospho_toy_df,</span>
-<span id="cb34-81"><a href="#cb34-81" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb34-82"><a href="#cb34-82" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">path_sif =</span> <span class="st">&#39;union2_network_validated.sif&#39;</span>,</span>
-<span id="cb34-83"><a href="#cb34-83" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">path_rds =</span> <span class="st">&#39;union2_network_validated.rds&#39;</span>)</span>
-<span id="cb34-84"><a href="#cb34-84" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-85"><a href="#cb34-85" aria-hidden="true" tabindex="-1"></a><span class="co"># VISUALIZATION OF THE NETWORK</span></span>
-<span id="cb34-86"><a href="#cb34-86" aria-hidden="true" tabindex="-1"></a>RCy3<span class="sc">::</span><span class="fu">createNetworkFromIgraph</span>(union2_output_final<span class="sc">$</span>igraph_network, </span>
-<span id="cb34-87"><a href="#cb34-87" aria-hidden="true" tabindex="-1"></a>                              <span class="at">collection =</span> <span class="st">&#39;three_steps_analysis&#39;</span>)</span></code></pre></div>
+<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">with_atlas =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb34-19"><a href="#cb34-19" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_sif =</span> <span class="st">&#39;./optimized_network1.sif&#39;</span>,</span>
+<span id="cb34-20"><a href="#cb34-20" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_rds =</span> <span class="st">&#39;./optimized_network1.RDS&#39;</span>)</span>
+<span id="cb34-21"><a href="#cb34-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-22"><a href="#cb34-22" aria-hidden="true" tabindex="-1"></a><span class="co"># SECOND RUN: from KIN, PHOS to OTHER</span></span>
+<span id="cb34-23"><a href="#cb34-23" aria-hidden="true" tabindex="-1"></a>run1_output_nodes <span class="ot">&lt;-</span> <span class="fu">convert_output_nodes_in_next_input</span>(output1)</span>
+<span id="cb34-24"><a href="#cb34-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-25"><a href="#cb34-25" aria-hidden="true" tabindex="-1"></a>source_df <span class="ot">&lt;-</span> run1_output_nodes <span class="sc">%&gt;%</span></span>
+<span id="cb34-26"><a href="#cb34-26" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&#39;kin&#39;</span>, <span class="st">&#39;phos&#39;</span>))</span>
+<span id="cb34-27"><a href="#cb34-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-28"><a href="#cb34-28" aria-hidden="true" tabindex="-1"></a>target2_df <span class="ot">&lt;-</span> run1_output_nodes <span class="sc">%&gt;%</span></span>
+<span id="cb34-29"><a href="#cb34-29" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&#39;other&#39;</span>))</span>
+<span id="cb34-30"><a href="#cb34-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-31"><a href="#cb34-31" aria-hidden="true" tabindex="-1"></a>output2 <span class="ot">&lt;-</span> <span class="fu">run_carnival_and_create_graph</span>(<span class="at">source_df =</span> source_df,</span>
+<span id="cb34-32"><a href="#cb34-32" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">target_df =</span> target2_df,</span>
+<span id="cb34-33"><a href="#cb34-33" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">naive_network =</span> <span class="fu">unique</span>(one_layer_toy_df),</span>
+<span id="cb34-34"><a href="#cb34-34" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">proteins_df =</span> carnival_input_toy,</span>
+<span id="cb34-35"><a href="#cb34-35" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
+<span id="cb34-36"><a href="#cb34-36" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">carnival_options =</span> carnival_options,</span>
+<span id="cb34-37"><a href="#cb34-37" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb34-38"><a href="#cb34-38" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">with_atlas =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb34-39"><a href="#cb34-39" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_sif =</span> <span class="st">&#39;./optimized_network2.sif&#39;</span>,</span>
+<span id="cb34-40"><a href="#cb34-40" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_rds =</span> <span class="st">&#39;./optimized_network2.RDS&#39;</span>)</span>
+<span id="cb34-41"><a href="#cb34-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-42"><a href="#cb34-42" aria-hidden="true" tabindex="-1"></a><span class="co">#THIRD RUN: from KIN, PHOS to OTHER to TFs</span></span>
+<span id="cb34-43"><a href="#cb34-43" aria-hidden="true" tabindex="-1"></a>run2_output_nodes <span class="ot">&lt;-</span> <span class="fu">convert_output_nodes_in_next_input</span>(output2)</span>
+<span id="cb34-44"><a href="#cb34-44" aria-hidden="true" tabindex="-1"></a>source2_df <span class="ot">&lt;-</span> run2_output_nodes <span class="sc">%&gt;%</span></span>
+<span id="cb34-45"><a href="#cb34-45" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&#39;kin&#39;</span>, <span class="st">&#39;phos&#39;</span>, <span class="st">&#39;other&#39;</span>))</span>
+<span id="cb34-46"><a href="#cb34-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-47"><a href="#cb34-47" aria-hidden="true" tabindex="-1"></a>target3_df <span class="ot">&lt;-</span> carnival_input_toy <span class="sc">%&gt;%</span></span>
+<span id="cb34-48"><a href="#cb34-48" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(mf <span class="sc">==</span> <span class="st">&#39;tf&#39;</span>)</span>
+<span id="cb34-49"><a href="#cb34-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-50"><a href="#cb34-50" aria-hidden="true" tabindex="-1"></a>output3 <span class="ot">&lt;-</span> <span class="fu">run_carnival_and_create_graph</span>(<span class="at">source_df =</span> source2_df,</span>
+<span id="cb34-51"><a href="#cb34-51" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">target_df =</span> target3_df,</span>
+<span id="cb34-52"><a href="#cb34-52" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">naive_network =</span> <span class="fu">unique</span>(one_layer_toy_df),</span>
+<span id="cb34-53"><a href="#cb34-53" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">proteins_df =</span> carnival_input_toy,</span>
+<span id="cb34-54"><a href="#cb34-54" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
+<span id="cb34-55"><a href="#cb34-55" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">carnival_options =</span> carnival_options,</span>
+<span id="cb34-56"><a href="#cb34-56" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb34-57"><a href="#cb34-57" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">with_atlas =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb34-58"><a href="#cb34-58" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_sif =</span> <span class="st">&#39;./optimized_network2.sif&#39;</span>,</span>
+<span id="cb34-59"><a href="#cb34-59" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">path_rds =</span> <span class="st">&#39;./optimized_network2.RDS&#39;</span>)</span>
+<span id="cb34-60"><a href="#cb34-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-61"><a href="#cb34-61" aria-hidden="true" tabindex="-1"></a><span class="co"># UNION OF RUN1, RUN2 AND RUN3 GRAPHS </span></span>
+<span id="cb34-62"><a href="#cb34-62" aria-hidden="true" tabindex="-1"></a>union_run1_run2 <span class="ot">&lt;-</span> <span class="fu">union_of_graphs</span>(<span class="at">graph_1 =</span> output1<span class="sc">$</span>igraph_network, </span>
+<span id="cb34-63"><a href="#cb34-63" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">graph_2 =</span> output2<span class="sc">$</span>igraph_network, </span>
+<span id="cb34-64"><a href="#cb34-64" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">proteins_df =</span> carnival_input_toy, </span>
+<span id="cb34-65"><a href="#cb34-65" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">files =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb34-66"><a href="#cb34-66" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">path_sif =</span> <span class="st">&#39;./union_network1.sif&#39;</span>, </span>
+<span id="cb34-67"><a href="#cb34-67" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">path_rds =</span> <span class="st">&#39;./union_network1.RDS&#39;</span>)<span class="sc">$</span>network</span>
+<span id="cb34-68"><a href="#cb34-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-69"><a href="#cb34-69" aria-hidden="true" tabindex="-1"></a>union_run1_run2_run3 <span class="ot">&lt;-</span> <span class="fu">union_of_graphs</span>(<span class="at">graph_1 =</span> union_run1_run2,</span>
+<span id="cb34-70"><a href="#cb34-70" aria-hidden="true" tabindex="-1"></a>                               <span class="at">graph_2 =</span> output3<span class="sc">$</span>igraph_network, </span>
+<span id="cb34-71"><a href="#cb34-71" aria-hidden="true" tabindex="-1"></a>                               <span class="at">proteins_df =</span> carnival_input_toy, </span>
+<span id="cb34-72"><a href="#cb34-72" aria-hidden="true" tabindex="-1"></a>                               <span class="at">files =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb34-73"><a href="#cb34-73" aria-hidden="true" tabindex="-1"></a>                               <span class="at">path_sif =</span> <span class="st">&#39;./union_network2.sif&#39;</span>, </span>
+<span id="cb34-74"><a href="#cb34-74" aria-hidden="true" tabindex="-1"></a>                               <span class="at">path_rds =</span> <span class="st">&#39;./union_network2.RDS&#39;</span>)</span>
+<span id="cb34-75"><a href="#cb34-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-76"><a href="#cb34-76" aria-hidden="true" tabindex="-1"></a><span class="co"># EXPANSION and MAPPING of PHOSPHOPROTEOMICS DATA ON EDGES</span></span>
+<span id="cb34-77"><a href="#cb34-77" aria-hidden="true" tabindex="-1"></a>union2_graph_rds <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&#39;./union_network2.RDS&#39;</span>)</span>
+<span id="cb34-78"><a href="#cb34-78" aria-hidden="true" tabindex="-1"></a>union2_graph_sif <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_tsv</span>(<span class="st">&#39;./union_network2.sif&#39;</span>,</span>
+<span id="cb34-79"><a href="#cb34-79" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">&#39;source&#39;</span>, <span class="st">&#39;interaction&#39;</span>, <span class="st">&#39;target&#39;</span>))</span>
+<span id="cb34-80"><a href="#cb34-80" aria-hidden="true" tabindex="-1"></a>union2_output_final <span class="ot">&lt;-</span> <span class="fu">expand_and_map_edges</span>(<span class="at">optimized_graph_rds =</span> union2_graph_rds, </span>
+<span id="cb34-81"><a href="#cb34-81" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">optimized_graph_sif =</span> union2_graph_sif,</span>
+<span id="cb34-82"><a href="#cb34-82" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
+<span id="cb34-83"><a href="#cb34-83" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">phospho_df =</span> phospho_toy_df,</span>
+<span id="cb34-84"><a href="#cb34-84" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb34-85"><a href="#cb34-85" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">with_atlas =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb34-86"><a href="#cb34-86" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">path_sif =</span> <span class="st">&#39;union2_network_validated.sif&#39;</span>,</span>
+<span id="cb34-87"><a href="#cb34-87" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">path_rds =</span> <span class="st">&#39;union2_network_validated.rds&#39;</span>)</span>
+<span id="cb34-88"><a href="#cb34-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-89"><a href="#cb34-89" aria-hidden="true" tabindex="-1"></a><span class="co"># VISUALIZATION OF THE NETWORK</span></span>
+<span id="cb34-90"><a href="#cb34-90" aria-hidden="true" tabindex="-1"></a>RCy3<span class="sc">::</span><span class="fu">createNetworkFromIgraph</span>(union2_output_final<span class="sc">$</span>igraph_network, </span>
+<span id="cb34-91"><a href="#cb34-91" aria-hidden="true" tabindex="-1"></a>                              <span class="at">collection =</span> <span class="st">&#39;three_steps_analysis&#39;</span>)</span></code></pre></div>
 </div>
 </div>
 <div id="inverse-carnival-analysis-no-perturbationsreceptors" class="section level3">
@@ -1418,25 +1427,27 @@ proteins modulated in your conditions (contained in
 <span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
 <span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">carnival_options =</span> carnival_options,</span>
 <span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">path_sif =</span> <span class="st">&#39;./inv_optimized_network.sif&#39;</span>,</span>
-<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">path_rds =</span> <span class="st">&#39;./inv_optimized_network.RDS&#39;</span>)</span>
-<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a>inv_optimized_graph_rds <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&#39;./inv_optimized_network.sif&#39;</span>)</span>
-<span id="cb35-20"><a href="#cb35-20" aria-hidden="true" tabindex="-1"></a>inv_optimized_graph_sif <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_tsv</span>(<span class="st">&#39;./inv_optimized_network.RDS&#39;</span>,</span>
-<span id="cb35-21"><a href="#cb35-21" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">&#39;source&#39;</span>, <span class="st">&#39;interaction&#39;</span>, <span class="st">&#39;target&#39;</span>))</span>
-<span id="cb35-22"><a href="#cb35-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-23"><a href="#cb35-23" aria-hidden="true" tabindex="-1"></a><span class="co"># mapping experimental data on the optimized network</span></span>
-<span id="cb35-24"><a href="#cb35-24" aria-hidden="true" tabindex="-1"></a>inv_output_final <span class="ot">&lt;-</span> <span class="fu">expand_and_map_edges</span>(<span class="at">optimized_graph_rds =</span> inv_optimized_graph_rds, </span>
-<span id="cb35-25"><a href="#cb35-25" aria-hidden="true" tabindex="-1"></a>                     <span class="at">optimized_graph_sif =</span> inv_optimized_graph_sif,</span>
-<span id="cb35-26"><a href="#cb35-26" aria-hidden="true" tabindex="-1"></a>                     <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
-<span id="cb35-27"><a href="#cb35-27" aria-hidden="true" tabindex="-1"></a>                     <span class="at">phospho_df =</span> phospho_toy_df,</span>
-<span id="cb35-28"><a href="#cb35-28" aria-hidden="true" tabindex="-1"></a>                     <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb35-29"><a href="#cb35-29" aria-hidden="true" tabindex="-1"></a>                     <span class="at">path_sif =</span> <span class="st">&#39;inv_optimized_network_validated.sif&#39;</span>,</span>
-<span id="cb35-30"><a href="#cb35-30" aria-hidden="true" tabindex="-1"></a>                     <span class="at">path_rds =</span> <span class="st">&#39;inv_optimized_network_validated.rds&#39;</span>)</span>
-<span id="cb35-31"><a href="#cb35-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-32"><a href="#cb35-32" aria-hidden="true" tabindex="-1"></a><span class="co"># VISUALIZATION OF THE NETWORK</span></span>
-<span id="cb35-33"><a href="#cb35-33" aria-hidden="true" tabindex="-1"></a>RCy3<span class="sc">::</span><span class="fu">createNetworkFromIgraph</span>(inv_output_final<span class="sc">$</span>igraph_network, </span>
-<span id="cb35-34"><a href="#cb35-34" aria-hidden="true" tabindex="-1"></a>                              <span class="at">collection =</span> <span class="st">&#39;inv_CARNIVAL_analysis&#39;</span>)</span></code></pre></div>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">with_atlas =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">path_sif =</span> <span class="st">&#39;./inv_optimized_network.sif&#39;</span>,</span>
+<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">path_rds =</span> <span class="st">&#39;./inv_optimized_network.RDS&#39;</span>)</span>
+<span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-20"><a href="#cb35-20" aria-hidden="true" tabindex="-1"></a>inv_optimized_graph_rds <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&#39;./inv_optimized_network.sif&#39;</span>)</span>
+<span id="cb35-21"><a href="#cb35-21" aria-hidden="true" tabindex="-1"></a>inv_optimized_graph_sif <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_tsv</span>(<span class="st">&#39;./inv_optimized_network.RDS&#39;</span>,</span>
+<span id="cb35-22"><a href="#cb35-22" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">&#39;source&#39;</span>, <span class="st">&#39;interaction&#39;</span>, <span class="st">&#39;target&#39;</span>))</span>
+<span id="cb35-23"><a href="#cb35-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-24"><a href="#cb35-24" aria-hidden="true" tabindex="-1"></a><span class="co"># mapping experimental data on the optimized network</span></span>
+<span id="cb35-25"><a href="#cb35-25" aria-hidden="true" tabindex="-1"></a>inv_output_final <span class="ot">&lt;-</span> <span class="fu">expand_and_map_edges</span>(<span class="at">optimized_graph_rds =</span> inv_optimized_graph_rds, </span>
+<span id="cb35-26"><a href="#cb35-26" aria-hidden="true" tabindex="-1"></a>                     <span class="at">optimized_graph_sif =</span> inv_optimized_graph_sif,</span>
+<span id="cb35-27"><a href="#cb35-27" aria-hidden="true" tabindex="-1"></a>                     <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>,</span>
+<span id="cb35-28"><a href="#cb35-28" aria-hidden="true" tabindex="-1"></a>                     <span class="at">phospho_df =</span> phospho_toy_df,</span>
+<span id="cb35-29"><a href="#cb35-29" aria-hidden="true" tabindex="-1"></a>                     <span class="at">files =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb35-30"><a href="#cb35-30" aria-hidden="true" tabindex="-1"></a>                     <span class="at">with_atlas =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb35-31"><a href="#cb35-31" aria-hidden="true" tabindex="-1"></a>                     <span class="at">path_sif =</span> <span class="st">&#39;inv_optimized_network_validated.sif&#39;</span>,</span>
+<span id="cb35-32"><a href="#cb35-32" aria-hidden="true" tabindex="-1"></a>                     <span class="at">path_rds =</span> <span class="st">&#39;inv_optimized_network_validated.rds&#39;</span>)</span>
+<span id="cb35-33"><a href="#cb35-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-34"><a href="#cb35-34" aria-hidden="true" tabindex="-1"></a><span class="co"># VISUALIZATION OF THE NETWORK</span></span>
+<span id="cb35-35"><a href="#cb35-35" aria-hidden="true" tabindex="-1"></a>RCy3<span class="sc">::</span><span class="fu">createNetworkFromIgraph</span>(inv_output_final<span class="sc">$</span>igraph_network, </span>
+<span id="cb35-36"><a href="#cb35-36" aria-hidden="true" tabindex="-1"></a>                              <span class="at">collection =</span> <span class="st">&#39;inv_CARNIVAL_analysis&#39;</span>)</span></code></pre></div>
 </div>
 <div id="signaling-profiler-output" class="section level3">
 <h3>Signaling Profiler output</h3>
