@@ -6,6 +6,8 @@
 #' @param compact TRUE if you want a compact result, FALSE otherwise
 #' @param max_path_length integer, from 1 to 4, path length of
 #' @param remove_cascade default TRUE
+#' @param use_carnival_activity Boolean value, TRUE uses all proteins in network,
+#' FALSE only experimentally derived proteins
 #'
 #' @return phenoSCORE table
 #' @export
@@ -15,17 +17,40 @@ compute_phenoscore <- function(sp_output,
                                desired_phenotypes,
                                compact = TRUE,
                                max_path_length = 4,
-                               remove_cascade = TRUE){
+                               remove_cascade = TRUE,
+                               use_carnival_activity = FALSE){
+
+  # sp_output <- CML_pheno
+  # desired_phenotypes <- 'PROLIFERATION'
+  # max_path_length = 4
+  # remove_cascade = TRUE
+  # use_carnival_activity = TRUE
+#
+#   sp_output <- CML_pheno_CTRL
+#   desired_phenotypes = NULL
+#   max_path_length = 4
+#   remove_cascade = TRUE
+#   compact = FALSE
+#   use_carnival_activity = TRUE
 
   # filter out discordant nodes and the ones not coming from experimental data
   nodes_to_consider <- sp_output$nodes_df %>%
-    dplyr::filter(!is.na(final_score) & !discordant) %>%
+    #dplyr::filter(!is.na(final_score) & !discordant) %>%
     dplyr::mutate_at('gene_name', toupper)
 
+  if(use_carnival_activity == TRUE){
+    nodes_to_consider$final_score <- NULL
+    nodes_to_consider <- nodes_to_consider %>%
+      dplyr::rename(final_score = carnival_activity) %>%
+      dplyr::filter(!(final_score == 0 & discordant == FALSE))
+  }
 
   if(!is.null(desired_phenotypes)){
     paths_to_pheno <- paths_to_pheno %>%
       dplyr::filter(EndPathways %in% desired_phenotypes)
+    if(nrow(paths_to_pheno) == 0){
+      stop('Your phenotype cannot be connected to the proteins!')
+    }
   }
 
   prot_to_pheno <- dplyr::inner_join(nodes_to_consider,
@@ -97,10 +122,10 @@ compute_phenoscore <- function(sp_output,
   # compute phenotype score
   phenotype_score <- prot_to_pheno %>%
     dplyr::group_by(EndPathways) %>%
-    dplyr::summarise(phenoSCORE = sum(signed_exp_score))
+    dplyr::summarise(phenoSCORE = sum(signed_exp_score)/dplyr::n())
 
   extended_result <- dplyr::inner_join(prot_to_pheno, phenotype_score, by = 'EndPathways') %>%
-    dplyr::select(name, gene_name, mf, final_score, EndPathways, phenoSCORE, Path_String, Path_Length)
+    dplyr::select(name, gene_name, mf, final_score, EndPathways, phenoSCORE, Path_String, Path_Length, Final_Effect)
 
   compact_result <- extended_result %>%
     dplyr::group_by(EndPathways, phenoSCORE) %>% dplyr::summarise(Regulators = paste0(unique(gene_name), collapse = ';'),

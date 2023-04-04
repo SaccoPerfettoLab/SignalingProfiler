@@ -190,13 +190,15 @@ ksea_db_human
 ksea_db_mouse
 ```
 
+Given the recent publication of the (Serine-Threonine Kinome Atlas)[https://www.nature.com/articles/s41586-022-05575-3] we integrated high confidence regulons in the `ksea_db` derived from this work. If you want to extend your data with the atlas, set `integrated_regulons = TRUE`.
+
 #### Important parameters
 
 The `reg_minsize` parameter is important to choose the number of targets in the protein's regulon overlapping with your experimental data. Setting `reg_minsize = 1` means deciding you infer the activity of a protein if you find one modulated protein target in your dataset.
 
 The `exp_sign` parameter allow you to choose if you want to use the whole omic data (`exp_sign = FALSE`) or only the significant analytes (`exp_sign = TRUE`).
 
-The `hypergeom_corr` parameter should be TRUE if you want to correct VIPER output with an hypergeometric test, that gives less important to proteins with fewer significantly modulated targets in experimental data.
+The `hypergeom_corr` parameter should be TRUE if you want to correct VIPER output with an hypergeometric test, that gives less importance to proteins with fewer significantly modulated targets in experimental data.
 
 #### Infer the activity of transcription factors from transcriptomics
 
@@ -213,11 +215,23 @@ tf_activity_foot <- run_footprint_based_analysis(omic_data = tr_toy_df,
 #### Infer the activity of kinases and phosphatases from phosphoproteomics
 
 ```{r eval = FALSE}
+# without the atlas
 kin_phos_activity_foot <- run_footprint_based_analysis(omic_data = phospho_toy_df, 
                                               analysis = 'ksea', 
                                               organism = 'mouse', 
                                               reg_minsize= 1, 
                                               exp_sign = FALSE, 
+                                              integrated_regulons = FALSE,
+                                              hypergeom_corr = TRUE,
+                                              GO_annotation = FALSE)
+
+# with the atlas
+kin_phos_activity_foot <- run_footprint_based_analysis(omic_data = phospho_toy_df, 
+                                              analysis = 'ksea', 
+                                              organism = 'mouse', 
+                                              reg_minsize= 1, 
+                                              exp_sign = FALSE, 
+                                              integrated_regulons = TRUE,
                                               hypergeom_corr = TRUE,
                                               GO_annotation = FALSE)
 ```
@@ -933,13 +947,19 @@ For example, if you are treating tumor cells you may expect the APOPTOSIS phenot
 
 We compute the **phenoSCORE** using:
 
--   the nodes in the context-specific model whose activity has been inferred from experimental data;
+-   the nodes in the context-specific model;
 -   paths table from SIGNOR proteins to SIGNOR phenotypes containing a different significant causal paths, derived from our in-house recently published resource [ProxPath](https://www.biorxiv.org/content/10.1101/2023.01.09.523265v1.full.pdf); it is available as built-in object `paths_to_pheno`
 
+### Choose the nodes to connect to the phenotype
+You can choose the nodes in your model to connect to the phenotype with the `use_carnival_activity` parameter.
+- `use_carnival_activity = FALSE`: exploits the nodes derived from experimental data;
+- `use_carnival_activity = TRUE`: exploits all the nodes in the final model; 
+
+### ProxPath customization
 Briefly, **ProxPath** reports the regulators of phenotypes.
 Regulators are defined as proteins connected to the phenotype with a maximum
 of 4-steps-length path. The user can choose closer regulators to the phenotype
-modulating the length of the path with the `max_path_length` parameter.
+modulating the length of the path with the `max_path_length` parameter (default is 4).
 
 You can choose the phenotypes you desire to look at using the `desired_phenotype` parameter, or you can compute the activity for all annotated phenotypes.
 
@@ -948,11 +968,17 @@ You can choose the phenotypes you desire to look at using the `desired_phenotype
 unique(paths_to_pheno$EndPathways)
 ```
 
+### Cascade removal
 If two phenotype regulators are in the same linear cascade in the network, 
 `remove_cascade = TRUE` allows to consider only the regulator
 at the end of the signaling cascade. 
 
-To compute the **phenoSCORE** simply execute:
+### Output customization
+The `compact = TRUE` paramter allow to see the score of each phenotype.
+If you want to see each regulator of the phenotype, set `compact = FALSE`.
+
+### PhenoScore Computation
+To compute the **PhenoScore** simply execute:
 
 ```{r eval = FALSE}
 # all phenotypes

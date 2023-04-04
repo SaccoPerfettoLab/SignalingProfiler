@@ -693,6 +693,11 @@ phosphoproteomic data.</p>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>tfea_db_mouse</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>ksea_db_human</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>ksea_db_mouse</span></code></pre></div>
+<p>Given the recent publication of the (Serine-Threonine Kinome
+Atlas)[<a href="https://www.nature.com/articles/s41586-022-05575-3" class="uri">https://www.nature.com/articles/s41586-022-05575-3</a>] we
+integrated high confidence regulons in the <code>ksea_db</code> derived
+from this work. If you want to extend your data with the atlas, set
+<code>integrated_regulons = TRUE</code>.</p>
 </div>
 <div id="important-parameters" class="section level4">
 <h4>Important parameters</h4>
@@ -706,7 +711,7 @@ to use the whole omic data (<code>exp_sign = FALSE</code>) or only the
 significant analytes (<code>exp_sign = TRUE</code>).</p>
 <p>The <code>hypergeom_corr</code> parameter should be TRUE if you want
 to correct VIPER output with an hypergeometric test, that gives less
-important to proteins with fewer significantly modulated targets in
+importance to proteins with fewer significantly modulated targets in
 experimental data.</p>
 </div>
 <div id="infer-the-activity-of-transcription-factors-from-transcriptomics" class="section level4">
@@ -723,13 +728,25 @@ transcriptomics</h4>
 <div id="infer-the-activity-of-kinases-and-phosphatases-from-phosphoproteomics" class="section level4">
 <h4>Infer the activity of kinases and phosphatases from
 phosphoproteomics</h4>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>kin_phos_activity_foot <span class="ot">&lt;-</span> <span class="fu">run_footprint_based_analysis</span>(<span class="at">omic_data =</span> phospho_toy_df, </span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">analysis =</span> <span class="st">&#39;ksea&#39;</span>, </span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>, </span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">reg_minsize=</span> <span class="dv">1</span>, </span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">exp_sign =</span> <span class="cn">FALSE</span>, </span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">hypergeom_corr =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">GO_annotation =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># without the atlas</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>kin_phos_activity_foot <span class="ot">&lt;-</span> <span class="fu">run_footprint_based_analysis</span>(<span class="at">omic_data =</span> phospho_toy_df, </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">analysis =</span> <span class="st">&#39;ksea&#39;</span>, </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>, </span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">reg_minsize=</span> <span class="dv">1</span>, </span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">exp_sign =</span> <span class="cn">FALSE</span>, </span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">integrated_regulons =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">hypergeom_corr =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">GO_annotation =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co"># with the atlas</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>kin_phos_activity_foot <span class="ot">&lt;-</span> <span class="fu">run_footprint_based_analysis</span>(<span class="at">omic_data =</span> phospho_toy_df, </span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">analysis =</span> <span class="st">&#39;ksea&#39;</span>, </span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">organism =</span> <span class="st">&#39;mouse&#39;</span>, </span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">reg_minsize=</span> <span class="dv">1</span>, </span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">exp_sign =</span> <span class="cn">FALSE</span>, </span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">integrated_regulons =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">hypergeom_corr =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">GO_annotation =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
 </div>
 </div>
 <div id="step-1b-phosphoscore" class="section level3">
@@ -1553,27 +1570,48 @@ characteristics. For example, if you are treating tumor cells you may
 expect the APOPTOSIS phenotype to be activated.</p>
 <p>We compute the <strong>phenoSCORE</strong> using:</p>
 <ul>
-<li>the nodes in the context-specific model whose activity has been
-inferred from experimental data;</li>
+<li>the nodes in the context-specific model;</li>
 <li>paths table from SIGNOR proteins to SIGNOR phenotypes containing a
 different significant causal paths, derived from our in-house recently
 published resource <a href="https://www.biorxiv.org/content/10.1101/2023.01.09.523265v1.full.pdf">ProxPath</a>;
 it is available as built-in object <code>paths_to_pheno</code></li>
 </ul>
+<div id="choose-the-nodes-to-connect-to-the-phenotype" class="section level3">
+<h3>Choose the nodes to connect to the phenotype</h3>
+<p>You can choose the nodes in your model to connect to the phenotype
+with the <code>use_carnival_activity</code> parameter. -
+<code>use_carnival_activity = FALSE</code>: exploits the nodes derived
+from experimental data; - <code>use_carnival_activity = TRUE</code>:
+exploits all the nodes in the final model;</p>
+</div>
+<div id="proxpath-customization" class="section level3">
+<h3>ProxPath customization</h3>
 <p>Briefly, <strong>ProxPath</strong> reports the regulators of
 phenotypes. Regulators are defined as proteins connected to the
 phenotype with a maximum of 4-steps-length path. The user can choose
 closer regulators to the phenotype modulating the length of the path
-with the <code>max_path_length</code> parameter.</p>
+with the <code>max_path_length</code> parameter (default is 4).</p>
 <p>You can choose the phenotypes you desire to look at using the
 <code>desired_phenotype</code> parameter, or you can compute the
 activity for all annotated phenotypes.</p>
 <div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Execute this command to see all the available phenotypes</span></span>
 <span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(paths_to_pheno<span class="sc">$</span>EndPathways)</span></code></pre></div>
+</div>
+<div id="cascade-removal" class="section level3">
+<h3>Cascade removal</h3>
 <p>If two phenotype regulators are in the same linear cascade in the
 network, <code>remove_cascade = TRUE</code> allows to consider only the
 regulator at the end of the signaling cascade.</p>
-<p>To compute the <strong>phenoSCORE</strong> simply execute:</p>
+</div>
+<div id="output-customization" class="section level3">
+<h3>Output customization</h3>
+<p>The <code>compact = TRUE</code> paramter allow to see the score of
+each phenotype. If you want to see each regulator of the phenotype, set
+<code>compact = FALSE</code>.</p>
+</div>
+<div id="phenoscore-computation" class="section level3">
+<h3>PhenoScore Computation</h3>
+<p>To compute the <strong>PhenoScore</strong> simply execute:</p>
 <div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co"># all phenotypes</span></span>
 <span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>toy_phenoscore_output <span class="ot">&lt;-</span> <span class="fu">compute_phenoscore</span>(<span class="at">sp_output =</span> toy_sp_output, </span>
 <span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">desired_phenotypes =</span> <span class="cn">NULL</span>, </span>
@@ -1588,6 +1626,7 @@ regulator at the end of the signaling cascade.</p>
 <span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a>                   <span class="at">remove_cascade =</span> <span class="cn">TRUE</span>,</span>
 <span id="cb41-13"><a href="#cb41-13" aria-hidden="true" tabindex="-1"></a>                   <span class="at">compact =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(toy_phenoscore_output)</span></code></pre></div>
+</div>
 </div>
 </div>
 
