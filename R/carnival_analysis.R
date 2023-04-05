@@ -596,7 +596,7 @@ keep_only_present_perturbation <- function(source_df, naive_network){
   naive_graph <- igraph::graph_from_data_frame(naive_network)
 
   source_df_present <- source_df %>%
-    dplyr::filter(source_df$UNIPROT %in% igraph::V(naive_graph)$name)
+    dplyr::filter(UNIPROT %in% igraph::V(naive_graph)$name)
 
   return(source_df_present)
 }
