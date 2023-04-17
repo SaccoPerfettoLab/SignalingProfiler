@@ -383,7 +383,7 @@ run_footprint_based_analysis <- function(omic_data, analysis, organism,
   if(GO_annotation == TRUE){
     message('GO molecular function annotation')
 
-    output_uni_mf <- molecular_function_annotation(output_uniprot)
+    output_uni_mf <- molecular_function_annotation(output_uniprot, organism)
     output_final <- filter_VIPER_output(output_uni_mf, analysis) %>% dplyr::distinct()
     #footprint_output <- output_final
     return(output_final)
@@ -494,7 +494,7 @@ phosphoscore_computation <- function(phosphoproteomic_data,
   output <- convert_gene_name_in_uniprotid(bio_dataset = output, organism = organism)
 
   if(GO_annotation == TRUE){
-    output <- molecular_function_annotation(output) %>%
+    output <- molecular_function_annotation(output, organism) %>%
       dplyr::distinct()
     return(output)
   }
@@ -895,7 +895,7 @@ activity_from_proteomics <- function(prot_df, organism){
 
   prot_df <- convert_gene_name_in_uniprotid(prot_df, organism)
 
-  prot_df <- molecular_function_annotation(prot_df)
+  prot_df <- molecular_function_annotation(prot_df, organism)
 
   return(prot_df)
 }

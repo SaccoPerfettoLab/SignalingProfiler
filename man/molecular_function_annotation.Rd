@@ -4,10 +4,12 @@
 \alias{molecular_function_annotation}
 \title{Title}
 \usage{
-molecular_function_annotation(inferred_proteins_dataset)
+molecular_function_annotation(inferred_proteins_dataset, organism)
 }
 \arguments{
 \item{inferred_proteins_dataset}{dataset of inferred proteins with UNIPROT}
+
+\item{organism}{string, 'mouse', or 'human'}
 }
 \value{
 dataset of inferred proteins with molecular function column
