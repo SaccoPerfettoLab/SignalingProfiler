@@ -433,8 +433,10 @@ phosphoscore_computation <- function(phosphoproteomic_data,
   }
 
   # STOP HERE IF NO PHOSPHOSCORE IS FOUND
-  if(nrow(phosphoscore_df) == 0){
-    stop('No proteins found from PhosphoSCORE computation!')
+  if(is.null(phosphoscore_df)){
+    warning('No proteins found from PhosphoSCORE computation!')
+    return(NULL)
+
   }
 
   # compute protein PhosphoSCORE averaging the contribute of each phosphosite
@@ -732,6 +734,7 @@ map_experimental_on_regulatory_phosphosites <- function(phosphoproteomic_data,
 
   if(nrow(exp_fc) == 0){
     warning('No annotated regulatory phosphosites significantly modulated in your dataset')
+    return(NULL)
   }else{
     phosphoscore_df <- dplyr::left_join(exp_fc, reg_phos_db, by = 'PHOSPHO_KEY_GN_SEQ') %>%
       dplyr::select(PHOSPHO_KEY_GN_SEQ, ACTIVATION, difference) %>%
