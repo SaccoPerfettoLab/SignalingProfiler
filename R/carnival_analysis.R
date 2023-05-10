@@ -207,7 +207,7 @@ union_of_graphs <- function(graph_1, graph_2, proteins_df, files,
     dplyr::arrange(gene_name)
 
   nodes <- dplyr::left_join(nodes, proteins_df, by = c('gene_name', 'UNIPROT')) %>%
-    dplyr::select(gene_name, carnival_activity, UNIPROT, mf, final_score) %>%
+    dplyr::select(gene_name, carnival_activity, UNIPROT, mf, final_score, method) %>%
     dplyr::relocate(UNIPROT)
 
   # se sono duplicati nei due network prendo la media
@@ -216,7 +216,7 @@ union_of_graphs <- function(graph_1, graph_2, proteins_df, files,
     dplyr::summarise(carnival_activity = mean(carnival_activity))
 
   nodes <- nodes %>%
-    dplyr::select(UNIPROT, gene_name, mf, final_score) %>%
+    dplyr::select(UNIPROT, gene_name, mf, final_score, method) %>%
     dplyr::distinct()
 
   nodes <- dplyr::left_join(nodes1, nodes, by = c('gene_name')) %>%
