@@ -60,7 +60,7 @@ compute_phenoscore <- function(sp_output,
 
 
   if(remove_cascade == TRUE){
-    g <- sp_output$igraph_network
+    sp_graph <- sp_output$igraph_network
     multiple_regulated_phen <- prot_to_pheno %>%
       dplyr::count(EndPathways) %>%
       dplyr::filter(n>1)
@@ -93,7 +93,7 @@ compute_phenoscore <- function(sp_output,
       # reverse run
       for(i in ncol(combinatios)){
         #i = 1
-        dist_count[1,i] <- unlist(igraph::distances(g, combinatios[2,i], to = combinatios[1,i], mode = "out"))
+        dist_count[1,i] <- unlist(igraph::distances(sp_graph, combinatios[2,i], to = combinatios[1,i], mode = "out"))
         if(dist_count[1,i] == Inf){
           dist_count[3,i] <- NA
         }else{
@@ -147,6 +147,7 @@ compute_phenoscore <- function(sp_output,
 #' @param pvalue_threshold default 0.05
 #' @param path_length default 4 (1 to 4 allowed)
 #' @param zscore_threshold default -1.96
+#' @param stat 'mean' or 'median'
 #'
 #' @return a list of a plot and result table
 #' @export
@@ -156,26 +157,24 @@ phenoscore_computation_v1 <- function(proteins_df,
                                       desired_phenotypes,
                                       pvalue_threshold = 0.05,
                                       path_length = 4,
+                                      stat = 'mean',
                                       zscore_threshold = -1.96){
-  # proteins_df =  proteins_df
+  # proteins_df =  eval(parse(text = condition))
   # desired_phenotypes = desired_phenotypes
-  # # ** TEST DATA ** #
-  # proteins_df <- JMD_df[which(JMD_df$EAPred > 0),] %>%
-  #   rename(gene_name = GeneName)
-  #
-  # phenotype_list_Sara_df <- read_xlsx('../data-raw/VERONICA/Phenotype_phenoscore.xlsx', sheet = 1, range = NULL, col_names = TRUE,
-  #                                     col_types = NULL, na = "", trim_ws = TRUE, skip = 0,
-  #                                     progress = readxl_progress(), .name_repair = "unique")
-  # phenotype_list_Sara_df%>%
-  #   filter(Choose == 'x')-> phenotype_list_Sara_df
-  # phenotype_list_Sara <- toupper(phenotype_list_Sara_df$Phenotype_name)
-  # phenotype_list_Sara <- gsub(' ', '_', phenotype_list_Sara)
-  # desired_phenotypes <- phenotype_list_Sara
-  #
   # path_length <- 4
   # # zscore_threshold= -2.58 ###(3sd)
   # zscore_threshold= -1.96 ###(2sd)
   # pvalue_threshold = 0.05
+  #
+
+  # condition <- 'Ima_df_exp'
+  # proteins_df <- eval(parse(text = condition))
+  # desired_phenotypes = desired_phenotypes
+  # path_length <- 4
+  # # zscore_threshold= -2.58 ###(3sd)
+  # zscore_threshold= -1.96 ###(2sd)
+  # pvalue_threshold = 0.05
+
 
 
   ##############################################################################
@@ -185,8 +184,8 @@ phenoscore_computation_v1 <- function(proteins_df,
   message('** PHENOSCORE ANALYSIS **')
   # check for path_length parameter
   if(path_length%%1 == 0){
-    if(path_length <= 0 | path_length > 4){
-      stop('path_length should be 1,2,3 or 4!')
+    if(path_length <= 1 | path_length > 4){
+      stop('path_length should be 2,3 or 4!')
     }
   }else{
     stop('Please provide an integer value between 1 and 4 for path_length!')
@@ -228,6 +227,7 @@ phenoscore_computation_v1 <- function(proteins_df,
     dplyr::group_by(EndPathways, Effect)%>%
     dplyr::summarise(n = n(),
                      mean = mean(Path_Score),
+                     median = median(Path_Score),
                      sd=sd(Path_Score)) -> summary.table.mean.sd.path.score ### here we can select between mean and median
 
   ##merge the path table with mean/median and standard deviation (sd)
@@ -236,7 +236,13 @@ phenoscore_computation_v1 <- function(proteins_df,
         by = c('EndPathways', 'Effect'), all.x = TRUE) -> output.table.mean.sd.path.score
 
   ##calculate z-score
-  output.table.mean.sd.path.score$zscore <- (output.table.mean.sd.path.score$Path_Score-output.table.mean.sd.path.score$mean)/output.table.mean.sd.path.score$sd
+  if(stat == 'mean'){
+    output.table.mean.sd.path.score$zscore <- (output.table.mean.sd.path.score$Path_Score-output.table.mean.sd.path.score$mean)/output.table.mean.sd.path.score$sd
+  }else if(stat == 'median'){
+    output.table.mean.sd.path.score$zscore <- (output.table.mean.sd.path.score$Path_Score-output.table.mean.sd.path.score$median)/output.table.mean.sd.path.score$sd
+  }else{
+    stop('Please insert a valid stat: mean or median')
+  }
 
   ## filter by z-score threshold (user defined)
   output.table.mean.sd.path.score %>%
@@ -291,7 +297,7 @@ phenoscore_computation_v1 <- function(proteins_df,
 
   message('Randomization')
   options(dplyr.summarise.inform = FALSE)
-  for (i in c(1:1000)){
+  for (i in c(1:n_random)){
     signor.random <- sample(background_phenoscore)[1:dim_datset]
     output.table6%>%
       dplyr::filter(QueryNode %in% signor.random) %>%
@@ -356,6 +362,11 @@ phenoscore_computation_v1 <- function(proteins_df,
                      Effect != '-' &
                      EndPathways %in% desired_phenotypes)-> results.table
 
+  if(nrow(results.table) == 0){
+    message('No significant phenotype found! Try to change max_length parameters')
+    return(NULL)
+  }
+
   results.table$EndPathways <- sapply(strsplit(as.character(results.table$EndPathways ),
                                                "="),"[", 1)
 
@@ -369,12 +380,20 @@ phenoscore_computation_v1 <- function(proteins_df,
   output.table6 <- output.table6 %>%
     dplyr::mutate_at(c('EndPathways', 'QueryNode'), as.character)
 
+  # number of paths of each protein
+
+
   output.table6%>%
     dplyr::filter(QueryNode %in% proteins_vector)-> INPUT.Phen.Paths
 
-  ProteinsPaths <- INPUT.Phen.Paths %>%
+  INPUT.Phen.Paths %>%
+    dplyr::group_by(QueryNode, EndPathways, Effect) %>%
+    dplyr::summarise(n = n()) -> count.query
+
+  ProteinsPaths <- count.query %>%
     dplyr::group_by(EndPathways, Effect) %>%
-    dplyr::summarise(regulators = paste0(unique(QueryNode),collapse = ';')) %>%
+    dplyr::summarise(regulators = paste0((QueryNode),collapse = ';'),
+                     node_idx = paste0((round(n/sum(n),2)), collapse = ';')) %>%
     dplyr::mutate_at('EndPathways', tolower) %>%
     dplyr::mutate(EndPathways = stringr::str_replace_all(EndPathways, '_', ' '))
 
@@ -389,8 +408,8 @@ phenoscore_computation_v1 <- function(proteins_df,
     tibble::as_tibble()->results.table
 
   ggplot2::ggplot(results.table, ggplot2::aes(x = factor(EndPathways),
-                            y = Log10_p_value_plot,
-                            fill = Effect)) +
+                                              y = Log10_p_value_plot,
+                                              fill = Effect)) +
     ggplot2::geom_col(position = "dodge")+
     ggplot2::ggtitle(paste0('Significantly close phenotypes')) +
     ggplot2::ylab("-Log10(p-value)") + ggplot2::xlab('phenotype') +
@@ -409,4 +428,903 @@ phenoscore_computation_v1 <- function(proteins_df,
 
   return(list(barplot = barplot_phenotypes,
               table = results.table_reg))
+}
+
+
+#' Title
+#'
+#' @param proteins_df dataframe containing up-reg or down-reg proteins
+#' @param desired_phenotypes vector of interesting phenotypes
+#' @param pvalue_threshold default 0.05
+#' @param path_length default 4 (1 to 4 allowed)
+#' @param zscore_threshold default -1.96
+#' @param sp_graph graph of signaling profiler output
+#' @param remove_cascade Boolean value, TRUE or FALSE
+#' @param n_random number of randomization run, 1000
+#' @param stat 'mean' or 'median'
+#' @param use_carnival_activity
+#'
+#' @return a list of a plot and result table
+#' @export
+#'
+#' @examples
+phenoscore_computation_v2 <- function(proteins_df,
+                                      desired_phenotypes,
+                                      sp_graph,
+                                      remove_cascade = TRUE,
+                                      n_random = 1000,
+                                      stat = 'mean',
+                                      pvalue_threshold = 0.05,
+                                      path_length = 4,
+                                      zscore_threshold = -1.96){
+
+  # i = 1
+  # condition <- 'JMD_df'
+  #
+  # proteins_df <- eval(parse(text = condition))
+  # sp_graph <- eval(parse(text = net_list[i]))
+  # V(sp_graph)$gene_name <-   toupper(V(sp_graph)$gene_name)
+  # remove_cascade = TRUE
+  # pvalue_threshold = 0.05
+  # path_length = 4
+  # zscore_threshold = -1.96
+
+  # CML
+  # proteins_df
+  # desired_phenotypes = desired_phenotypes
+  # sp_graph = Ctrl$igraph_network
+  # remove_cascade = TRUE
+  # path_length = 4
+  # pvalue_threshold = 0.05
+
+  ##############################################################################
+  # PARAMETERS INPUT CHECK #
+  ##############################################################################
+
+  message('** PHENOSCORE ANALYSIS **')
+  # check for path_length parameter
+  if(path_length%%1 == 0){
+    if(path_length <= 1 | path_length > 4){
+      stop('path_length should be 2,3 or 4!')
+    }
+  }else{
+    stop('Please provide an integer value between 1 and 4 for path_length!')
+  }
+
+  # check the zscore_threshold parameter
+  if(!is.numeric(zscore_threshold)){
+    stop('zscore_threshold should be numeric; choose between 1sd (-1.96) or 2sd (-2.58)')
+  }
+
+  # check pvalue_threshold
+  if(!is.numeric(pvalue_threshold)){
+    stop('pvalue_threshold should be numeric')
+  }
+
+  ##############################################################################
+  # BUILD SIGNIFICANT PATHS TABLE #
+  ##############################################################################
+  message('Building significant paths to phenotypes table')
+  ## filter by path_length (user defined)
+  phenoscore_distances_table %>%
+    dplyr::filter(Path_Length <= path_length) -> dist.glob.filtered
+
+  output.table2 <- dist.glob.filtered[,1:8]
+
+  output.table2 %>%
+    dplyr::distinct(Path_String, QueryNode,
+                    EndNode, EndPathways,
+                    .keep_all = TRUE) -> output.table2
+
+  ##create effect name
+  output.table2$Effect <- '-'
+  output.table2$Effect[ output.table2$Final_Effect == 1] <- 'up-regulates'
+  output.table2$Effect[ output.table2$Final_Effect == 0] <- '-'
+  output.table2$Effect[ output.table2$Final_Effect == -1] <- 'down-regulates'
+
+  ##create a Pathscore distrubution by pathway e calculate mean/median and standard deviation (sd)
+  output.table2%>%
+    dplyr::group_by(EndPathways, Effect)%>%
+    dplyr::summarise(n = n(),
+                     mean = mean(Path_Score),
+                     median = median(Path_Score),
+                     sd=sd(Path_Score)) -> summary.table.mean.sd.path.score ### here we can select between mean and median
+
+  ##merge the path table with mean/median and standard deviation (sd)
+  merge(x = output.table2,
+        y = summary.table.mean.sd.path.score,
+        by = c('EndPathways', 'Effect'), all.x = TRUE) -> output.table.mean.sd.path.score
+
+  ##calculate z-score
+  if(stat == 'mean'){
+    output.table.mean.sd.path.score$zscore <- (output.table.mean.sd.path.score$Path_Score-output.table.mean.sd.path.score$mean)/output.table.mean.sd.path.score$sd
+  }else if(stat == 'median'){
+    output.table.mean.sd.path.score$zscore <- (output.table.mean.sd.path.score$Path_Score-output.table.mean.sd.path.score$median)/output.table.mean.sd.path.score$sd
+  }else{
+    stop('Please insert a valid stat: mean or median')
+  }
+
+  ## filter by z-score threshold (user defined)
+  output.table.mean.sd.path.score %>%
+    dplyr::filter(zscore <= zscore_threshold)  -> output.table.mean.sd.path.score.filtered
+
+  ###remove duplicates
+  output.table.mean.sd.path.score.filtered %>%
+    dplyr::distinct(Path_String, QueryNode,
+                    EndNode, EndPathways, .keep_all = TRUE) -> output.table6
+
+  ## analyse all the datasets:
+  output.table6%>%
+    dplyr::group_by(EndPathways, Effect)%>%
+    dplyr::summarise(total = dplyr::n()) -> effect.total
+
+  ##############################################################################
+  # PHENOSCORE ANALYSIS #
+  ##############################################################################
+
+
+  ##create an empty dataframe to store results
+  output.table.final.global <- data.frame(matrix (ncol = 12, nrow = 0))
+  colnames(output.table.final.global) <- c( "EndPathways",
+                                            "Effect",
+                                            "hits_INPUT",
+                                            "total_paths_impacting_phenotype",
+                                            "Fraction",
+                                            "mean(Frac_rand)",
+                                            "sd",
+                                            "min",
+                                            "max",
+                                            "t",
+                                            "pvalue_raw")
+
+  # parse proteins df
+  proteins_vector <- proteins_df$gene_name
+  INPUT_dataset <- data.frame(proteins_vector)
+  colnames(INPUT_dataset)[1] <- "QueryNode"
+  dim_datset = dim(unique(INPUT_dataset))[1]
+
+  # ## start analysis to search for significant paths to up/down regulations of pathways/RLE
+  output.table.final <- data.frame(matrix (ncol = 4,
+                                           nrow = 0))
+  colnames(output.table.final) <- c( "EndPathways",
+                                     "Effect",
+                                     "hits",
+                                     "total")
+
+  #### randomization
+  message('Randomization')
+  options(dplyr.summarise.inform = FALSE)
+  for (i in c(1:1000)){
+    signor.random <- sample(background_phenoscore)[1:dim_datset]
+    output.table6%>%
+      dplyr::filter(QueryNode %in% signor.random) %>%
+      dplyr::group_by(EndPathways, Effect)%>%
+      dplyr::summarise(hits = dplyr::n()) -> output.table.randomized
+
+    randomized <- merge(x= output.table.randomized,
+                        y= effect.total,
+                        by = c('EndPathways', 'Effect'),
+                        all.x = T)
+    output.table.final<- rbind(output.table.final,randomized)
+  }
+
+  output.table.final$Frac_rand <- output.table.final$hits/output.table.final$total
+
+  output.table.final %>%
+    dplyr::group_by(EndPathways, Effect)%>%
+    dplyr::summarise(mean(Frac_rand),
+                     sd=sd(Frac_rand),
+                     min=min(Frac_rand),
+                     max=max(Frac_rand)) -> aaa
+
+  #### comparison with the input
+  output.table6%>%
+    dplyr::filter(QueryNode %in% INPUT_dataset$QueryNode) %>%
+    dplyr::group_by(EndPathways, Effect)%>%
+    dplyr::summarise(hits = n()) -> output.table.INPUT
+
+  output.table.INPUT <- merge(x= output.table.INPUT,
+                              y= effect.total,
+                              by = c('EndPathways', 'Effect'),
+                              all.x = T)
+  colnames(output.table.INPUT) <- c("EndPathways", "Effect", "hits_INPUT",
+                                    "total_paths_impacting_phenotype" )
+  output.table.INPUT$Fraction <- round(output.table.INPUT$hits_INPUT/output.table.INPUT$total_paths_impacting_phenotype, 2)
+  output.table <- merge(x= output.table.INPUT,
+                        y= aaa,
+                        by = c('EndPathways', 'Effect'),
+                        all.x = T)
+
+  #### t-score computation
+  message('T-score computation between random and input list')
+  output.table$t <- (output.table$Fraction-output.table$`mean(Frac_rand)`)/output.table$sd
+  #
+  output.table$pvalue_raw <- pnorm(output.table$t, lower.tail = FALSE)
+  output.table.final.global <- rbind(output.table.final.global,output.table)
+  output.table.final.global$pvalue <- p.adjust(output.table.final.global$pvalue_raw,
+                                               method = 'BH',
+                                               n = length(output.table.final.global$EndPathways))
+
+  #filter output according to user thresholds
+  output.table.final.global$sign <- ''
+  output.table.final.global$sign[output.table.final.global$pvalue < 0.05]<- '*'
+  output.table.final.global$sign[output.table.final.global$pvalue < 0.001]<- '**'
+  output.table.final.global$sign[output.table.final.global$pvalue < 0.0001]<- '***'
+  output.table.final.global$sign[output.table.final.global$pvalue < 0.00001]<- '****'
+  output.table.final.global$sign[output.table.final.global$pvalue >1 ]<- '!'
+
+  output.table.final.global %>%
+    dplyr::filter( pvalue < pvalue_threshold &
+                     Effect != '-' &
+                     EndPathways %in% desired_phenotypes)-> results.table
+
+  if(nrow(results.table) == 0){
+    message('No significant phenotype found! Try to change max_length parameters')
+    return(NULL)
+  }
+
+  results.table$EndPathways <- sapply(strsplit(as.character(results.table$EndPathways ),
+                                               "="),"[", 1)
+
+
+  ### display interactions from INPUT genes to phenotypes
+  id_table <- data.frame(matrix (ncol = 1, nrow = 0))
+  colnames(id_table) <- c("signor_ids")
+
+
+  output.table6 <- output.table6 %>%
+    dplyr::mutate_at(c('EndPathways', 'QueryNode'), as.character)
+
+  # number of paths of each protein
+
+  # output.table6 <- output.table6 %>%
+  #   dplyr::mutate_at('EndPathways', tolower) %>%
+  #   dplyr::mutate(EndPathways = stringr::str_replace_all(EndPathways, '_', ' '))
+
+
+  output.table7 <- inner_join(output.table6, results.table, by = c('EndPathways', 'Effect'))
+  output.table7 %>%
+    dplyr::filter(QueryNode %in% proteins_vector)-> INPUT.Phen.Paths
+
+  # remove cascade
+  message('Removing signaling cascade regulators')
+
+  if(remove_cascade == TRUE){
+
+    # filter phenotypes with effect multiply regulated
+
+    INPUT.Phen.Paths_clean <- INPUT.Phen.Paths %>%
+      dplyr::filter(Effect != '-')
+
+    INPUT.Phen.Paths_clean <- INPUT.Phen.Paths_clean %>%
+      mutate(key = ifelse(INPUT.Phen.Paths_clean$Effect == 'up-regulates',
+                          paste0(INPUT.Phen.Paths_clean$EndPathways, '-up'),
+                          paste0(INPUT.Phen.Paths_clean$EndPathways, '-down')))
+
+    # keep only true multiple regulators
+    prot_to_phenotypes <- INPUT.Phen.Paths_clean %>%
+      dplyr::select(key, QueryNode) %>%
+      dplyr::distinct()
+
+    multiple_regulated_phen <- prot_to_phenotypes %>%
+      dplyr::count(key) %>%
+      dplyr::filter(n>1)
+
+    # create a table with proteins on phenotypes multiply regulated
+    prot_to_phenotypes_multiple <- prot_to_phenotypes %>%
+      filter(key %in% multiple_regulated_phen$key)
+
+    # select phenotypes
+    phenotypes <- unique(prot_to_phenotypes_multiple$key)
+
+    # initialize empty list
+    to_remove_list <- list()
+
+    for(i_phen in c(1:length(phenotypes))){
+      # print('i phenotype')
+      # print(i_phen)
+      phenotype = phenotypes[i_phen]
+
+      prot_to_phenotype <- prot_to_phenotypes_multiple %>%
+        dplyr::filter(key == phenotype)
+
+      combinatios <- combn(unique(prot_to_phenotype$QueryNode), 2)
+      dist_count <- matrix(nrow = 3, ncol = ncol(combinatios))
+
+      # forward run
+      for(i in c(1:ncol(combinatios))){
+        # print('i forward:')
+        # print(i)
+
+        # handling NA in gene_name column
+
+        true_table_from <- igraph::V(sp_graph)$gene_name == combinatios[1,i]
+        true_table_to <- igraph::V(sp_graph)$gene_name == combinatios[2,i]
+
+        true_table_from[is.na(true_table_from)] <- FALSE
+        true_table_to[is.na(true_table_to)] <- FALSE
+
+        if(sum(true_table_from)==0 |  sum(true_table_to) == 0){
+          warning('Some nodes aren\'t in the network, please check if you are using the right network')
+          dist_count[1,i] <- NA
+          next()
+        }else{
+          from = igraph::V(sp_graph)[true_table_from]
+          to = igraph::V(sp_graph)[true_table_to]
+          dist_count[1,i] <- unlist(igraph::distances(sp_graph, v = from,
+                                                      to = to,
+                                                      mode = "out"))
+          if(dist_count[1,i] == Inf){
+            dist_count[2,i] <- NA
+          }else{
+            dist_count[2,i] <- combinatios[2,i]
+          }
+        }
+      }
+      # reverse run
+      for(i in c(1:ncol(combinatios))){
+        # print('i reverse')
+        # print(i)
+
+        true_table_from_rev <- igraph::V(sp_graph)$gene_name == combinatios[2,i]
+        true_table_from_rev[is.na(true_table_from_rev)] <- FALSE
+
+        true_table_to_rev <- igraph::V(sp_graph)$gene_name == combinatios[1,i]
+        true_table_to_rev[is.na(true_table_to_rev)] <- FALSE
+
+        if(sum(true_table_from_rev) == 0 | sum(true_table_to_rev) == 0){
+          warning('Some nodes aren\'t in the network, please check if you are using the right network')
+          dist_count[3,i] <- NA
+          next()
+        }else{
+          from = igraph::V(sp_graph)[true_table_from_rev]
+          to = igraph::V(sp_graph)[true_table_to_rev]
+
+          dist_count[1,i] <- unlist(igraph::distances(sp_graph, from, to = to, mode = "out"))
+
+          if(dist_count[1,i] == Inf){
+            dist_count[3,i] <- NA
+          }else{
+            dist_count[3,i] <- combinatios[1,i]
+          }
+        }
+        output <- dist_count[!(is.na(as.vector(dist_count)) | as.vector(dist_count) == Inf)]
+      }
+      to_remove_list[[i_phen]] <- output
+    }
+
+    names(to_remove_list) <- phenotypes
+
+    to_remove_list_clean <- to_remove_list[unlist(lapply(to_remove_list, function(x){!is.null(x)}))]
+
+    to_remove_df <- tibble::tibble(phenotype = names(to_remove_list_clean),
+                                   proteins = unlist(lapply(to_remove_list_clean, function(x){paste0(x, collapse = ',')})))
+    to_remove_df <- to_remove_df %>% tidyr::separate_rows(proteins)
+
+    #
+    prot_to_phenotypes
+    prot_to_phenotypes_clean <- dplyr::anti_join(prot_to_phenotypes,
+                                                 to_remove_df,
+                                                 by = c('key' = 'phenotype',
+                                                        'QueryNode' = 'proteins'))
+
+    INPUT.Phen.Paths <- inner_join(INPUT.Phen.Paths_clean,
+                                   prot_to_phenotypes_clean,
+                                   by = c('QueryNode', 'key'))
+
+  }
+
+  INPUT.Phen.Paths %>%
+    dplyr::group_by(QueryNode, EndPathways, Effect) %>%
+    dplyr::summarise(n = n()) -> count.query
+
+  ProteinsPaths <- count.query %>%
+    dplyr::group_by(EndPathways, Effect) %>%
+    dplyr::summarise(regulators = paste0((QueryNode),collapse = ';'),
+                     node_idx = paste0((round(n/sum(n),2)), collapse = ';')) %>%
+    dplyr::mutate_at('EndPathways', tolower) %>%
+    dplyr::mutate(EndPathways = stringr::str_replace_all(EndPathways, '_', ' '))
+
+  results.table
+  # prepare data for plotting
+  results.table$Log10_p_value_plot <- -log10(results.table$pvalue)
+
+  results.table%>%
+    dplyr::arrange(as.integer(Log10_p_value_plot))%>%
+    dplyr::arrange(Effect)%>%
+    dplyr::mutate(EndPathways = tolower(gsub('_', ' ', EndPathways)))%>%
+    tibble::as_tibble()->results.table
+
+  # generate plot
+  message('Plot generation')
+  ggplot2::ggplot(results.table, ggplot2::aes(x = factor(EndPathways),
+                                              y = Log10_p_value_plot,
+                                              fill = Effect)) +
+    ggplot2::geom_col(position = "dodge")+
+    ggplot2::ggtitle(paste0('Significantly close phenotypes')) +
+    ggplot2::ylab("-Log10(p-value)") + ggplot2::xlab('phenotype') +
+    ggplot2::theme_bw()+
+    ggplot2::scale_fill_manual(values = c("#9DD2C7","#0C838C"))+
+    ggplot2::geom_text(ggplot2::aes(label = hits_INPUT),
+                       colour = "black", size = 2, hjust= 1,
+                       position = ggplot2::position_dodge(.9))+
+    ggplot2::coord_flip()->barplot_phenotypes
+
+  # join paths with regulators
+  results.table_reg <- dplyr::left_join(results.table,
+                                        ProteinsPaths,
+                                        by = c('EndPathways', 'Effect'))
+
+
+  return(list(barplot = barplot_phenotypes,
+              table = results.table_reg))
+}
+
+#' Title
+#'
+#' @param proteins_df dataframe containing up-reg or down-reg proteins
+#' @param desired_phenotypes vector of interesting phenotypes
+#' @param pvalue_threshold default 0.05
+#' @param path_length default 4 (1 to 4 allowed)
+#' @param zscore_threshold default -1.96
+#' @param sp_graph graph of signaling profiler output
+#' @param remove_cascade Boolean value, TRUE or FALSE
+#' @param n_random number of randomization, 1000
+#' @param stat 'mean' or 'median'
+#' @param node_idx boolean
+#' @param use_carnival_activity Boolean, TRUE or FALSE
+#'
+#' @return a list of a plot and result table
+#' @exportˇ
+#'
+#' @examples
+phenoscore_computation_v3 <- function(proteins_df,
+                                      desired_phenotypes,
+                                      sp_graph,
+                                      path_length = 4,
+                                      stat = 'mean',
+                                      zscore_threshold = -1.96,
+                                      n_random = 1000,
+                                      pvalue_threshold = 0.05,
+                                      remove_cascade = TRUE,
+                                      node_idx = FALSE,
+                                      use_carnival_activity = FALSE){
+
+  # i = 1
+  # condition <- 'JMD_df'
+  #
+  # proteins_df <- eval(parse(text = condition))
+  # sp_graph <- eval(parse(text = net_list[i]))
+  # V(sp_graph)$gene_name <-   toupper(V(sp_graph)$gene_name)
+  # remove_cascade = TRUE
+  # pvalue_threshold = 0.05
+  # path_length = 4
+  # zscore_threshold = -1.96
+
+  # CML
+  # proteins_df
+  # desired_phenotypes = desired_phenotypes
+  # sp_graph = Ima
+  # remove_cascade = TRUE
+  # path_length = 3
+  # pvalue_threshold = 0.05
+  # zscore_threshold = -1.96
+  # n_random = 1000
+  ##############################################################################
+  # PARAMETERS INPUT CHECK #
+  ##############################################################################
+
+  message('** PHENOSCORE ANALYSIS **')
+  # check for path_length parameter
+  if(path_length%%1 == 0){
+    if(path_length <= 1 | path_length > 4){
+      stop('path_length should be 2,3 or 4!')
+    }
+  }else{
+    stop('Please provide an integer value between 1 and 4 for path_length!')
+  }
+
+  # check the zscore_threshold parameter
+  if(!is.numeric(zscore_threshold)){
+    stop('zscore_threshold should be numeric; choose between 1sd (-1.96) or 2sd (-2.58)')
+  }
+
+  # check pvalue_threshold
+  if(!is.numeric(pvalue_threshold)){
+    stop('pvalue_threshold should be numeric')
+  }
+
+  ##############################################################################
+  # BUILD SIGNIFICANT PATHS TABLE #
+  ##############################################################################
+  message('Building significant paths to phenotypes table')
+  ## filter by path_length (user defined)
+  phenoscore_distances_table %>%
+    dplyr::filter(Path_Length <= path_length) -> dist.glob.filtered
+
+  output.table2 <- dist.glob.filtered[,1:8]
+
+  output.table2 %>%
+    dplyr::distinct(Path_String, QueryNode,
+                    EndNode, EndPathways,
+                    .keep_all = TRUE) -> output.table2
+
+  ##create effect name
+  output.table2$Effect <- '-'
+  output.table2$Effect[ output.table2$Final_Effect == 1] <- 'up-regulates'
+  output.table2$Effect[ output.table2$Final_Effect == 0] <- '-'
+  output.table2$Effect[ output.table2$Final_Effect == -1] <- 'down-regulates'
+
+  ##create a Pathscore distrubution by pathway e calculate mean/median and standard deviation (sd)
+  output.table2%>%
+    dplyr::group_by(EndPathways, Effect)%>%
+    dplyr::summarise(n = n(),
+                     mean = mean(Path_Score),
+                     median = median(Path_Score),
+                     sd=sd(Path_Score)) -> summary.table.mean.sd.path.score ### here we can select between mean and median
+
+  ##merge the path table with mean/median and standard deviation (sd)
+  merge(x = output.table2,
+        y = summary.table.mean.sd.path.score,
+        by = c('EndPathways', 'Effect'), all.x = TRUE) -> output.table.mean.sd.path.score
+
+  ##calculate z-score
+  if(stat == 'mean'){
+    output.table.mean.sd.path.score$zscore <- (output.table.mean.sd.path.score$Path_Score-output.table.mean.sd.path.score$mean)/output.table.mean.sd.path.score$sd
+  }else if(stat == 'median'){
+    output.table.mean.sd.path.score$zscore <- (output.table.mean.sd.path.score$Path_Score-output.table.mean.sd.path.score$median)/output.table.mean.sd.path.score$sd
+  }else{
+    stop('Please insert a valid stat: mean or median')
+  }
+
+  ## filter by z-score threshold (user defined)
+  output.table.mean.sd.path.score %>%
+    dplyr::filter(zscore <= zscore_threshold)  -> output.table.mean.sd.path.score.filtered
+
+  ###remove duplicates
+  output.table.mean.sd.path.score.filtered %>%
+    dplyr::distinct(Path_String, QueryNode,
+                    EndNode, EndPathways, .keep_all = TRUE) -> output.table6
+
+  ## analyse all the datasets:
+  output.table6%>%
+    dplyr::group_by(EndPathways, Effect)%>%
+    dplyr::summarise(total = dplyr::n()) -> effect.total
+
+  ##############################################################################
+  # PHENOSCORE ANALYSIS #
+  ##############################################################################
+
+
+  ##create an empty dataframe to store results
+  output.table.final.global <- data.frame(matrix (ncol = 12, nrow = 0))
+  colnames(output.table.final.global) <- c( "EndPathways",
+                                            "Effect",
+                                            "hits_INPUT",
+                                            "total_paths_impacting_phenotype",
+                                            "Fraction",
+                                            "mean(Frac_rand)",
+                                            "sd",
+                                            "min",
+                                            "max",
+                                            "t",
+                                            "pvalue_raw")
+
+
+
+  # parse proteins df
+  proteins_vector <- proteins_df$gene_name
+  INPUT_dataset <- data.frame(proteins_vector)
+  colnames(INPUT_dataset)[1] <- "QueryNode"
+  dim_datset = dim(unique(INPUT_dataset))[1]
+
+  # ## start analysis to search for significant paths to up/down regulations of pathways/RLE
+  output.table.final <- data.frame(matrix (ncol = 4,
+                                           nrow = 0))
+  colnames(output.table.final) <- c( "EndPathways",
+                                     "Effect",
+                                     "hits",
+                                     "total")
+
+  #### randomization
+  message('Randomization')
+  options(dplyr.summarise.inform = FALSE)
+  for (i in c(1:n_random)){
+    signor.random <- sample(background_phenoscore)[1:dim_datset]
+    output.table6%>%
+      dplyr::filter(QueryNode %in% signor.random) %>%
+      dplyr::group_by(EndPathways, Effect)%>%
+      dplyr::summarise(hits = dplyr::n()) -> output.table.randomized
+
+    randomized <- merge(x= output.table.randomized,
+                        y= effect.total,
+                        by = c('EndPathways', 'Effect'),
+                        all.x = T)
+    output.table.final<- rbind(output.table.final,randomized)
+  }
+
+  output.table.final$Frac_rand <- output.table.final$hits/output.table.final$total
+
+  output.table.final %>%
+    dplyr::group_by(EndPathways, Effect)%>%
+    dplyr::summarise(mean(Frac_rand),
+                     sd=sd(Frac_rand),
+                     min=min(Frac_rand),
+                     max=max(Frac_rand)) -> aaa
+
+  #### comparison with the input
+  output.table6%>%
+    dplyr::filter(QueryNode %in% INPUT_dataset$QueryNode) %>%
+    dplyr::group_by(EndPathways, Effect)%>%
+    dplyr::summarise(hits = n()) -> output.table.INPUT
+
+  output.table.INPUT <- merge(x= output.table.INPUT,
+                              y= effect.total,
+                              by = c('EndPathways', 'Effect'),
+                              all.x = T)
+  colnames(output.table.INPUT) <- c("EndPathways", "Effect", "hits_INPUT",
+                                    "total_paths_impacting_phenotype" )
+  output.table.INPUT$Fraction <- round(output.table.INPUT$hits_INPUT/output.table.INPUT$total_paths_impacting_phenotype, 2)
+  output.table <- merge(x= output.table.INPUT,
+                        y= aaa,
+                        by = c('EndPathways', 'Effect'),
+                        all.x = T)
+
+  #### t-score computation
+  message('T-score computation between random and input list')
+  output.table$t <- (output.table$Fraction-output.table$`mean(Frac_rand)`)/output.table$sd
+  #
+  output.table$pvalue_raw <- pnorm(output.table$t, lower.tail = FALSE)
+  output.table.final.global <- rbind(output.table.final.global,output.table)
+  output.table.final.global$pvalue <- p.adjust(output.table.final.global$pvalue_raw,
+                                               method = 'BH',
+                                               n = length(output.table.final.global$EndPathways))
+
+  #filter output according to user thresholds
+  output.table.final.global$sign <- ''
+  output.table.final.global$sign[output.table.final.global$pvalue < 0.05]<- '*'
+  output.table.final.global$sign[output.table.final.global$pvalue < 0.001]<- '**'
+  output.table.final.global$sign[output.table.final.global$pvalue < 0.0001]<- '***'
+  output.table.final.global$sign[output.table.final.global$pvalue < 0.00001]<- '****'
+  output.table.final.global$sign[output.table.final.global$pvalue >1 ]<- '!'
+
+  output.table.final.global %>%
+    dplyr::filter( pvalue < pvalue_threshold &
+                     Effect != '-' &
+                     EndPathways %in% desired_phenotypes)-> results.table
+
+  if(nrow(results.table) == 0){
+    message('No significant phenotype found! Try to change max_length parameters')
+    return(NULL)
+  }
+
+  results.table$EndPathways <- sapply(strsplit(as.character(results.table$EndPathways ),
+                                               "="),"[", 1)
+
+
+  output.table6 <- output.table6 %>%
+    dplyr::mutate_at(c('EndPathways', 'QueryNode'), as.character)
+
+  # number of paths of each protein
+
+  # output.table6 <- output.table6 %>%
+  #   dplyr::mutate_at('EndPathways', tolower) %>%
+  #   dplyr::mutate(EndPathways = stringr::str_replace_all(EndPathways, '_', ' '))
+
+
+  output.table7 <- inner_join(output.table6, results.table, by = c('EndPathways', 'Effect'))
+  output.table7 %>%
+    dplyr::filter(QueryNode %in% proteins_vector)-> INPUT.Phen.Paths
+
+  # remove cascade
+  message('Removing signaling cascade regulators')
+
+  if(remove_cascade == TRUE){
+
+    # filter phenotypes with effect multiply regulated
+
+    INPUT.Phen.Paths_clean <- INPUT.Phen.Paths %>%
+      dplyr::filter(Effect != '-')
+
+    INPUT.Phen.Paths_clean <- INPUT.Phen.Paths_clean %>%
+      mutate(key = ifelse(INPUT.Phen.Paths_clean$Effect == 'up-regulates',
+                          paste0(INPUT.Phen.Paths_clean$EndPathways, '-up'),
+                          paste0(INPUT.Phen.Paths_clean$EndPathways, '-down')))
+
+    # keep only true multiple regulators
+    prot_to_phenotypes <- INPUT.Phen.Paths_clean %>%
+      dplyr::select(key, QueryNode) %>%
+      dplyr::distinct()
+
+    multiple_regulated_phen <- prot_to_phenotypes %>%
+      dplyr::count(key) %>%
+      dplyr::filter(n>1)
+
+    # create a table with proteins on phenotypes multiply regulated
+    prot_to_phenotypes_multiple <- prot_to_phenotypes %>%
+      filter(key %in% multiple_regulated_phen$key)
+
+    # select phenotypes
+    phenotypes <- unique(prot_to_phenotypes_multiple$key)
+
+    # initialize empty list
+    to_remove_list <- list()
+
+    for(i_phen in c(1:length(phenotypes))){
+      # print('i phenotype')
+      # print(i_phen)
+      phenotype = phenotypes[i_phen]
+
+      prot_to_phenotype <- prot_to_phenotypes_multiple %>%
+        dplyr::filter(key == phenotype)
+
+      combinatios <- combn(unique(prot_to_phenotype$QueryNode), 2)
+      dist_count <- matrix(nrow = 3, ncol = ncol(combinatios))
+
+      # forward run
+      for(i in c(1:ncol(combinatios))){
+        # print('i forward:')
+        # print(i)
+
+        # handling NA in gene_name column
+
+        true_table_from <- igraph::V(sp_graph)$gene_name == combinatios[1,i]
+        true_table_to <- igraph::V(sp_graph)$gene_name == combinatios[2,i]
+
+        true_table_from[is.na(true_table_from)] <- FALSE
+        true_table_to[is.na(true_table_to)] <- FALSE
+
+        if(sum(true_table_from)==0 |  sum(true_table_to) == 0){
+          warning('Some nodes aren\'t in the network, please check if you are using the right network')
+          dist_count[1,i] <- NA
+          next()
+        }else{
+          from = igraph::V(sp_graph)[true_table_from]
+          to = igraph::V(sp_graph)[true_table_to]
+          dist_count[1,i] <- unlist(igraph::distances(sp_graph, v = from,
+                                                      to = to,
+                                                      mode = "out"))
+          if(dist_count[1,i] == Inf){
+            dist_count[2,i] <- NA
+          }else{
+            dist_count[2,i] <- combinatios[2,i]
+          }
+        }
+      }
+      # reverse run
+      for(i in c(1:ncol(combinatios))){
+        # print('i reverse')
+        # print(i)
+
+        true_table_from_rev <- igraph::V(sp_graph)$gene_name == combinatios[2,i]
+        true_table_from_rev[is.na(true_table_from_rev)] <- FALSE
+
+        true_table_to_rev <- igraph::V(sp_graph)$gene_name == combinatios[1,i]
+        true_table_to_rev[is.na(true_table_to_rev)] <- FALSE
+
+        if(sum(true_table_from_rev) == 0 | sum(true_table_to_rev) == 0){
+          warning('Some nodes aren\'t in the network, please check if you are using the right network')
+          dist_count[3,i] <- NA
+          next()
+        }else{
+          from = igraph::V(sp_graph)[true_table_from_rev]
+          to = igraph::V(sp_graph)[true_table_to_rev]
+
+          dist_count[1,i] <- unlist(igraph::distances(sp_graph, from, to = to, mode = "out"))
+
+          if(dist_count[1,i] == Inf){
+            dist_count[3,i] <- NA
+          }else{
+            dist_count[3,i] <- combinatios[1,i]
+          }
+        }
+        output <- dist_count[!(is.na(as.vector(dist_count)) | as.vector(dist_count) == Inf)]
+      }
+      to_remove_list[[i_phen]] <- output
+    }
+
+    names(to_remove_list) <- phenotypes
+
+    to_remove_list_clean <- to_remove_list[unlist(lapply(to_remove_list, function(x){!is.null(x)}))]
+
+    to_remove_df <- tibble::tibble(phenotype = names(to_remove_list_clean),
+                                   proteins = unlist(lapply(to_remove_list_clean, function(x){paste0(x, collapse = ',')})))
+    to_remove_df <- to_remove_df %>% tidyr::separate_rows(proteins)
+
+    #
+    prot_to_phenotypes
+    prot_to_phenotypes_clean <- dplyr::anti_join(prot_to_phenotypes,
+                                                 to_remove_df,
+                                                 by = c('key' = 'phenotype',
+                                                        'QueryNode' = 'proteins'))
+
+    INPUT.Phen.Paths <- inner_join(INPUT.Phen.Paths_clean,
+                                   prot_to_phenotypes_clean,
+                                   by = c('QueryNode', 'key'))
+
+  }
+
+  INPUT.Phen.Paths %>%
+    dplyr::group_by(QueryNode, EndPathways, Effect) %>%
+    dplyr::summarise(n = n()) -> count.query
+
+  # ProteinsPaths <- count.query %>%
+  #   dplyr::group_by(EndPathways, Effect) %>%
+  #   dplyr::summarise(regulators = paste0((QueryNode),collapse = ';'),
+  #                    node_idx = paste0((round(n/sum(n),2)), collapse = ';')) %>%
+  #   dplyr::mutate_at('EndPathways', tolower) %>%
+  #   dplyr::mutate(EndPathways = stringr::str_replace_all(EndPathways, '_', ' '))
+
+  ProteinsPaths <- count.query %>%
+    dplyr::group_by(EndPathways, Effect) %>%
+    dplyr::summarise(regulators = paste0((QueryNode),collapse = ';'),
+                     node_idx = paste0(round(n/sum(n),2), collapse = ';')) %>%
+    dplyr::mutate_at('EndPathways', tolower) %>%
+    dplyr::mutate(EndPathways = stringr::str_replace_all(EndPathways, '_', ' '))
+
+  results.table
+  # prepare data for plotting
+  results.table$Log10_p_value_plot <- -log10(results.table$pvalue)
+
+  results.table%>%
+    dplyr::arrange(as.integer(Log10_p_value_plot))%>%
+    dplyr::arrange(Effect)%>%
+    dplyr::mutate(EndPathways = tolower(gsub('_', ' ', EndPathways)))%>%
+    tibble::as_tibble()->results.table
+
+  # prepare data for the plot
+  message('Plot generation')
+
+  # join paths with regulators
+  results.table_reg <- dplyr::left_join(results.table,
+                                        ProteinsPaths,
+                                        by = c('EndPathways', 'Effect'))
+
+  tidyr::separate_rows(results.table_reg,
+                       regulators, node_idx, sep = ';') -> a_reg
+
+  a_reg <- a_reg %>%
+    dplyr::mutate_at('node_idx', as.numeric)
+
+  only_one_reg_act <- dplyr::inner_join(a_reg,
+                                        proteins_df,
+                                        by = c('regulators' = 'gene_name'))  %>%
+    dplyr::mutate(Sign = ifelse(Effect == 'up-regulates', 1, -1))
+
+  if(node_idx == TRUE){
+    if(use_carnival_activity == TRUE){
+      phenoscore_df <- only_one_reg_act %>%
+        dplyr::group_by(EndPathways) %>%
+        dplyr::summarise(phenoscore = mean(carnival_activity/100*Sign*node_idx*10))
+
+    }else{
+      phenoscore_df <- only_one_reg_act %>%
+        dplyr::group_by(EndPathways) %>%
+        dplyr::summarise(phenoscore = mean(final_score*Sign*node_idx*10))
+    }
+  }else{
+    if(use_carnival_activity == TRUE){
+      phenoscore_df <- only_one_reg_act %>%
+        dplyr::group_by(EndPathways) %>%
+        dplyr::summarise(phenoscore = mean(carnival_activity/100*Sign*10))
+
+    }else{
+      phenoscore_df <- only_one_reg_act %>%
+        dplyr::group_by(EndPathways) %>%
+        dplyr::summarise(phenoscore = mean(final_score*Sign))
+    }
+  }
+
+  ggplot2::ggplot(phenoscore_df, ggplot2::aes(x = factor(EndPathways),
+                                              y = phenoscore))+
+    ggplot2::geom_bar(stat = 'identity')+
+    ggplot2::ggtitle(paste0('Phenoscore')) +
+    ggplot2::ylab("phenoscore with experimental") +
+    ggplot2::xlab('phenotype') +
+    ggplot2::theme_bw()+
+    ggplot2::coord_flip()->barplot_phenotypes
+
+  return(list(barplot = barplot_phenotypes,
+              table_regulators = results.table_reg,
+              table_phenotypes = phenoscore_df))
 }
