@@ -83,7 +83,7 @@ compute_phenoscore <- function(sp_output,
       # forward run
       for(i in ncol(combinatios)){
         #i = 1
-        dist_count[1,i] <- unlist(igraph::distances(g, combinatios[1,i], to = combinatios[2,i], mode = "out"))
+        dist_count[1,i] <- unlist(igraph::distances(sp_graph, combinatios[1,i], to = combinatios[2,i], mode = "out"))
         if(dist_count[1,i] == Inf){
           dist_count[2,i] <- NA
         }else{
