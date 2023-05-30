@@ -902,15 +902,17 @@ phenoscore_computation_v3 <- function(proteins_df,
   # zscore_threshold = -1.96
 
   # CML
-  # proteins_df <- Ima_df_exp
-  # desired_phenotypes = desired_phenotypes
-  # sp_graph = Ima
-  # remove_cascade = TRUE
-  # path_length = 4
-  # pvalue_threshold = 0.05
-  # zscore_threshold = -1.96
-  # n_random = 1000
-  # stat = 'mean'
+  proteins_df <- Ima_df_exp
+  desired_phenotypes = desired_phenotypes
+  sp_graph = Ima
+  remove_cascade = TRUE
+  path_length = 4
+  pvalue_threshold = 0.05
+  zscore_threshold = -1.96
+  n_random = 1000
+  stat = 'mean'
+  node_idx = TRUE
+  use_carnival_activity = FALSE
   ##############################################################################
   # PARAMETERS INPUT CHECK #
   ##############################################################################
@@ -1281,6 +1283,7 @@ phenoscore_computation_v3 <- function(proteins_df,
                                         ProteinsPaths,
                                         by = c('EndPathways', 'Effect'))
 
+
   tidyr::separate_rows(results.table_reg,
                        regulators, node_idx, sep = ';') -> a_reg
 
@@ -1316,7 +1319,15 @@ phenoscore_computation_v3 <- function(proteins_df,
     }
   }
 
-  ggplot2::ggplot(phenoscore_df,
+  phenoscore_df1 <- phenoscore_df %>%
+    dplyr::filter(phenoscore != 0)
+
+  if(nrow(phenoscore_df1) != nrow(phenoscore_df)){
+    message('Some phenotypes are missing because had just one protein acting
+            as both positive and negative regulator')
+  }
+
+  ggplot2::ggplot(phenoscore_df1,
                   ggplot2::aes(x = forcats::fct_reorder(EndPathways, phenoscore),
                                               y = phenoscore))+
     ggplot2::geom_bar(stat = 'identity', alpha = 0.8)+
