@@ -875,7 +875,7 @@ phenoscore_computation_v2 <- function(proteins_df,
 #' @param use_carnival_activity Boolean, TRUE or FALSE
 #'
 #' @return a list of a plot and result table
-#' @exportˇ
+#' @export
 #'
 #' @examples
 phenoscore_computation_v3 <- function(proteins_df,
