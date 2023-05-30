@@ -902,14 +902,15 @@ phenoscore_computation_v3 <- function(proteins_df,
   # zscore_threshold = -1.96
 
   # CML
-  # proteins_df
+  # proteins_df <- Ima_df_exp
   # desired_phenotypes = desired_phenotypes
   # sp_graph = Ima
   # remove_cascade = TRUE
-  # path_length = 3
+  # path_length = 4
   # pvalue_threshold = 0.05
   # zscore_threshold = -1.96
   # n_random = 1000
+  # stat = 'mean'
   ##############################################################################
   # PARAMETERS INPUT CHECK #
   ##############################################################################
@@ -1315,11 +1316,12 @@ phenoscore_computation_v3 <- function(proteins_df,
     }
   }
 
-  ggplot2::ggplot(phenoscore_df, ggplot2::aes(x = factor(EndPathways),
+  ggplot2::ggplot(phenoscore_df,
+                  ggplot2::aes(x = forcats::fct_reorder(EndPathways, phenoscore),
                                               y = phenoscore))+
-    ggplot2::geom_bar(stat = 'identity')+
+    ggplot2::geom_bar(stat = 'identity', alpha = 0.8)+
     ggplot2::ggtitle(paste0('Phenoscore')) +
-    ggplot2::ylab("phenoscore with experimental") +
+    ggplot2::ylab("phenotype modulation") +
     ggplot2::xlab('phenotype') +
     ggplot2::theme_bw()+
     ggplot2::coord_flip()->barplot_phenotypes
