@@ -902,17 +902,17 @@ phenoscore_computation_v3 <- function(proteins_df,
   # zscore_threshold = -1.96
 
   # CML
-  proteins_df <- Ima_df_exp
-  desired_phenotypes = desired_phenotypes
-  sp_graph = Ima
-  remove_cascade = TRUE
-  path_length = 4
-  pvalue_threshold = 0.05
-  zscore_threshold = -1.96
-  n_random = 1000
-  stat = 'mean'
-  node_idx = TRUE
-  use_carnival_activity = FALSE
+  # proteins_df <- Ima_df_exp
+  # desired_phenotypes = desired_phenotypes
+  # sp_graph = Ima
+  # remove_cascade = TRUE
+  # path_length = 4
+  # pvalue_threshold = 0.05
+  # zscore_threshold = -1.96
+  # n_random = 1000
+  # stat = 'mean'
+  # node_idx = TRUE
+  # use_carnival_activity = FALSE
   ##############################################################################
   # PARAMETERS INPUT CHECK #
   ##############################################################################
