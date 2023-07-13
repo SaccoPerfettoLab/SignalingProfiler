@@ -10,7 +10,6 @@
 #' FALSE only experimentally derived proteins
 #'
 #' @return phenoSCORE table
-#' @export
 #'
 #' @examples
 compute_phenoscore <- function(sp_output,
@@ -150,7 +149,6 @@ compute_phenoscore <- function(sp_output,
 #' @param stat 'mean' or 'median'
 #'
 #' @return a list of a plot and result table
-#' @export
 #'
 #' @examples
 phenoscore_computation_v1 <- function(proteins_df,
@@ -445,7 +443,6 @@ phenoscore_computation_v1 <- function(proteins_df,
 #' @param use_carnival_activity
 #'
 #' @return a list of a plot and result table
-#' @export
 #'
 #' @examples
 phenoscore_computation_v2 <- function(proteins_df,
@@ -878,41 +875,28 @@ phenoscore_computation_v2 <- function(proteins_df,
 #' @export
 #'
 #' @examples
-phenoscore_computation_v3 <- function(proteins_df,
-                                      desired_phenotypes,
-                                      sp_graph,
-                                      path_length = 4,
-                                      stat = 'mean',
-                                      zscore_threshold = -1.96,
-                                      n_random = 1000,
-                                      pvalue_threshold = 0.05,
-                                      remove_cascade = TRUE,
-                                      node_idx = FALSE,
-                                      use_carnival_activity = FALSE){
+phenoscore_computation <- function(proteins_df,
+                                   desired_phenotypes,
+                                   sp_graph,
+                                   path_length = 4,
+                                   stat = 'mean',
+                                   zscore_threshold = -1.96,
+                                   n_random = 1000,
+                                   pvalue_threshold = 0.05,
+                                   remove_cascade = TRUE,
+                                   node_idx = FALSE,
+                                   use_carnival_activity = FALSE){
 
-  # i = 1
-  # condition <- 'JMD_df'
-  #
-  # proteins_df <- eval(parse(text = condition))
-  # sp_graph <- eval(parse(text = net_list[i]))
-  # V(sp_graph)$gene_name <-   toupper(V(sp_graph)$gene_name)
-  # remove_cascade = TRUE
-  # pvalue_threshold = 0.05
-  # path_length = 4
-  # zscore_threshold = -1.96
+  if(sum(proteins_df$gene_name == stringr::str_to_title(proteins_df$gene_name)) == nrow(proteins_df)){
+    flag = 'mouse'
+    # if it is mouse organism, convert in uppercase
+    proteins_df <- proteins_df %>%
+      mutate(gene_name = stringr::str_to_upper(gene_name))
+    igraph::V(sp_graph)$gene_name <- str_to_upper(igraph::V(sp_graph)$gene_name)
+  }else{
+    flag = 'human'
+  }
 
-  # CML
-  # proteins_df <- Ima_df_exp
-  # desired_phenotypes = desired_phenotypes
-  # sp_graph = Ima
-  # remove_cascade = TRUE
-  # path_length = 4
-  # pvalue_threshold = 0.05
-  # zscore_threshold = -1.96
-  # n_random = 1000
-  # stat = 'mean'
-  # node_idx = TRUE
-  # use_carnival_activity = FALSE
   ##############################################################################
   # PARAMETERS INPUT CHECK #
   ##############################################################################
@@ -1327,15 +1311,28 @@ phenoscore_computation_v3 <- function(proteins_df,
             as both positive and negative regulator')
   }
 
+  phenoscore_df1 <- phenoscore_df1 %>% dplyr::mutate(reg = ifelse(phenoscore < 0, 'down', 'up'))
+
   ggplot2::ggplot(phenoscore_df1,
                   ggplot2::aes(x = forcats::fct_reorder(EndPathways, phenoscore),
-                                              y = phenoscore))+
+                                              y = phenoscore, fill = reg))+
     ggplot2::geom_bar(stat = 'identity', alpha = 0.8)+
+    ggplot2::scale_fill_manual(values = c('#D46A6A', '#407F7F')) +
     ggplot2::ggtitle(paste0('Phenoscore')) +
     ggplot2::ylab("phenotype modulation") +
-    ggplot2::xlab('phenotype') +
+    ggplot2::xlab("") +
     ggplot2::theme_bw()+
+    theme(legend.title = element_blank(),
+          legend.position = 'none',
+          plot.title=element_text(hjust = 0.5),
+          panel.grid.minor = element_blank(),
+          axis.text.y = element_text( size = 14, face = 'bold'),
+          axis.text.x=element_text(size=10, angle=0, vjust=0.5, hjust=0.5))+
     ggplot2::coord_flip()->barplot_phenotypes
+
+  if(flag == 'mouse'){
+    results.table_reg$regulators <- stringr::str_to_title(results.table_reg$regulators)
+  }
 
   return(list(barplot = barplot_phenotypes,
               table_regulators = results.table_reg,
