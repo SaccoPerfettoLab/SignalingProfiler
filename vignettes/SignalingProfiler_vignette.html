@@ -454,7 +454,7 @@ creation</a></li>
 <li><a href="#step-3-optimization-of-naïve-network-and-creation-of-a-context-specific-model" id="toc-step-3-optimization-of-naïve-network-and-creation-of-a-context-specific-model">Step
 3) Optimization of naïve network and creation of a context-specific
 model</a></li>
-<li><a href="#step-4-phenoscore-computation" id="toc-step-4-phenoscore-computation">Step 4) phenoSCORE
+<li><a href="#step-4-phenoscore-computation" id="toc-step-4-phenoscore-computation">Step 4) PhenoScore
 computation</a></li>
 </ul></li>
 </ul>
@@ -489,7 +489,7 @@ results (<strong>phenoSCORE</strong>).</p>
 <p>The two most important prerequisites for the usage are:</p>
 <ul>
 <li><p><strong>blastp</strong> to exhaustively compute the
-<em>phosphoSCORE</em>;</p></li>
+<em>phosphoSCORE</em> if you are using mice data;</p></li>
 <li><p><strong>ILP solver</strong> required by CARNIVAL algorithm to
 optimize your model against experimental data;</p></li>
 </ul>
@@ -585,19 +585,19 @@ control sample;</p></li>
 <p>The next columns regards parameters linked to the statistical test
 performed among your conditions:</p>
 <ul>
-<li><p><strong>logpval</strong>: the p-value associated to your T
-statistic;</p></li>
+<li><p><strong>logpval</strong>: the p-value associated to your
+fold-change;</p></li>
 <li><p><strong>significant</strong>: a column containing a ‘+’ if the
 gene is significantly modulated, NA otherwise;</p></li>
 </ul>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(tr_toy_df)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">#   gene_ID     gene_name difference    tstat  logpval significant</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 1   67885 1500011k16rik  -0.421473 -1.23578 0.851379        &lt;NA&gt;</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 2   69770 1600002k03rik   1.165320  2.03449 1.244950           +</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 3   72254 1700030k09rik  -0.670346 -2.36317 1.831190           +</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 4   73261 1700037c18rik   0.320893  0.64720 0.342586        &lt;NA&gt;</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 5   67350 1700084e18rik  -0.864310 -1.20845 0.659485        &lt;NA&gt;</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 6   69549 2310009b15rik  -0.986081 -3.54818 2.580910           +</span></span></code></pre></div>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">#   gene_ID     gene_name difference  logpval significant</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 1   68347 0610011f06rik  -0.938252 3.122190           +</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 2   70345 0610038b21rik   0.370554 0.617746        &lt;NA&gt;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 3   73747 1110034g24rik   1.279370 1.100820        &lt;NA&gt;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 4   66874 1200014j11rik   0.144223 0.388653        &lt;NA&gt;</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 5   69797 1600029i14rik   0.381222 0.328152        &lt;NA&gt;</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 6   69349 1700008o03rik  -0.474687 0.203545        &lt;NA&gt;</span></span></code></pre></div>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(prot_toy_df)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">#   UNIPROT gene_name difference significant logpval</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 1  P06339    H2-T23   1.354690        &lt;NA&gt;       0</span></span>
@@ -609,7 +609,7 @@ gene is significantly modulated, NA otherwise;</p></li>
 </div>
 <div id="phosphoproteomics" class="section level3">
 <h3>Phosphoproteomics</h3>
-<p>Before using Signaling Profiler, you have to really process you
+<p>Before using Signaling Profiler, you have to accurately process you
 phosphoproteomics data set. The most important step is to have
 <strong>ONLY ONE OCCURENCE OF EACH PHOSPHOSITE</strong>. If you have a
 phosphosite quantified more than once, you have to choose the most
@@ -1431,8 +1431,8 @@ proteins modulated in your conditions (contained in
 <span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">path_sif =</span> <span class="st">&#39;./inv_optimized_network.sif&#39;</span>,</span>
 <span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">path_rds =</span> <span class="st">&#39;./inv_optimized_network.RDS&#39;</span>)</span>
 <span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-20"><a href="#cb35-20" aria-hidden="true" tabindex="-1"></a>inv_optimized_graph_rds <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&#39;./inv_optimized_network.sif&#39;</span>)</span>
-<span id="cb35-21"><a href="#cb35-21" aria-hidden="true" tabindex="-1"></a>inv_optimized_graph_sif <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_tsv</span>(<span class="st">&#39;./inv_optimized_network.RDS&#39;</span>,</span>
+<span id="cb35-20"><a href="#cb35-20" aria-hidden="true" tabindex="-1"></a>inv_optimized_graph_rds <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&#39;./inv_optimized_network.RDS&#39;</span>)</span>
+<span id="cb35-21"><a href="#cb35-21" aria-hidden="true" tabindex="-1"></a>inv_optimized_graph_sif <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_tsv</span>(<span class="st">&#39;./inv_optimized_network.sif&#39;</span>,</span>
 <span id="cb35-22"><a href="#cb35-22" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">&#39;source&#39;</span>, <span class="st">&#39;interaction&#39;</span>, <span class="st">&#39;target&#39;</span>))</span>
 <span id="cb35-23"><a href="#cb35-23" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb35-24"><a href="#cb35-24" aria-hidden="true" tabindex="-1"></a><span class="co"># mapping experimental data on the optimized network</span></span>
@@ -1572,7 +1572,7 @@ then run the following command.</p>
 </div>
 </div>
 <div id="step-4-phenoscore-computation" class="section level2">
-<h2>Step 4) phenoSCORE computation</h2>
+<h2>Step 4) PhenoScore computation</h2>
 <p>Once you have your context-specific model, you can <em>in silico</em>
 validate it, computing the modulation of activity of relevant phenotypes
 for your context. We call this score <strong>phenoSCORE</strong>. It is
@@ -1582,61 +1582,98 @@ expect the APOPTOSIS phenotype to be activated.</p>
 <p>We compute the <strong>phenoSCORE</strong> using:</p>
 <ul>
 <li>the nodes in the context-specific model;</li>
-<li>paths table from SIGNOR proteins to SIGNOR phenotypes containing a
-different significant causal paths, derived from our in-house recently
-published resource <a href="https://www.biorxiv.org/content/10.1101/2023.01.09.523265v1.full.pdf">ProxPath</a>;
-it is available as built-in object <code>paths_to_pheno</code></li>
+<li>paths table from SIGNOR proteins to SIGNOR phenotypes, containing
+different significant causal paths and derived from our in-house
+recently published resource <a href="https://www.biorxiv.org/content/10.1101/2023.01.09.523265v1.full.pdf">ProxPath</a>.</li>
 </ul>
-<div id="choose-the-nodes-to-connect-to-the-phenotype" class="section level3">
-<h3>Choose the nodes to connect to the phenotype</h3>
-<p>You can choose the nodes in your model to connect to the phenotype
-with the <code>use_carnival_activity</code> parameter. -
-<code>use_carnival_activity = FALSE</code>: exploits the nodes derived
-from experimental data; - <code>use_carnival_activity = TRUE</code>:
-exploits all the nodes in the final model;</p>
-</div>
-<div id="proxpath-customization" class="section level3">
-<h3>ProxPath customization</h3>
-<p>Briefly, <strong>ProxPath</strong> reports the regulators of
-phenotypes. Regulators are defined as proteins connected to the
-phenotype with a maximum of 4-steps-length path. The user can choose
-closer regulators to the phenotype modulating the length of the path
-with the <code>max_path_length</code> parameter (default is 4).</p>
-<p>You can choose the phenotypes you desire to look at using the
-<code>desired_phenotype</code> parameter, or you can compute the
-activity for all annotated phenotypes.</p>
+<div id="choose-the-phenotypes-of-interest" class="section level3">
+<h3>Choose the phenotypes of interest</h3>
+<p>Put the name of desired phenotypes in a vector.</p>
 <div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Execute this command to see all the available phenotypes</span></span>
-<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(paths_to_pheno<span class="sc">$</span>EndPathways)</span></code></pre></div>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>all_phenotypes</span></code></pre></div>
 </div>
-<div id="cascade-removal" class="section level3">
-<h3>Cascade removal</h3>
-<p>If two phenotype regulators are in the same linear cascade in the
-network, <code>remove_cascade = TRUE</code> allows to consider only the
-regulator at the end of the signaling cascade.</p>
+<div id="crucial-concepts" class="section level3">
+<h3>Crucial concepts</h3>
+<p>In the PhenoScore computation we indirectly connect proteins to the
+phenotypes. You can choose the path_length between proteins an
+phenotype, from 2 to 4.</p>
+<p>Crucial concepts: a protein can regulate a phenotype with multiple
+paths; - the phenotype will be regulated by activating and inhibitory
+paths;</p>
 </div>
-<div id="output-customization" class="section level3">
-<h3>Output customization</h3>
-<p>The <code>compact = TRUE</code> paramter allow to see the score of
-each phenotype. If you want to see each regulator of the phenotype, set
-<code>compact = FALSE</code>.</p>
+<div id="phenoscore-algorithm" class="section level3">
+<h3>Phenoscore algorithm</h3>
+<ul>
+<li><p><strong>Select significant close phenotypes from
+ProxPath:</strong> select from the ProxPath table the significantly
+close proteins next to your phenotypes of interest (key parameters are
+<code>zscore_threshold</code>, <code>stat</code>)</p></li>
+<li><p><strong>Remove randomly regulated phenotypes:</strong> given your
+protein list (<code>protein_df</code>), we sample a random protein list
+with the same number of proteins and compute the number of activating
+and inhibitory paths over the phenotype of interest from both lists. If
+the random list produces the same number of paths of your input list
+over a phenotype of interest, the phenotype is discarded, because it is
+regulated at random (key parameters are:<code>n_random</code>,
+<code>pvalue_threshold</code>).</p></li>
+<li><p><strong>PhenoScore computation:</strong> we compute the average
+of the activity of proteins regulating the same phenotype, with three
+considerations: (i) if two independent regulators are connected in the
+network (<code>sp_graph</code>), consider the most downstream
+(<code>remove_cascade = TRUE</code>); (ii) we weight proteins according
+to their number of paths over the phenotype (since they are more
+resilient, <code>node_idx = TRUE</code>); (iii) the activity considered
+can be both experimentally derived or derived from CARNIVAL algorithm
+(<code>use_carnival_activity = TRUE</code>).</p></li>
+</ul>
 </div>
-<div id="phenoscore-computation" class="section level3">
-<h3>PhenoScore Computation</h3>
+<div id="output" class="section level3">
+<h3>Output</h3>
+<p>The output is a table of three elements:</p>
+<ul>
+<li><p>Table of the regulators of the phenotypes</p></li>
+<li><p>Table of the phenotypes activities</p></li>
+<li><p>Barplot of the phenotypes activities</p></li>
+</ul>
+</div>
+<div id="example-code" class="section level3">
+<h3>Example code</h3>
 <p>To compute the <strong>PhenoScore</strong> simply execute:</p>
-<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co"># all phenotypes</span></span>
-<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>toy_phenoscore_output <span class="ot">&lt;-</span> <span class="fu">compute_phenoscore</span>(<span class="at">sp_output =</span> toy_sp_output, </span>
-<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">desired_phenotypes =</span> <span class="cn">NULL</span>, </span>
-<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">max_path_length =</span> <span class="dv">4</span>, </span>
-<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">remove_cascade =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>                   <span class="at">compact =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a><span class="co"># only desired phenotypes</span></span>
-<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a><span class="fu">compute_phenoscore</span>(<span class="at">sp_output =</span> toy_sp_output, </span>
-<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>                   <span class="at">desired_phenotypes =</span> <span class="st">&#39;G2/M_TRANSITION&#39;</span>, </span>
-<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a>                   <span class="at">max_path_length =</span> <span class="dv">4</span>, </span>
-<span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a>                   <span class="at">remove_cascade =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb41-13"><a href="#cb41-13" aria-hidden="true" tabindex="-1"></a>                   <span class="at">compact =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(toy_phenoscore_output)</span></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co"># for tumor context </span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>desired_phenotypes <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&#39;APOPTOSIS&#39;</span>,</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>                        <span class="st">&#39;CELL_DEATH&#39;</span>,  <span class="st">&#39;CELL_GROWTH&#39;</span>, <span class="st">&#39;CELL_CYCLE_BLOCK&#39;</span>,</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>                        <span class="st">&#39;DNA_REPAIR&#39;</span>,</span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>                        <span class="st">&#39;PROLIFERATION&#39;</span>, <span class="st">&#39;IMMORTALITY&#39;</span>, <span class="st">&#39;SURVIVAL&#39;</span>)</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>toy_phenoscore_output<span class="ot">&lt;-</span> <span class="fu">phenoscore_computation</span>(toy_sp_output<span class="sc">$</span>nodes_df,</span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>                                               desired_phenotypes,</span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>                                               toy_sp_output<span class="sc">$</span>igraph_network,</span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>                                               <span class="co"># closeness of proteins to phenotypes</span></span>
+<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">path_length =</span> <span class="dv">4</span>,</span>
+<span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">stat =</span> <span class="st">&#39;mean&#39;</span>,</span>
+<span id="cb41-13"><a href="#cb41-13" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">zscore_threshold =</span> <span class="sc">-</span><span class="fl">1.96</span>,</span>
+<span id="cb41-14"><a href="#cb41-14" aria-hidden="true" tabindex="-1"></a>                                               <span class="co"># parameters for excluding randomly regulated phenotypes</span></span>
+<span id="cb41-15"><a href="#cb41-15" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">n_random =</span> <span class="dv">1000</span>,</span>
+<span id="cb41-16"><a href="#cb41-16" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">pvalue_threshold =</span> <span class="fl">0.05</span>,</span>
+<span id="cb41-17"><a href="#cb41-17" aria-hidden="true" tabindex="-1"></a>                                               <span class="co"># parameters for context specificity</span></span>
+<span id="cb41-18"><a href="#cb41-18" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">remove_cascade =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb41-19"><a href="#cb41-19" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">node_idx =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb41-20"><a href="#cb41-20" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">use_carnival_activity =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+</div>
+<div id="toy-output" class="section level3">
+<h3>Toy output</h3>
+<p>Since our toy model reflects a tumor cell line treated with a drug,
+we can see that the model recapitulates that the drug induces activation
+of death processes and inhibition of pro-survival pathways.</p>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>toy_phenoscore_output<span class="sc">$</span>table_phenotypes</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="co"># # A tibble: 5 × 2</span></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   EndPathways      phenoscore</span></span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a><span class="co">#   &lt;chr&gt;                 &lt;dbl&gt;</span></span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 1 apoptosis            0.0688</span></span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 2 cell cycle block     3     </span></span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 3 cell death           0.167 </span></span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 4 proliferation       -0.994 </span></span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 5 survival           -10</span></span></code></pre></div>
 </div>
 </div>
 </div>

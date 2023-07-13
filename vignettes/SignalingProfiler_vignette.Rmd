@@ -45,7 +45,7 @@ devtools::install_github('https://github.com/SaccoPerfettoLab/SignalingProfiler/
 
 The two most important prerequisites for the usage are:
 
--   **blastp** to exhaustively compute the *phosphoSCORE*;
+-   **blastp** to exhaustively compute the *phosphoSCORE* if you are using mice data;
 
 -   **ILP solver** required by CARNIVAL algorithm to optimize your model against experimental data;
 
@@ -126,7 +126,7 @@ Your transcriptomics and proteomics tables should contain the following columns:
 
 The next columns regards parameters linked to the statistical test performed among your conditions:
 
--   **logpval**: the p-value associated to your T statistic;
+-   **logpval**: the p-value associated to your fold-change;
 
 -   **significant**: a column containing a '+' if the gene is significantly modulated, NA otherwise;
 
@@ -140,7 +140,7 @@ head(prot_toy_df)
 
 ### Phosphoproteomics
 
-Before using Signaling Profiler, you have to really process you phosphoproteomics data set. The most important step is to have **ONLY ONE OCCURENCE OF EACH PHOSPHOSITE**. If you have a phosphosite quantified more than once, you have to choose the most reliable quantification (usually the lowest multiplicity).
+Before using Signaling Profiler, you have to accurately process you phosphoproteomics data set. The most important step is to have **ONLY ONE OCCURENCE OF EACH PHOSPHOSITE**. If you have a phosphosite quantified more than once, you have to choose the most reliable quantification (usually the lowest multiplicity).
 
 Your phosphoproteomics table should contain:
 
@@ -190,7 +190,7 @@ ksea_db_human
 ksea_db_mouse
 ```
 
-Given the recent publication of the (Serine-Threonine Kinome Atlas)[https://www.nature.com/articles/s41586-022-05575-3] we integrated high confidence regulons in the `ksea_db` derived from this work. If you want to extend your data with the atlas, set `integrated_regulons = TRUE`.
+Given the recent publication of the (Serine-Threonine Kinome Atlas)[<https://www.nature.com/articles/s41586-022-05575-3>] we integrated high confidence regulons in the `ksea_db` derived from this work. If you want to extend your data with the atlas, set `integrated_regulons = TRUE`.
 
 #### Important parameters
 
@@ -869,8 +869,8 @@ output <- run_carnival_and_create_graph(source_df = NULL,
                                         path_sif = './inv_optimized_network.sif',
                                         path_rds = './inv_optimized_network.RDS')
 
-inv_optimized_graph_rds <- readRDS('./inv_optimized_network.sif')
-inv_optimized_graph_sif <- readr::read_tsv('./inv_optimized_network.RDS',
+inv_optimized_graph_rds <- readRDS('./inv_optimized_network.RDS')
+inv_optimized_graph_sif <- readr::read_tsv('./inv_optimized_network.sif',
                                        col_names = c('source', 'interaction', 'target'))
 
 # mapping experimental data on the optimized network
@@ -951,62 +951,78 @@ RCy3::createNetworkFromIgraph(output_final$igraph_network,
                               collection = 'one_step_analysis')
 ```
 
-## Step 4) phenoSCORE computation
+## Step 4) PhenoScore computation
 
-Once you have your context-specific model, you can *in silico* validate it, computing the modulation of activity of relevant phenotypes for your context. We call this score **phenoSCORE**. It is very useful, especially when you have some expectations about your model characteristics. 
-For example, if you are treating tumor cells you may expect the APOPTOSIS phenotype to be activated.
+Once you have your context-specific model, you can *in silico* validate it, computing the modulation of activity of relevant phenotypes for your context. We call this score **phenoSCORE**. It is very useful, especially when you have some expectations about your model characteristics. For example, if you are treating tumor cells you may expect the APOPTOSIS phenotype to be activated.
 
 We compute the **phenoSCORE** using:
 
 -   the nodes in the context-specific model;
--   paths table from SIGNOR proteins to SIGNOR phenotypes containing a different significant causal paths, derived from our in-house recently published resource [ProxPath](https://www.biorxiv.org/content/10.1101/2023.01.09.523265v1.full.pdf); it is available as built-in object `paths_to_pheno`
+-   paths table from SIGNOR proteins to SIGNOR phenotypes, containing different significant causal paths and derived from our in-house recently published resource [ProxPath](https://www.biorxiv.org/content/10.1101/2023.01.09.523265v1.full.pdf).
 
-### Choose the nodes to connect to the phenotype
-You can choose the nodes in your model to connect to the phenotype with the `use_carnival_activity` parameter.
-- `use_carnival_activity = FALSE`: exploits the nodes derived from experimental data;
-- `use_carnival_activity = TRUE`: exploits all the nodes in the final model; 
+### Choose the phenotypes of interest
 
-### ProxPath customization
-Briefly, **ProxPath** reports the regulators of phenotypes.
-Regulators are defined as proteins connected to the phenotype with a maximum
-of 4-steps-length path. The user can choose closer regulators to the phenotype
-modulating the length of the path with the `max_path_length` parameter (default is 4).
-
-You can choose the phenotypes you desire to look at using the `desired_phenotype` parameter, or you can compute the activity for all annotated phenotypes.
+Put the name of desired phenotypes in a vector. 
 
 ```{r eval = FALSE}
 # Execute this command to see all the available phenotypes
-unique(paths_to_pheno$EndPathways)
+all_phenotypes
 ```
 
-### Cascade removal
-If two phenotype regulators are in the same linear cascade in the network, 
-`remove_cascade = TRUE` allows to consider only the regulator
-at the end of the signaling cascade. 
+### Crucial concepts
 
-### Output customization
-The `compact = TRUE` paramter allow to see the score of each phenotype.
-If you want to see each regulator of the phenotype, set `compact = FALSE`.
+In the PhenoScore computation we indirectly connect proteins to the phenotypes. You can choose the path_length between proteins an phenotype, from 2 to 4.
 
-### PhenoScore Computation
+Crucial concepts: a protein can regulate a phenotype with multiple paths; - the phenotype will be regulated by activating and inhibitory paths;
+
+### Phenoscore algorithm
+
+-   **Select significant close phenotypes from ProxPath:** select from the ProxPath table the significantly close proteins next to your phenotypes of interest (key parameters are `zscore_threshold`, `stat`)
+
+-   **Remove randomly regulated phenotypes:** given your protein list (`protein_df`), we sample a random protein list with the same number of proteins and compute the number of activating and inhibitory paths over the phenotype of interest from both lists. If the random list produces the same number of paths of your input list over a phenotype of interest, the phenotype is discarded, because it is regulated at random (key parameters are:`n_random`, `pvalue_threshold`).
+
+-   **PhenoScore computation:** we compute the average of the activity of proteins regulating the same phenotype, with three considerations: (i) if two independent regulators are connected in the network (`sp_graph`), consider the most downstream (`remove_cascade = TRUE`); (ii) we weight proteins according to their number of paths over the phenotype (since they are more resilient, `node_idx = TRUE`); (iii) the activity considered can be both experimentally derived or derived from CARNIVAL algorithm (`use_carnival_activity = TRUE`).
+
+### Output
+
+The output is a table of three elements:
+
+-   Table of the regulators of the phenotypes
+
+-   Table of the phenotypes activities
+
+-   Barplot of the phenotypes activities
+
+### Example code
+
 To compute the **PhenoScore** simply execute:
 
 ```{r eval = FALSE}
-# all phenotypes
-toy_phenoscore_output <- compute_phenoscore(sp_output = toy_sp_output, 
-                   desired_phenotypes = NULL, 
-                   max_path_length = 4, 
-                   remove_cascade = TRUE,
-                   compact = FALSE)
+# for tumor context 
+desired_phenotypes <- c('APOPTOSIS',
+                        'CELL_DEATH',  'CELL_GROWTH', 'CELL_CYCLE_BLOCK',
+                        'DNA_REPAIR',
+                        'PROLIFERATION', 'IMMORTALITY', 'SURVIVAL')
 
-# only desired phenotypes
-compute_phenoscore(sp_output = toy_sp_output, 
-                   desired_phenotypes = 'G2/M_TRANSITION', 
-                   max_path_length = 4, 
-                   remove_cascade = TRUE,
-                   compact = TRUE)
+toy_phenoscore_output<- phenoscore_computation(toy_sp_output$nodes_df,
+                                               desired_phenotypes,
+                                               toy_sp_output$igraph_network,
+                                               # closeness of proteins to phenotypes
+                                               path_length = 4,
+                                               stat = 'mean',
+                                               zscore_threshold = -1.96,
+                                               # parameters for excluding randomly regulated phenotypes
+                                               n_random = 1000,
+                                               pvalue_threshold = 0.05,
+                                               # parameters for context specificity
+                                               remove_cascade = TRUE,
+                                               node_idx = TRUE,
+                                               use_carnival_activity = TRUE)
 ```
 
-```{r eval = FALSE}
-head(toy_phenoscore_output)
+### Toy output
+Since our toy model reflects a tumor cell line treated with a drug, we can see that the model recapitulates that the drug induces activation of death processes and inhibition of pro-survival pathways.
+
+```{r eval = TRUE}
+toy_phenoscore_output$table_phenotypes
 ```
