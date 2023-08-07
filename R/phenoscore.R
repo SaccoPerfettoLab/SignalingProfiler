@@ -1408,7 +1408,7 @@ phenoscore_computation <- function(proteins_df,
 #' @examples
 phenoscore_network_preprocessing <- function(proteomics, phospho, local = FALSE){
 
-  if(local == FALSE){
+  if(local == TRUE){
     path_package <- './'
   }else{
     path_package <- paste0(.libPaths()[1], '/SignalingProfiler/')
