@@ -870,7 +870,7 @@ phenoscore_computation_v2 <- function(proteins_df,
 #' @param stat 'mean' or 'median'
 #' @param node_idx boolean
 #' @param use_carnival_activity Boolean, TRUE or FALSE
-#' @param phenoscore_distances_table df output of phenoscore network processing
+#' @param phenoscore_distances_table df output of phenoscore network processing, in NULL take all
 #'
 #' @return a list of a plot and result table
 #' @export
@@ -879,7 +879,7 @@ phenoscore_computation_v2 <- function(proteins_df,
 phenoscore_computation <- function(proteins_df,
                                    desired_phenotypes = NULL,
                                    sp_graph,
-                                   pheno_distances_table,
+                                   pheno_distances_table = NULL,
                                    path_length = 4,
                                    stat = 'mean',
                                    zscore_threshold = -1.96,
@@ -944,6 +944,12 @@ phenoscore_computation <- function(proteins_df,
   ##############################################################################
   message('Building significant paths to phenotypes table')
   ## filter by path_length (user defined)
+
+  # if you dont' want to prefilter, use build-in object
+  if(is.null(pheno_distances_table)){
+    pheno_distances_table <- phenoscore_distances_table
+  }
+
   pheno_distances_table %>%
     dplyr::filter(Path_Length <= path_length) -> dist.glob.filtered
 
