@@ -165,18 +165,20 @@ run_viper <- function(viper_format,
 #' @param viper_output dataset containing viper enriched proteins
 #' @param analysis type of analysis
 #' @param organism organism
+#' @param collectri boolean, if TRUE uses collectri regulons
 #'
 #' @return table with weight for viper score correction
 #' @export
 #'
 #' @examples
 run_hypergeometric_test <- function(omic_data, viper_output,
-                          analysis, organism){
+                                    analysis, organism, collectri){
 
   # omic_data <- tr_df
   # viper_output <- a$sign
   # analysis <- 'tfea'
   # organism <- 'mouse'
+  #viper_output <- output$sign
 
   # READING UNIVERSE INPUT AKA EXPERIMENTAL DATA #
   if(analysis == 'tfea'){
@@ -209,7 +211,11 @@ run_hypergeometric_test <- function(omic_data, viper_output,
   if(analysis == 'tfea'){
     # set db
     if(organism == 'human'){
-      df_regulons <- tfea_db_human
+      if(collectri == FALSE){
+        df_regulons <- tfea_db_human
+      }else{
+        df_regulons <- tfea_db_human_collectri
+      }
     }else if(organism == 'mouse'){
       df_regulons <- tfea_db_mouse
     }else{
@@ -233,22 +239,22 @@ run_hypergeometric_test <- function(omic_data, viper_output,
 
   pho_in_reg <- df_regulons[df_regulons$target %in% (rownames(all_enriched_matrix)),] %>%
     dplyr::arrange(tf) %>%
-    dplyr::count('tf') %>%
-    dplyr::rename(n = freq)
+    dplyr::count(tf) %>%
+    dplyr::rename('freq' = 'n')
 
   # from viper analysis get all significant analytes
   all_significant_matrix <- create_matrix_from_VIPER_format(create_viper_format(omic_data, analysis, significance = TRUE))
 
   pho_in_reg_sign <- df_regulons[df_regulons$target %in% (rownames(all_significant_matrix)),] %>%
     dplyr::arrange(tf) %>%
-    dplyr::count('tf') %>%
-    dplyr::rename(n = freq)
+    dplyr::count(tf) %>%
+    dplyr::rename('freq' = 'n')
 
 
   pr_joined <- dplyr::left_join(viper_output, pho_in_reg, by = c('gene_name' = 'tf')) %>%
-    dplyr::rename('Measured' = 'n')
+    dplyr::rename('Measured' = 'freq')
   pr_joined <- dplyr::left_join(pr_joined, pho_in_reg_sign, by = c('gene_name' = 'tf')) %>%
-    dplyr::rename('Significant' = 'n')
+    dplyr::rename('Significant' = 'freq')
 
 
   # ENRICHMENT ANALYSIS WITH FISHER EXACT TEST
@@ -373,6 +379,16 @@ run_footprint_based_analysis <- function(omic_data, analysis, organism,
                                          hypergeom_corr,
                                          GO_annotation = FALSE){
 
+  # omic_data = tr_df
+  # collectri = TRUE
+  # analysis = 'tfea'
+  # organism = 'human'
+  # reg_minsize = 5
+  # exp_sign = FALSE
+  # integrated_regulons = FALSE
+  # hypergeom_corr = TRUE
+  # GO_annotation = TRUE
+
   message(' ** RUNNING FOOTPRINT BASED ANALYSIS ** ')
   message('Credits to Prof. Julio Saez-Rodriguez. For more information read this article: Dugourd A, Saez-Rodriguez J. Footprint-based functional analysis of multiomic data. Curr Opin Syst Biol. 2019 Jun;15:82-90. doi: 10.1016/j.coisb.2019.04.002. PMID: 32685770; PMCID: PMC7357600.')
 
@@ -399,7 +415,7 @@ run_footprint_based_analysis <- function(omic_data, analysis, organism,
 
   if(hypergeom_corr == TRUE){
     message('Starting hypergeometric test correction')
-    output <- weight_viper_score(run_hypergeometric_test(omic_data,output$sign, analysis, organism))
+    output <- weight_viper_score(run_hypergeometric_test(omic_data,output$sign, analysis, organism, collectri))
 
     output_uniprot <- convert_gene_name_in_uniprotid(output, organism)
   }else{
@@ -437,21 +453,21 @@ run_footprint_based_analysis <- function(omic_data, analysis, organism,
 #'
 #' @examples
 phosphoscore_computation <- function(phosphoproteomic_data,
-                                    organism,
-                                    activatory,
-                                    path_fasta = './phospho.fasta',
-                                    blastp_path = NULL,
-                                    local = FALSE,
-                                    GO_annotation = FALSE){
+                                     organism,
+                                     activatory,
+                                     path_fasta = './phospho.fasta',
+                                     blastp_path = NULL,
+                                     local = FALSE,
+                                     GO_annotation = FALSE){
   message('** RUNNING PHOSPHOSCORE ANALYSIS **')
 
   if(organism == 'mouse' | organism =='human'){
     phosphoscore_df_output <- map_experimental_on_regulatory_phosphosites(phosphoproteomic_data,
-                                                                   organism, activatory, path_fasta)
+                                                                          organism, activatory, path_fasta)
     phosphoscore_df <- phosphoscore_df_output$phosphoscore_df
   }else if(organism == 'hybrid'){
     phosphoscore_df_output <- phospho_score_hybrid_computation(phosphoproteomic_data,
-                                                        organism, activatory, blastp_path, path_fasta, local)
+                                                               organism, activatory, blastp_path, path_fasta, local)
 
     phosphoscore_df <- phosphoscore_df_output$phosphoscore_df
   }else{
@@ -544,7 +560,7 @@ create_fasta <- function(phospho_df, path){
   message('Creating fasta file from phosphoproteomics')
   phospho_df <- phospho_df %>%
     dplyr::mutate(gene_name = toupper(unlist(lapply(stringr::str_split(gene_name, ';'),
-                                             function(x){x[1]})))) %>%
+                                                    function(x){x[1]})))) %>%
     dplyr::arrange(gene_name)
 
   # if it is not a 15mer then convert it
@@ -610,11 +626,11 @@ run_blast <- function(path_experimental_fasta_file, all = FALSE,
 
   message('blastp finished')
   mapped <- readr::read_tsv('./map2.out',
-                           comment = '#',
-                           col_names = c('q_ID', 's_ID', 'pid', 'length',
-                                         'mismatch', 'gapopen', 'qstart',
-                                         'qend', 'sstart', 'ssend', 'evalue',
-                                         'bitscore'))
+                            comment = '#',
+                            col_names = c('q_ID', 's_ID', 'pid', 'length',
+                                          'mismatch', 'gapopen', 'qstart',
+                                          'qend', 'sstart', 'ssend', 'evalue',
+                                          'bitscore'))
 
   # selection of exact matching phosphosites
   mapped_exact <- mapped %>%
@@ -663,8 +679,8 @@ generate_hybrid_db <- function(mh_alignment, activatory){
   #mh_alignment = run_blast(path_fasta, local = local)$mapped
 
   good_phos_df_hybrid <- dplyr::inner_join(mh_alignment,
-                                          hreg_phos,
-                                          by = c('s_ID' = 'PHOSPHO_KEY_GN_SEQ')) %>%
+                                           hreg_phos,
+                                           by = c('s_ID' = 'PHOSPHO_KEY_GN_SEQ')) %>%
     dplyr::select(PHOSPHO_KEY_GN_SEQ = q_ID, PHOSPHO_KEY_GN_SEQ_human = s_ID, UNIPROT, ACTIVATION) %>%
     # keeping only gene_name
     dplyr::mutate(PHOSPHO_KEY_GN_SEQ = sub('*-[T,Y,S]-\\d{1,5}-mouse', '', PHOSPHO_KEY_GN_SEQ)) %>%
@@ -721,9 +737,9 @@ map_experimental_on_regulatory_phosphosites <- function(phosphoproteomic_data,
     message('Mapping mouse experimental phosphopeptides on human database of regulatory roles to enhance coverage')
 
     if(file.exists(path_fasta)){
-     command <- paste0('rm ', path_fasta)
-     system(command)
-     create_fasta(phosphoproteomic_data, path_fasta)
+      command <- paste0('rm ', path_fasta)
+      system(command)
+      create_fasta(phosphoproteomic_data, path_fasta)
     }else{
       create_fasta(phosphoproteomic_data, path_fasta)
     }
@@ -941,7 +957,7 @@ activity_from_proteomics <- function(prot_df, organism){
 combine_activityscore_proteoscore <- function(activity_score, proteo_score){
 
   combined_score <- dplyr::full_join(activity_score,
-                              proteo_score, by = c('gene_name', 'UNIPROT', 'mf')) %>%
+                                     proteo_score, by = c('gene_name', 'UNIPROT', 'mf')) %>%
     dplyr::rename(activity_score = final_score,
                   proteo_score = difference)
 
@@ -956,5 +972,4 @@ combine_activityscore_proteoscore <- function(activity_score, proteo_score){
 
   return(combined_score)
 }
-
 
