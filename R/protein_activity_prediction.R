@@ -386,8 +386,10 @@ run_footprint_based_analysis <- function(omic_data, analysis, organism,
 
   message('Starting VIPER analysis')
 
-  output <- run_viper(viper_format, analysis, collectri,
-                      organism, reg_minsize, integrated_regulons)
+  output <- run_viper(viper_format = viper_format, analysis = analysis,
+                      organism = organism, reg_minsize = reg_minsize,
+                      integrated_regulons = integrated_regulons, collectri = collectri)
+
 
 
   # if no inferred protein from VIPER analysis
