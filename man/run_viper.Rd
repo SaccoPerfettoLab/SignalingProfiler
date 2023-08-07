@@ -9,7 +9,8 @@ run_viper(
   analysis,
   organism,
   reg_minsize,
-  integrated_regulons = FALSE
+  integrated_regulons = FALSE,
+  collectri = FALSE
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ run_viper(
 \item{reg_minsize}{viper function param: minimum regulon size to consider}
 
 \item{integrated_regulons}{boolean value, default FALSE; if TRUE, uses regulons derived from experimental data}
+
+\item{collectri}{boolean, if TRUE uses collectri regulons for tfea}
 }
 \value{
 a list containing significantly enriched proteins and

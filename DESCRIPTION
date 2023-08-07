@@ -12,6 +12,7 @@ Depends:
 Imports: 
     CARNIVAL,
     cosmosR,
+    decoupleR,
     dorothea,
     dplyr,
     GOSim,
@@ -20,6 +21,7 @@ Imports:
     magrittr,
     plyr,
     readr,
+    reticulate,
     RVenn,
     stringr,
     tibble,
