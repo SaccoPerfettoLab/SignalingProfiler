@@ -71,13 +71,23 @@ create_viper_format <- function(omic_data, analysis, significance){
 #' @param organism string reporting the organism
 #' @param reg_minsize viper function param: minimum regulon size to consider
 #' @param integrated_regulons boolean value, default FALSE; if TRUE, uses regulons derived from experimental data
+#' @param collectri boolean, if TRUE uses collectri regulons for tfea
 #'
 #' @return a list containing significantly enriched proteins and
 #' all inferred proteins
 #' @export
 #'
 #' @examples
-run_viper <- function(viper_format, analysis, organism, reg_minsize, integrated_regulons = FALSE){
+run_viper <- function(viper_format,
+                      analysis,
+                      organism,
+                      reg_minsize,
+                      integrated_regulons = FALSE,
+                      collectri = FALSE){
+
+  if(analysis == 'ksea' & collectri == TRUE){
+    stop('collectri is only a \'tfea\' parameter')
+  }
 
   # viper_format <- v
   # analysis <- 'ksea'
@@ -89,7 +99,12 @@ run_viper <- function(viper_format, analysis, organism, reg_minsize, integrated_
 
   if(analysis == 'tfea'){
     if(organism == 'human'){
-      regulons <- tfea_db_human
+      if(collectri == FALSE){
+        regulons <- tfea_db_human
+      }else{
+        regulons <- tfea_db_human_collectri
+      }
+
     }else if(organism == 'mouse'){
       regulons <- tfea_db_mouse
     }else{
@@ -216,7 +231,7 @@ run_hypergeometric_test <- function(omic_data, viper_output,
 
   pho_in_reg <- df_regulons[df_regulons$target %in% (rownames(all_enriched_matrix)),] %>%
     dplyr::arrange(tf) %>%
-    plyr::count('tf') %>%
+    dplyr::count('tf') %>%
     dplyr::rename(n = freq)
 
   # from viper analysis get all significant analytes
@@ -224,7 +239,7 @@ run_hypergeometric_test <- function(omic_data, viper_output,
 
   pho_in_reg_sign <- df_regulons[df_regulons$target %in% (rownames(all_significant_matrix)),] %>%
     dplyr::arrange(tf) %>%
-    plyr::count('tf') %>%
+    dplyr::count('tf') %>%
     dplyr::rename(n = freq)
 
 
@@ -352,18 +367,24 @@ filter_VIPER_output <- function(inferred_proteins_mf, analysis){
 run_footprint_based_analysis <- function(omic_data, analysis, organism,
                                          reg_minsize, exp_sign,
                                          integrated_regulons = FALSE,
+                                         collectri = FALSE,
                                          hypergeom_corr,
                                          GO_annotation = FALSE){
 
   message(' ** RUNNING FOOTPRINT BASED ANALYSIS ** ')
   message('Credits to Prof. Julio Saez-Rodriguez. For more information read this article: Dugourd A, Saez-Rodriguez J. Footprint-based functional analysis of multiomic data. Curr Opin Syst Biol. 2019 Jun;15:82-90. doi: 10.1016/j.coisb.2019.04.002. PMID: 32685770; PMCID: PMC7357600.')
 
+  if(collectri == TRUE & analysis == 'ksea'){
+    stop('collectri is only a \'tfea\' parameter')
+
+  }
   # run viper analysis
   viper_format <- create_viper_format(omic_data, analysis, significance = exp_sign)
 
 
   message('Starting VIPER analysis')
-  output <- run_viper(viper_format, analysis, organism, reg_minsize, integrated_regulons)
+
+  output <- run_viper(viper_format, analysis, collectri, organism, reg_minsize, integrated_regulons)
 
 
   # if no inferred protein from VIPER analysis

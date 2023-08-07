@@ -870,14 +870,16 @@ phenoscore_computation_v2 <- function(proteins_df,
 #' @param stat 'mean' or 'median'
 #' @param node_idx boolean
 #' @param use_carnival_activity Boolean, TRUE or FALSE
+#' @param phenoscore_distances_table df output of phenoscore network processing
 #'
 #' @return a list of a plot and result table
 #' @export
 #'
 #' @examples
 phenoscore_computation <- function(proteins_df,
-                                   desired_phenotypes,
+                                   desired_phenotypes = NULL,
                                    sp_graph,
+                                   pheno_distances_table,
                                    path_length = 4,
                                    stat = 'mean',
                                    zscore_threshold = -1.96,
@@ -887,6 +889,22 @@ phenoscore_computation <- function(proteins_df,
                                    node_idx = FALSE,
                                    use_carnival_activity = FALSE){
 
+  # # TEST PARAMETERS #
+  # proteins_df = Ctrl_df_exp
+  # desired_phenotypes = desired_phenotypes
+  # pheno_distances_table = pheno_table_distances
+  # sp_graph = Ctrl$igraph_network
+  # path_length = 4
+  # stat = 'median'
+  # zscore_threshold = -1.96
+  # n_random = 1000
+  # pvalue_threshold = 0.05
+  # remove_cascade = TRUE
+  # node_idx = TRUE
+  # use_carnival_activity = FALSE
+
+
+  # Distinguish between mouse and human
   if(sum(proteins_df$gene_name == stringr::str_to_title(proteins_df$gene_name)) == nrow(proteins_df)){
     flag = 'mouse'
     # if it is mouse organism, convert in uppercase
@@ -908,7 +926,7 @@ phenoscore_computation <- function(proteins_df,
       stop('path_length should be 2,3 or 4!')
     }
   }else{
-    stop('Please provide an integer value between 1 and 4 for path_length!')
+    stop('Please provide an integer value between 2 and 4 for path_length!')
   }
 
   # check the zscore_threshold parameter
@@ -926,7 +944,7 @@ phenoscore_computation <- function(proteins_df,
   ##############################################################################
   message('Building significant paths to phenotypes table')
   ## filter by path_length (user defined)
-  phenoscore_distances_table %>%
+  pheno_distances_table %>%
     dplyr::filter(Path_Length <= path_length) -> dist.glob.filtered
 
   output.table2 <- dist.glob.filtered[,1:8]
@@ -944,14 +962,15 @@ phenoscore_computation <- function(proteins_df,
 
   ##create a Pathscore distrubution by pathway e calculate mean/median and standard deviation (sd)
   output.table2%>%
-    dplyr::group_by(EndPathways, Effect)%>%
+    dplyr::filter(Effect != '-') %>% # remove '-' effect
+    dplyr::group_by(EndPathways, Effect) %>%
     dplyr::summarise(n = n(),
                      mean = mean(Path_Score),
                      median = median(Path_Score),
                      sd=sd(Path_Score)) -> summary.table.mean.sd.path.score ### here we can select between mean and median
 
   ##merge the path table with mean/median and standard deviation (sd)
-  merge(x = output.table2,
+  merge(x = output.table2 %>% dplyr::filter(Effect != '-'),
         y = summary.table.mean.sd.path.score,
         by = c('EndPathways', 'Effect'), all.x = TRUE) -> output.table.mean.sd.path.score
 
@@ -981,7 +1000,6 @@ phenoscore_computation <- function(proteins_df,
   ##############################################################################
   # PHENOSCORE ANALYSIS #
   ##############################################################################
-
 
   ##create an empty dataframe to store results
   output.table.final.global <- data.frame(matrix (ncol = 12, nrow = 0))
@@ -1075,10 +1093,18 @@ phenoscore_computation <- function(proteins_df,
   output.table.final.global$sign[output.table.final.global$pvalue < 0.00001]<- '****'
   output.table.final.global$sign[output.table.final.global$pvalue >1 ]<- '!'
 
-  output.table.final.global %>%
-    dplyr::filter( pvalue < pvalue_threshold &
-                     Effect != '-' &
-                     EndPathways %in% desired_phenotypes)-> results.table
+  if(is.null(desired_phenotypes)){
+    output.table.final.global %>%
+      dplyr::filter( pvalue < pvalue_threshold &
+                       Effect != '-')-> results.table
+
+  }else{
+    output.table.final.global %>%
+      dplyr::filter( pvalue < pvalue_threshold &
+                       Effect != '-' &
+                       EndPathways %in% desired_phenotypes)-> results.table
+  }
+
 
   if(nrow(results.table) == 0){
     message('No significant phenotype found! Try to change max_length parameters')
@@ -1138,6 +1164,7 @@ phenoscore_computation <- function(proteins_df,
     to_remove_list <- list()
 
     for(i_phen in c(1:length(phenotypes))){
+      #i_phen = 1
       # print('i phenotype')
       # print(i_phen)
       phenotype = phenotypes[i_phen]
@@ -1146,10 +1173,12 @@ phenoscore_computation <- function(proteins_df,
         dplyr::filter(key == phenotype)
 
       combinatios <- combn(unique(prot_to_phenotype$QueryNode), 2)
+      # create a matrix for the distance and the flag
       dist_count <- matrix(nrow = 3, ncol = ncol(combinatios))
 
-      # forward run
+      # forward run: check direction A --> B
       for(i in c(1:ncol(combinatios))){
+        #i = 6
         # print('i forward:')
         # print(i)
 
@@ -1168,18 +1197,23 @@ phenoscore_computation <- function(proteins_df,
         }else{
           from = igraph::V(sp_graph)[true_table_from]
           to = igraph::V(sp_graph)[true_table_to]
+          # compute the distance between two nodes
+          # assign to the first row of the matrix the distance
           dist_count[1,i] <- unlist(igraph::distances(sp_graph, v = from,
                                                       to = to,
                                                       mode = "out"))
+
+          # if the distance is infinite, NA node to remove
           if(dist_count[1,i] == Inf){
             dist_count[2,i] <- NA
-          }else{
-            dist_count[2,i] <- combinatios[2,i]
+          }else{ # if the nodes are connected, the second is more downstream and should be removed
+            dist_count[2,i] <- combinatios[2,i] # oppposite
           }
         }
       }
-      # reverse run
+      # reverse run: check the direction B --> A
       for(i in c(1:ncol(combinatios))){
+        #i = 6
         # print('i reverse')
         # print(i)
 
@@ -1197,16 +1231,29 @@ phenoscore_computation <- function(proteins_df,
           from = igraph::V(sp_graph)[true_table_from_rev]
           to = igraph::V(sp_graph)[true_table_to_rev]
 
-          dist_count[1,i] <- unlist(igraph::distances(sp_graph, from, to = to, mode = "out"))
+          # override the previous distance
 
-          if(dist_count[1,i] == Inf){
+          distance_rev <- unlist(igraph::distances(sp_graph, from, to = to, mode = "out"))
+
+
+          # if it is infinite, not connected no removal
+          if(distance_rev == Inf){
             dist_count[3,i] <- NA
-          }else{
-            dist_count[3,i] <- combinatios[1,i]
+          }else{ # if it is finite, remove the first node because it is more downstream
+            if(distance_rev < dist_count[1,i]){
+              # but if the new distance is shorter than the forward one, remove this
+              dist_count[3,i] <- combinatios[1,i] #opp
+            }else{
+              dist_count[3,i] <- combinatios[2,i] #opp
+            }
           }
         }
-        output <- dist_count[!(is.na(as.vector(dist_count)) | as.vector(dist_count) == Inf)]
       }
+      output <- dist_count[!(is.na(as.vector(dist_count)) | as.vector(dist_count) == Inf)]
+
+      # if i binary removed all the proteins
+
+
       to_remove_list[[i_phen]] <- output
     }
 
@@ -1283,23 +1330,23 @@ phenoscore_computation <- function(proteins_df,
     if(use_carnival_activity == TRUE){
       phenoscore_df <- only_one_reg_act %>%
         dplyr::group_by(EndPathways) %>%
-        dplyr::summarise(phenoscore = mean(carnival_activity/100*Sign*node_idx*10))
+        dplyr::summarise(phenoscore = mean(carnival_activity/100*Sign*Log10_p_value_plot*node_idx*10))
 
     }else{
       phenoscore_df <- only_one_reg_act %>%
         dplyr::group_by(EndPathways) %>%
-        dplyr::summarise(phenoscore = mean(final_score*Sign*node_idx*10))
+        dplyr::summarise(phenoscore = mean(final_score*Sign*Log10_p_value_plot*node_idx*10))
     }
   }else{
     if(use_carnival_activity == TRUE){
       phenoscore_df <- only_one_reg_act %>%
         dplyr::group_by(EndPathways) %>%
-        dplyr::summarise(phenoscore = mean(carnival_activity/100*Sign*10))
+        dplyr::summarise(phenoscore = mean(carnival_activity/100*Log10_p_value_plot*10))
 
     }else{
       phenoscore_df <- only_one_reg_act %>%
         dplyr::group_by(EndPathways) %>%
-        dplyr::summarise(phenoscore = mean(final_score*Sign))
+        dplyr::summarise(phenoscore = mean(final_score*Sign*Log10_p_value_plot))
     }
   }
 
@@ -1337,4 +1384,39 @@ phenoscore_computation <- function(proteins_df,
   return(list(barplot = barplot_phenotypes,
               table_regulators = results.table_reg,
               table_phenotypes = phenoscore_df))
+}
+
+# library(tidyverse)
+# library(readxl)
+# proteomics <- read_excel('../data-raw/livia/sara/data/proteomics_resCTRL_sensCTRL.xlsx')
+# phospho <- read_excel('../data-raw/livia/sara/data/phosphoproteomics_resCTRL_sensCTRL.xlsx')
+
+#' Title
+#'
+#' @param proteomics protemics dataframe processed for SP
+#' @param phospho phosphoproteomics dataframe processed for SP
+#'
+#' @return SIGNOR cleaned according to expressed proteins
+#' @export
+#'
+#' @examples
+phenoscore_network_preprocessing <- function(proteomics, phospho){
+
+  home_dir <- path.expand('~')
+
+  write_tsv(proteomics, paste0(home_dir, '/proteomics.tsv'))
+  write_tsv(phospho, paste0(home_dir, '/phosphoproteomics.tsv'))
+
+  #reticulate::use_python("/usr/local/bin/python")
+  reticulate::py_config()
+  reticulate::py_run_file("./inst/python/script.py")
+
+  # Read Python processed file
+  signor_filtered <- readr::read_tsv(paste0(home_dir, '/Global_result_final_table_minimized.txt'))
+
+  file.remove(paste0(home_dir, '/Global_result_final_table_minimized.txt'))
+  file.remove(paste0(home_dir, '/proteomics.tsv'))
+  file.remove(paste0(home_dir, '/phosphoproteomics.tsv'))
+
+  return(signor_filtered)
 }

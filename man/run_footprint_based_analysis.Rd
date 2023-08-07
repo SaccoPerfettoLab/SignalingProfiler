@@ -11,6 +11,7 @@ run_footprint_based_analysis(
   reg_minsize,
   exp_sign,
   integrated_regulons = FALSE,
+  collectri = FALSE,
   hypergeom_corr,
   GO_annotation = FALSE
 )
