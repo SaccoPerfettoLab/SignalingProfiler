@@ -1406,7 +1406,13 @@ phenoscore_computation <- function(proteins_df,
 #' @export
 #'
 #' @examples
-phenoscore_network_preprocessing <- function(proteomics, phospho){
+phenoscore_network_preprocessing <- function(proteomics, phospho, local = FALSE){
+
+  if(local == FALSE){
+    path_package <- './'
+  }else{
+    path_package <- paste0(.libPaths()[1], '/SignalingProfiler/')
+  }
 
   home_dir <- path.expand('~')
 
@@ -1415,7 +1421,7 @@ phenoscore_network_preprocessing <- function(proteomics, phospho){
 
   #reticulate::use_python("/usr/local/bin/python")
   reticulate::py_config()
-  reticulate::py_run_file("./inst/python/script.py")
+  reticulate::py_run_file(paste0(path_package, "inst/python/script.py"))
 
   # Read Python processed file
   signor_filtered <- readr::read_tsv(paste0(home_dir, '/Global_result_final_table_minimized.txt'))
