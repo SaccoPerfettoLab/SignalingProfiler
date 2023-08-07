@@ -99,6 +99,7 @@ run_viper <- function(viper_format,
 
   if(analysis == 'tfea'){
     if(organism == 'human'){
+
       if(collectri == FALSE){
         regulons <- tfea_db_human
       }else{
@@ -118,6 +119,7 @@ run_viper <- function(viper_format,
       }else{
         regulons <- ksea_db_human
       }
+
     }else if(organism == 'mouse'){
       regulons <- ksea_db_mouse
     }else{
@@ -384,7 +386,8 @@ run_footprint_based_analysis <- function(omic_data, analysis, organism,
 
   message('Starting VIPER analysis')
 
-  output <- run_viper(viper_format, analysis, collectri, organism, reg_minsize, integrated_regulons)
+  output <- run_viper(viper_format, analysis, collectri,
+                      organism, reg_minsize, integrated_regulons)
 
 
   # if no inferred protein from VIPER analysis
