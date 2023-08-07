@@ -1421,7 +1421,7 @@ phenoscore_network_preprocessing <- function(proteomics, phospho, local = FALSE)
 
   #reticulate::use_python("/usr/local/bin/python")
   reticulate::py_config()
-  reticulate::py_run_file(paste0(path_package, "inst/python/script.py"))
+  reticulate::py_run_file(paste0(path_package, "/python/script.py"))
 
   # Read Python processed file
   signor_filtered <- readr::read_tsv(paste0(home_dir, '/Global_result_final_table_minimized.txt'))
