@@ -8,7 +8,7 @@ phenoscore_computation(
   proteins_df,
   desired_phenotypes = NULL,
   sp_graph,
-  pheno_distances_table,
+  pheno_distances_table = NULL,
   path_length = 4,
   stat = "mean",
   zscore_threshold = -1.96,
@@ -42,7 +42,7 @@ phenoscore_computation(
 
 \item{use_carnival_activity}{Boolean, TRUE or FALSE}
 
-\item{phenoscore_distances_table}{df output of phenoscore network processing}
+\item{phenoscore_distances_table}{df output of phenoscore network processing, in NULL take all}
 }
 \value{
 a list of a plot and result table

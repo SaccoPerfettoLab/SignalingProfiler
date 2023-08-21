@@ -4,7 +4,7 @@
 \alias{run_hypergeometric_test}
 \title{Correct viper output with hypergeometric test}
 \usage{
-run_hypergeometric_test(omic_data, viper_output, analysis, organism)
+run_hypergeometric_test(omic_data, viper_output, analysis, organism, collectri)
 }
 \arguments{
 \item{omic_data}{dataset containing experimental omic data}
@@ -14,6 +14,8 @@ run_hypergeometric_test(omic_data, viper_output, analysis, organism)
 \item{analysis}{type of analysis}
 
 \item{organism}{organism}
+
+\item{collectri}{boolean, if TRUE uses collectri regulons}
 }
 \value{
 table with weight for viper score correction

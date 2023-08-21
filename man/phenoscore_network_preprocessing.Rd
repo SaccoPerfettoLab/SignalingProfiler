@@ -4,7 +4,7 @@
 \alias{phenoscore_network_preprocessing}
 \title{Title}
 \usage{
-phenoscore_network_preprocessing(proteomics, phospho)
+phenoscore_network_preprocessing(proteomics, phospho, local = FALSE)
 }
 \arguments{
 \item{proteomics}{protemics dataframe processed for SP}
