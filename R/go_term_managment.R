@@ -10,40 +10,22 @@
 #' @examples
 molecular_function_annotation <- function(inferred_proteins_dataset, organism){
 
-  # ADD A CHECK FOR UNIPROT COLUMN PRESENCE
-  inferred_proteins_dataset <- inferred_proteins_dataset %>%
-    dplyr::filter(!is.na(UNIPROT)) %>%
-    tidyr::separate_rows('UNIPROT', sep = ';') %>%
-    dplyr::distinct()
-
-  #get uniprot annotation
-  inferred_proteins_dataset_f <- inferred_proteins_dataset %>%
-    dplyr::filter(!grepl('*SIGNOR*', UNIPROT))
-
-
+  organism = 'human'
   if(organism == 'human'){
-    inferred_proteins_dataset_f <- dplyr::left_join(inferred_proteins_dataset_f,
-                                                    gomf_human,
-                                                    by = c('UNIPROT'))
+    inferred_proteins_dataset <- dplyr::left_join(inferred_proteins_dataset,
+                                                  gomf_human %>% dplyr::select(gene_name, mf),
+                                                  by = c('gene_name'))
+
   }else if(organism == 'mouse' | organism == 'hybrid'){
-    inferred_proteins_dataset_f <- dplyr::left_join(inferred_proteins_dataset_f,
-                                                    gomf_mouse,
-                                                    by = c('UNIPROT'))
+    inferred_proteins_dataset <- dplyr::left_join(inferred_proteins_dataset,
+                                                  gomf_mouse %>% dplyr::select(gene_name, mf),
+                                                  by = c('gene_name'))
+
   }else{
     stop('please provide a valid organism')
   }
 
-  inferred_proteins_dataset_f$mf[is.na(inferred_proteins_dataset_f$mf)] <- 'other'
-
-  missing_genes <- inferred_proteins_dataset %>%
-    dplyr::filter(!gene_name %in% inferred_proteins_dataset_f$gene_name)
-
-  inferred_proteins_dataset <- dplyr::bind_rows(inferred_proteins_dataset_f, missing_genes)
-
-  inferred_proteins_dataset <- inferred_proteins_dataset %>%
-    dplyr::group_by(gene_name) %>%
-    dplyr::mutate(UNIPROT = paste0(UNIPROT, collapse = ';')) %>%
-    dplyr::ungroup()
+  inferred_proteins_dataset$mf[is.na(inferred_proteins_dataset$mf)] <- 'other'
 
   return(inferred_proteins_dataset)
 }
