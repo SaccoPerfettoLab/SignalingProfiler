@@ -166,13 +166,14 @@ run_viper <- function(viper_format,
 #' @param analysis type of analysis
 #' @param organism organism
 #' @param collectri boolean, if TRUE uses collectri regulons
+#' @param integrated_regulons boolean,  if TRUE uses Kinome Atlas regulons
 #'
 #' @return table with weight for viper score correction
 #' @export
 #'
 #' @examples
 run_hypergeometric_test <- function(omic_data, viper_output,
-                                    analysis, organism, collectri){
+                                    analysis, organism, integrated_regulons, collectri){
 
   # omic_data <- tr_df
   # viper_output <- a$sign
@@ -225,7 +226,11 @@ run_hypergeometric_test <- function(omic_data, viper_output,
   }else if(analysis == 'ksea'){
 
     if(organism == 'human'){
-      df_regulons <- ksea_db_human
+      if(integrated_regulons == TRUE){
+        df_regulons <- ksea_db_human_atlas
+      }else{
+        df_regulons <- ksea_db_human
+      }
     }else if(organism == 'mouse'){
       df_regulons <- ksea_db_mouse
     }else{
@@ -262,6 +267,7 @@ run_hypergeometric_test <- function(omic_data, viper_output,
   pr_joined$pWeight <- NA
 
   for(protein in proteins){
+
     significant_members <- df_regulons[df_regulons$target %in% (rownames(all_significant_matrix)),] %>%
       dplyr::arrange(tf) %>%
       dplyr::filter(tf == protein) %>%
@@ -272,21 +278,20 @@ run_hypergeometric_test <- function(omic_data, viper_output,
       dplyr::filter(tf == protein) %>%
       dplyr::select(target) %>% unlist() %>% as.character
 
-    # creating Venn object
-    VennObject <- RVenn::Venn(list(RegulonMeasured = regulon_members,
-                                   RegulonSignificant = significant_members,
-                                   UniverseMeasured = uni_meas_v,
-                                   UniverseSignificant = uni_sign_v))
+    pvalue = phyper(q = length(significant_members),
+           m = length(uni_sign_v),
+           n = length(uni_meas_v) - length(regulon_members),
+           k = length(regulon_members), lower.tail = F)
 
-    # run enrichment test
-    v <- RVenn::enrichment_test(VennObject, 'RegulonMeasured', 'RegulonSignificant', univ = uni_meas_v)
 
-    pr_joined$pWeight[pr_joined$gene_name == protein] <- v$Significance
+    pr_joined$pWeight[pr_joined$gene_name == protein] <- pvalue
+
   }
 
   pr_joined <- pr_joined %>%
-    dplyr::rename(reg_exp_meas = Measured,
-                  reg_exp_sign = Significant)
+    dplyr::rename('reg_exp_meas' = 'Measured',
+                  'reg_exp_sign' = 'Significant')
+
 
   return(pr_joined)
 }
@@ -320,16 +325,24 @@ weight_viper_score <- function(ea_output){
 
   #ea_output <- pr_joined
   #ea_output <- h
+  # Transform hypergeomtric pvalue in -log to derive a raw_weight
+  # if pWeight == 0 replace with min of pWeight otherwise the raw weight becomes Inf
+  min <- min(ea_output$pWeight[ea_output$pWeight!= 0])
 
   ea_output_log <- ea_output %>%
-    dplyr::filter(pWeight != 1) %>%
-    dplyr::mutate(weight = -log(pWeight))
+    dplyr::mutate(pWeight = ifelse(pWeight == 0, min, pvalues)) %>%
+    dplyr::mutate(raw_weight = -log(pWeight))
 
-  ea_output_log$weight[ea_output_log$weight == Inf] <- 10
-  ea_output_log$weight <- ea_output_log$weight/10
-
+  # Create a weigth balanced on the max raw_weight
   ea_output_log <- ea_output_log %>%
-    dplyr::mutate(weightedNES = weight * NES) %>%
+    dplyr::mutate(weight = raw_weight/max(raw_weight))
+
+  # Scale according to 4x weight the unsignificant genes
+  # derived from the hypergeometric test
+  ea_output_log <- ea_output_log %>%
+    dplyr::mutate(weightedNES = ifelse(pWeight > 0.05,
+                                       NES * weight*4,
+                                       NES)) %>%
     dplyr::arrange(gene_name)
 
   return(ea_output_log)
@@ -379,16 +392,6 @@ run_footprint_based_analysis <- function(omic_data, analysis, organism,
                                          hypergeom_corr,
                                          GO_annotation = FALSE){
 
-  # omic_data = tr_df
-  # collectri = TRUE
-  # analysis = 'tfea'
-  # organism = 'human'
-  # reg_minsize = 5
-  # exp_sign = FALSE
-  # integrated_regulons = FALSE
-  # hypergeom_corr = TRUE
-  # GO_annotation = TRUE
-
   message(' ** RUNNING FOOTPRINT BASED ANALYSIS ** ')
   message('Credits to Prof. Julio Saez-Rodriguez. For more information read this article: Dugourd A, Saez-Rodriguez J. Footprint-based functional analysis of multiomic data. Curr Opin Syst Biol. 2019 Jun;15:82-90. doi: 10.1016/j.coisb.2019.04.002. PMID: 32685770; PMCID: PMC7357600.')
 
@@ -396,6 +399,10 @@ run_footprint_based_analysis <- function(omic_data, analysis, organism,
     stop('collectri is only a \'tfea\' parameter')
 
   }
+
+  omic_data <- omic_data %>%
+    dplyr::mutate(gene_name =  stringr::str_replace_all(gene_name, "[^[:alnum:]]", "_"))
+
   # run viper analysis
   viper_format <- create_viper_format(omic_data, analysis, significance = exp_sign)
 
@@ -415,7 +422,11 @@ run_footprint_based_analysis <- function(omic_data, analysis, organism,
 
   if(hypergeom_corr == TRUE){
     message('Starting hypergeometric test correction')
-    output <- weight_viper_score(run_hypergeometric_test(omic_data,output$sign, analysis, organism, collectri))
+    output <- weight_viper_score(run_hypergeometric_test(omic_data,output$sign,
+                                                         analysis = analysis,
+                                                         organism = organism,
+                                                         collectri = collectri,
+                                                         integrated_regulons = integrated_regulons))
 
     output_uniprot <- convert_gene_name_in_uniprotid(output, organism)
   }else{
@@ -460,6 +471,9 @@ phosphoscore_computation <- function(phosphoproteomic_data,
                                      local = FALSE,
                                      GO_annotation = FALSE){
   message('** RUNNING PHOSPHOSCORE ANALYSIS **')
+
+  phosphoproteomic_data <- phosphoproteomic_data %>%
+    dplyr::mutate(gene_name =  stringr::str_replace_all(gene_name, "[^[:alnum:]]", "_"))
 
   if(organism == 'mouse' | organism =='human'){
     phosphoscore_df_output <- map_experimental_on_regulatory_phosphosites(phosphoproteomic_data,
@@ -931,6 +945,9 @@ combine_footprint_and_phosphoscore <- function(footprint_output, phosphoscore_df
 #'
 #' @examples
 activity_from_proteomics <- function(prot_df, organism){
+
+  prot_df <- prot_df %>%
+    dplyr::mutate(gene_name = stringr::str_replace_all(gene_name, "[^[:alnum:]]", "_"))
 
   message('** COMPUTING PROTEOSCORE **')
 
