@@ -4,7 +4,13 @@
 \alias{choose_database_for_building}
 \title{choose_database_for_building}
 \usage{
-choose_database_for_building(organism, with_atlas = FALSE, format)
+choose_database_for_building(
+  organism,
+  with_atlas = FALSE,
+  direct = FALSE,
+  custom = FALSE,
+  format
+)
 }
 \arguments{
 \item{organism}{'human' or 'mouse''}
