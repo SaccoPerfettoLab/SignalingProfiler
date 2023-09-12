@@ -46,11 +46,11 @@ generateTFList <- function (df = df, top = 50, access_idx = 1){
 formatting_proteins_for_carnival <- function(proteins_df){
 
   proteins_df <- proteins_df %>%
-    dplyr::select(UNIPROT, t = final_score) %>%
+    dplyr::select(gene_name, t = final_score) %>%
     dplyr::distinct()
   proteins_activities <- data.frame(unique(proteins_df))
-  rownames(proteins_activities) <- unique(unique(proteins_activities$UNIPROT))
-  proteins_activities$UNIPROT <- NULL
+  rownames(proteins_activities) <- unique(unique(proteins_activities$gene_name))
+  proteins_activities$gene_name <- NULL
   proteinList <- generateTFList(proteins_activities, top = 'all', access_idx = 1)
 
   return(proteinList)
@@ -61,7 +61,8 @@ formatting_proteins_for_carnival <- function(proteins_df){
 #' @param carnival_result runCARNIVAL output
 #' @param proteins_df inferred proteins df
 #' @param organism string, 'mouse' or 'human'
-#' @param with_atlas Boolean value, default FALSE, if TRUE uses regulons
+#' @param with_atlas Boolean value, default TRUE, if FALSE exclude kinome atlas interactions
+#' @param direct Boolean value, default FALSE, if TRUE uses direct interactions
 #'
 #' @return dataframe with nodes and attributes
 #' @export
@@ -70,45 +71,59 @@ formatting_proteins_for_carnival <- function(proteins_df){
 add_output_carnival_nodes_attributes <- function(carnival_result,
                                                  proteins_df,
                                                  organism,
-                                                 with_atlas = FALSE){
+                                                 with_atlas = TRUE,
+                                                 direct = FALSE){
 
   # get db and protein db for adding attributes
+  # !!!!!!!!!!!!!!!!!! to add direct attribute
   if(organism == 'mouse'){
     if(with_atlas == TRUE){
       stop('If organism is \'mouse\' with_atlas parameter must be FALSE')
     }else{
       PKN_proteins <- PKN_proteins_mouse
-      db <- db_mouse
+      if(direct == TRUE){
+        db <- db_mouse_dir
+      }else{
+        db <- db_mouse_ind
+      }
     }
   }else if(organism == 'human'){
     if(with_atlas == TRUE){
       PKN_proteins <- PKN_proteins_human_atlas
-      db <- db_human_atlas
+
+      if(direct == TRUE){
+        db <- db_human_atlas_dir
+      }else{
+        db <- db_human_atlas_ind
+      }
+
     }else{
       PKN_proteins <- PKN_proteins_human
-      db <- db_human
+
+      if(direct == TRUE){
+        db <- db_human_dir
+      }else{
+        db <- db_human_ind
+      }
     }
   }else{
     error('Please provide a valide organism')
   }
 
-
-
-
   nodes <- tibble::as_tibble(carnival_result$nodesAttributes)
   optimal_edges <- tibble::as_tibble(carnival_result$weightedSIF)
 
-  nodes_igraph_ids <- unique(c(gsub('_', '-',optimal_edges$Node1),
-                               gsub('_', '-',optimal_edges$Node2)))
+  nodes_igraph_ids <- unique(c(optimal_edges$Node1,
+                              optimal_edges$Node2))
 
   optimal_nodes <- nodes %>%
-    dplyr::filter(gsub('_', '-', Node) %in% nodes_igraph_ids) %>%
+    dplyr::filter(Node %in% nodes_igraph_ids) %>%
     dplyr::select(Node, 'carnival_activity' = AvgAct) %>%
-    dplyr::mutate_at('carnival_activity', as.numeric) %>%
-    dplyr::mutate(Node = gsub('_', '-', Node))
+    dplyr::mutate_at('carnival_activity', as.numeric) #%>%
+    #dplyr::mutate(Node = gsub('_', '-', Node))
 
-  nodes_df <- dplyr::left_join(optimal_nodes, PKN_proteins, by = c('Node' = 'ID')) %>%
-    dplyr::rename('UNIPROT' = 'Node','gene_name' = 'ENTITY')
+  nodes_df <- dplyr::left_join(optimal_nodes, PKN_proteins, by = c('Node' = 'ENTITY')) %>%
+    dplyr::rename('gene_name' = 'Node','UNIPROT' = 'ID')
 
   nodes_df <- dplyr::left_join(nodes_df, proteins_df, by = c('gene_name', 'UNIPROT')) %>%
     dplyr::select(gene_name, carnival_activity, UNIPROT, mf, final_score, method)
@@ -123,10 +138,10 @@ add_output_carnival_nodes_attributes <- function(carnival_result,
   nodes_df$discordant[as.numeric(nodes_df$carnival_activity) * nodes_df$final_score < 0] <- TRUE
 
   nodes_df <- nodes_df %>%
-    dplyr::relocate(UNIPROT) %>%
+    dplyr::relocate(gene_name) %>%
     dplyr::distinct()
 
-  nodes_df$UNIPROT <- gsub('_', '-',nodes_df$UNIPROT)
+  #nodes_df$UNIPROT <- gsub('_', '-',nodes_df$UNIPROT)
 
   return(nodes_df)
 }
@@ -141,10 +156,12 @@ add_output_carnival_nodes_attributes <- function(carnival_result,
 #' @examples
 add_output_carnival_edges_attributes <- function(carnival_result){
 
+
+
   optimal_edges <- tibble::as_tibble(carnival_result$weightedSIF)
 
-  edges_df <- tibble::tibble(source = gsub('_', '-',optimal_edges$Node1),
-                             target = gsub('_', '-',optimal_edges$Node2),
+  edges_df <- tibble::tibble(source = optimal_edges$Node1,
+                             target = optimal_edges$Node2,
                              sign = optimal_edges$Sign,
                              carnival_weight = as.numeric(optimal_edges$Weight))
   return(edges_df)
@@ -189,18 +206,25 @@ union_of_graphs <- function(graph_1, graph_2, proteins_df, files,
                             path_sif = './union_graph.sif',
                             path_rds = './union_graph.rds'){
 
+  # graph_1 = transc_graph
+  # graph_2 = sign_graph
+  # proteins_df = proteins_df
+  # files = TRUE
+  # path_sif = paste0(carnival_dir, patient, '_union_model.sif')
+  # path_rds = paste0(carnival_dir, patient, '_union_object.RDS')
+
   # graph_1 = output1$igraph_network
   # graph_2 = output2$igraph_network
   # proteins_df <- carnival_input_toy
 
   #nodes df
   nodes_rec_kin <- tibble::as_tibble(igraph::as_data_frame(graph_1, what = c('vertices'))) %>%
-    dplyr::rename(UNIPROT = 'name') %>%
-    dplyr::select(gene_name, carnival_activity, UNIPROT)
+    dplyr::rename(gene_name = 'name') %>%
+    dplyr::select(gene_name, UNIPROT, carnival_activity)
 
   nodes_kin_tf <- tibble::as_tibble(igraph::as_data_frame(graph_2, what = c('vertices'))) %>%
-    dplyr::rename(UNIPROT = 'name') %>%
-    dplyr::select(gene_name, carnival_activity, UNIPROT)
+    dplyr::rename(gene_name = 'name') %>%
+    dplyr::select(gene_name, UNIPROT, carnival_activity)
 
   nodes <- dplyr::bind_rows(nodes_rec_kin, nodes_kin_tf) %>%
     dplyr::distinct() %>%
@@ -208,7 +232,7 @@ union_of_graphs <- function(graph_1, graph_2, proteins_df, files,
 
   nodes <- dplyr::left_join(nodes, proteins_df, by = c('gene_name', 'UNIPROT')) %>%
     dplyr::select(gene_name, carnival_activity, UNIPROT, mf, final_score, method) %>%
-    dplyr::relocate(UNIPROT)
+    dplyr::relocate(gene_name)
 
   # se sono duplicati nei due network prendo la media
   nodes1 <- nodes %>%
@@ -216,11 +240,11 @@ union_of_graphs <- function(graph_1, graph_2, proteins_df, files,
     dplyr::summarise(carnival_activity = mean(carnival_activity))
 
   nodes <- nodes %>%
-    dplyr::select(UNIPROT, gene_name, mf, final_score, method) %>%
+    dplyr::select(gene_name, UNIPROT, mf, final_score, method) %>%
     dplyr::distinct()
 
   nodes <- dplyr::left_join(nodes1, nodes, by = c('gene_name')) %>%
-    dplyr::relocate(UNIPROT)
+    dplyr::relocate(gene_name)
 
   # adding attributes
   nodes$discordant <- FALSE
@@ -232,16 +256,18 @@ union_of_graphs <- function(graph_1, graph_2, proteins_df, files,
 
   edges <- dplyr::bind_rows(edges_rec_kin, edges_kin_tf)
 
-  union_graph <- igraph::graph_from_data_frame(d = data.frame(edges), vertices = nodes, directed = T)
+  union_graph <- igraph::graph_from_data_frame(d = edges, vertices = nodes, directed = T)
+
+  sp_object <- list(igraph_network = union_graph,
+                    nodes_df = nodes,
+                    edges_df = edges)
 
   if(files == TRUE){
     igraphToSif(union_graph, path_sif, 'sign')
-    saveRDS(union_graph, path_rds)
+    saveRDS(sp_object, path_rds)
   }
 
-  return(list(network = union_graph,
-              nodes_df = nodes,
-              edges_df = edges))
+  return(sp_object)
 }
 
 #' default_CARNIVAL_options
@@ -329,7 +355,9 @@ check_CARNIVAL_inputs <- function(source_df, target_df,
 #' @param files boolean value, TRUE if you want output files
 #' @param path_sif path of the sif output file of network
 #' @param path_rds path of the rds output file of network
-#' @param with_atlas Boolean value, default FALSE, if TRUE uses regulons
+#' @param with_atlas Boolean value, default TRUE, if FALSE excludes Kinome Altas derived regulons
+#' @param direct Boolean value, default FALSE, if TRUE uses only direct interactions
+#' @param topbottom Boolean value, default FALSE, if TRUE optimization priorities sources
 #'
 #' @return list with igraph object, nodes df and edges df
 #' @export
@@ -341,10 +369,25 @@ run_carnival_and_create_graph <- function(source_df,
                                           carnival_options,
                                           proteins_df,
                                           organism,
-                                          with_atlas = FALSE,
+                                          topbottom = FALSE,
+                                          with_atlas = TRUE,
+                                          direct = FALSE,
                                           files = TRUE,
                                           path_sif = './optimized_network.sif',
-                                          path_rds = './optimized_network.RDS'){
+                                          path_rds = './optimized_SP_oject.RDS'){
+
+  # source_df = source_df
+  # target_df = target_df
+  # naive_network = unique(naive_network)
+  # proteins_df = bind_rows(source_df, target_df)
+  # organism = 'human'
+  # topbottom = F
+  # carnival_options = carnival_options
+  # files = TRUE
+  # with_atlas = FALSE
+  # direct = FALSE
+  # path_sif = paste0(carnival_dir, patient, '_transcriptional_opt_network.sif')
+  # path_rds = paste0(carnival_dir, patient, '_transcriptional_opt_object.RDS')
 
   if(is.null(source_df)){
     message(' ** Running inverse CARNIVAL (No perturbations) ** ')
@@ -359,6 +402,20 @@ run_carnival_and_create_graph <- function(source_df,
                                                     priorKnowledgeNetwork = unique(naive_network),
                                                     carnivalOptions = carnival_options)
   }else{
+    if( topbottom == TRUE ){
+
+      # Invert naive network
+      naive_network <- naive_network %>%
+        dplyr::rename('target' = 'source', 'source' = 'target') %>%
+        dplyr::relocate(source, interaction, target)
+
+      # Inverte source proteins with target proteins
+      source_appo <- target_df
+      target_df <- source_df
+      source_df <- source_appo
+
+    }
+
     message(' ** Running vanilla CARNIVAL (With perturbations) ** ')
     message('Credits to Prof. Julio Saez-Rodriguez. For more information visit: https://saezlab.github.io/CARNIVAL/ ')
 
@@ -371,6 +428,12 @@ run_carnival_and_create_graph <- function(source_df,
 
     # keep only present perturbation
     source_df <- keep_only_present_perturbation(source_df, naive_network)
+    target_df <- keep_only_present_perturbation(target_df, naive_network)
+
+    # naive_graph <- igraph::graph_from_data_frame(naive_network %>% dplyr::relocate(source, target))
+    #
+    # source_df_present <- target_df %>%
+    #   dplyr::filter(gene_name %in% igraph::V(naive_graph)$name)
 
     # discretize initiators
     source_df_disc <- create_discretized_initiators_for_carnival(source_df)
@@ -386,6 +449,13 @@ run_carnival_and_create_graph <- function(source_df,
     return(NULL)
   }
 
+  if( topbottom == TRUE ){
+
+    carnival_result$weightedSIF <- carnival_result$weightedSIF %>% dplyr::rename('Node2' = 'Node1', 'Node1' = 'Node2') %>%
+      dplyr::relocate(Node1, Sign, Node2)
+
+  }
+
   # add attributes to the edges
   edges_df <- add_output_carnival_edges_attributes(carnival_result) %>%
     dplyr::filter(carnival_weight != 0)
@@ -394,29 +464,32 @@ run_carnival_and_create_graph <- function(source_df,
   nodes_df <- add_output_carnival_nodes_attributes(carnival_result,
                                                    proteins_df,
                                                    organism,
-                                                   with_atlas = with_atlas) %>%
+                                                   with_atlas = with_atlas,
+                                                   direct = direct) %>%
     #keep nodes that have an activity OR that are 0 but are involved in some interactions
-    dplyr::filter(carnival_activity != 0 |
-                    carnival_activity == 0 & (UNIPROT %in% edges_df$source | UNIPROT %in% edges_df$target)) %>%
+    # dplyr::filter(carnival_activity != 0 |
+    #                 (carnival_activity == 0 & (gene_name %in% edges_df$source | gene_name %in% edges_df$target))) %>%
+    dplyr::filter(gene_name %in% edges_df$source | gene_name %in% edges_df$target) %>%
     dplyr::distinct()
-
 
   CARNIVAL_igraph_network <- igraph::graph_from_data_frame(edges_df,
                                                            nodes_df,
                                                            directed = TRUE)
 
+  SP_object <- list(igraph_network = CARNIVAL_igraph_network,
+                    nodes_df = nodes_df,
+                    edges_df = edges_df)
+
   if(files == TRUE){
     message(paste0('Creating optimized network file in tabular form in ', path_sif))
     igraphToSif(CARNIVAL_igraph_network, path_sif, 'sign')
 
-    message(paste0('Creating optimized network file in RDS object form in ', path_rds))
-    saveRDS(CARNIVAL_igraph_network, path_rds)
+    message(paste0('Creating an RDS object with SP optimization in ', path_rds))
+    saveRDS(SP_object, path_rds)
   }
 
   # create carnival output as graph
-  return(list(igraph_network = CARNIVAL_igraph_network,
-              nodes_df = nodes_df,
-              edges_df = edges_df))
+  return(SP_object)
 }
 
 #' convert_output_nodes_in_next_input
@@ -435,37 +508,75 @@ convert_output_nodes_in_next_input <- function(carnival_result){
 
 #' expand_and_map_edges
 #'
-#' @param optimized_graph_rds # igraph object output of the run_carnival_and_create_graph
-#' @param optimized_graph_sif # table output of the run_carnival_and_create_graph
+#' @param optimized_object SP object containing optimized graphs, nodes and edges of run_carnival_and_create_graph
 #' @param organism #string, human or mouse
 #' @param phospho_df # tibble of phosphoproteomics data
 #' @param files # boolean value, TRUE if you want output files
-#' @param path_sif # string of the path  of output sif file
-#' @param path_rds # string of the path of RDS file
+#' @param path_sif # string of the path of output sif file (network)
+#' @param path_rds # string of the path of RDS file (SP object)
 #' @param with_atlas # Boolean value, FALSE default, if TRUE uses integrated regulons
+#' @param direct  # Boolean value, FALSE default, if TRUE uses indirect interactions for mapping
 #'
 #' @return # list with igraph object, optimized nodes df and optimized edges df
 #' @export
 #'
 #' @examples
-expand_and_map_edges <- function(optimized_graph_rds,
-                                 optimized_graph_sif,
-                                 organism, phospho_df,
+expand_and_map_edges <- function(optimized_object,
+                                 organism,
+                                 phospho_df,
                                  files,
                                  with_atlas = FALSE,
+                                 direct = FALSE,
                                  path_sif,
                                  path_rds){
 
-  # organism = 'mouse'
-  # phospho_df <- phospho_toy_df
-  db <- choose_database_for_building(organism,
+  # Input of the function
+
+  # Takes as input the CARNIVAL object
+  # optimized_object = readRDS(paste0(carnival_dir, patient, '_union_carnival_object.RDS'))
+  #
+  # phos_df <- read_tsv(paste0(input_dir, 'phos/', patient, '_for_sp.tsv'))
+  # phospho_df <- phos_df
+  #
+  # organism <- 'human'
+  # with_atlas = TRUE
+  #
+  # files = TRUE
+  # path_sif = paste0(carnival_dir, patient, '_union_carnival_validated.sif')
+  # path_rds = paste0(carnival_dir, patient, '_union_carnival_validated.RDS')
+
+  # Nodes df
+  nodes_df <- tibble::as_tibble(igraph::as_data_frame(optimized_object$igraph_network, what = 'vertices'))
+
+  # Edges df
+  edges_df <- tibble::as_tibble(igraph::as_data_frame(optimized_object$igraph_network, what = 'edges')) %>%
+    dplyr::rename('source' = 'from', 'target' = 'to', 'interaction' = 'sign') %>%
+    dplyr::mutate_at('interaction', as.character)
+
+
+
+  # output <- readRDS(paste0(carnival_dir, patient, '_union_carnival_object.RDS'))
+  # optimized_graph_rds <- output$igraph_network
+  # optimized_graph_sif <- output$edges_df
+  # optimized_graph_sif$carnival_weight <- NULL
+  # optimized_graph_sif <- optimized_graph_sif %>% rename( )
+
+  # Derive the PKN to expand the edges_df
+  # direct = TRUE because we want to select only direct phosphorylation events
+
+  db <- choose_database_for_building(organism = organism,
                                      format = 'table',
-                                     with_atlas = with_atlas)
+                                     with_atlas = with_atlas,
+                                     direct = FALSE) %>%
+    dplyr::mutate_at('INTERACTION', as.character)
 
-  optimized_graph_sif <- optimized_graph_sif %>% dplyr::mutate_at('interaction', as.character)
-  db <- db %>% dplyr::mutate_at('INTERACTION', as.character)
 
-  # create substring if necessary
+  # ========================================================================== #
+  # Parse phosphoproteomics data
+  # ========================================================================== #
+
+  # Create substring of phosphopeptide sequence in phospho_df
+  # for mapping to PKN, if necessary
   if(nchar(phospho_df$sequence_window[1]) != 15){
     center <- (nchar(phospho_df$sequence_window[1])+1)/2
     phospho_df <- phospho_df %>%
@@ -475,110 +586,95 @@ expand_and_map_edges <- function(optimized_graph_rds,
       dplyr::rename(sequence_window_sub = sequence_window)
   }
 
-  #phospho_df <- phospho_toy_df
   phospho_df <- phospho_df %>%
-    dplyr::mutate(phosphositeID = paste0(gene_name, '-', sequence_window_sub)) %>%
-    dplyr::select(gene_name, aminoacid, position, phosphositeID, difference, significant)
+    dplyr::mutate(PHOSPHO_KEY_GN_SEQ = paste0(gene_name, '-', sequence_window_sub)) %>%
+    dplyr::select(gene_name, aminoacid, position, PHOSPHO_KEY_GN_SEQ, difference, significant)
 
-  # join db on network
-  #taking from DBs the optimized interaction in order to get duplicated interaction
-  merged_df <- dplyr::inner_join(db, optimized_graph_sif, by = c('IDA' = 'source',
-                                                                 'INTERACTION' = 'interaction',
-                                                                 'IDB' = 'target'))
+  # ========================================================================== #
+  # Expand edges_df
+  # ========================================================================== #
+  # Join DB on network
+  # taking from DBs the optimized interaction in order to expand interactions
+  # on the phosphorylation events
+  # and retrieve information about the mechanism, DIRECT or INDIRECT
 
-  expanded_optimized_model <- unique(merged_df)
-
-  # *** CREATION OF A GRAPH OBJECT ** #
-  # nodes are the one in optimized network, while edges become the expanded ones
-
-  # ** NODES DATAFRAME **
-  nodes_df <- igraph::as_data_frame(optimized_graph_rds, what = 'vertice') %>%
-    tibble::as_tibble()# nodes' dataframe already present
-  edges_df <- igraph::as_data_frame(optimized_graph_rds, what = 'edges') %>%
-    tibble::as_tibble()
-
-  # ** EDGES DATAFRAME **
-  edges_df_new <- expanded_optimized_model # should be created from expanded optimized model
-
-  # adding some attributes: carnival_weight, is_quantified, is_significant, phosphosite_value
-  edges_df_new$carnival_weight <- 0
-  edges_df_new$phosphosite_value <- 0
-  edges_df_new$is_significant <- FALSE
-  edges_df_new$is_quantified <- FALSE
-
-  # create a GN - SEQUENCE key
-  edges_df_new$PHOSPHO_KEY_GN_SEQ <- paste0(edges_df_new$ENTITYB,'-', edges_df_new$SEQUENCE)
-
-
-  #  ** setting $Is_Quantified **
-  # setting Is_Quantified to TRUE if the combination GeneName - Seq is in experimental phosphosites (before with sequence)
-
-  edges_df_new$is_quantified[edges_df_new$PHOSPHO_KEY_GN_SEQ %in% phospho_df$phosphositeID] <- TRUE
-
-  # ** setting phosphosite_value
-  for (i in c(1:length(edges_df_new$ENTITYA))){
-    for( j in c(1:length(phospho_df$aminoacid))){
-      if(is.na(edges_df_new$PHOSPHO_KEY_GN_SEQ[i]) == FALSE){
-        if(edges_df_new$PHOSPHO_KEY_GN_SEQ[i] == phospho_df$phosphositeID[j]){
-
-          edges_df_new$phosphosite_value[i] <- phospho_df$difference[j]
-
-          if(is.na(phospho_df$significant[j]) == FALSE){
-            edges_df_new$is_significant[i] <- TRUE
-          }
-        }
-      }
-    }
-  }
-
-  # ** setting $Weight_CARNIVAL **
-  for (i in c(1:length(edges_df_new$IDA))){
-    for (j in c(1:length(edges_df$from))){
-      if(edges_df_new$IDA[i] == edges_df$from[j] &
-         edges_df_new$IDB[i] == edges_df$to[j] &
-         edges_df_new$INTERACTION[i] == edges_df$sign[j]){
-        edges_df_new$carnival_weight[i] <- edges_df$carnival_weight[j]
-      }
-    }
-  }
-
-  edges_df_new <- edges_df_new %>%
-    dplyr::select(source = IDA, target = IDB, sign = INTERACTION, carnival_weight, mechanism = MECHANISM,
-                  residue = RESIDUE,sequence = SEQUENCE, is_significant,phosphosite_value) %>%
+  edges_df_new <- dplyr::left_join(edges_df, db, by = c('source' = 'ENTITYA',
+                                                 'interaction' = 'INTERACTION',
+                                                 'target' = 'ENTITYB')) %>%
     dplyr::distinct()
 
-  edges_df_new$residue[edges_df_new$is_significant == TRUE] <- paste0(edges_df_new$residue[edges_df_new$is_significant == TRUE], '*')
-  edges_df_new$phosphosite_value[edges_df_new$is_significant == TRUE] <- paste0(edges_df_new$phosphosite_value[edges_df_new$is_significant == TRUE], '*')
+  # Map the expanded edges to experimental data
+  edges_df_new <- dplyr::left_join(edges_df_new,
+                                   phospho_df %>%
+                                     dplyr::select(-c('gene_name')),
+                                   by = c('PHOSPHO_KEY_GN_SEQ'))
 
-  edges_df_new$phosphosite_value[edges_df_new$phosphosite_value == '0'] <- NA
+  # Rename and add some columns as flags like
+  # is_quantified, is_significant (derived from significant in phospho_df),
+  # phosphosite_value is the abundance in experimental data
+  edges_df_new <- edges_df_new %>%
+    dplyr::mutate(is_quantified = ifelse(is.na(difference), FALSE, TRUE),
+                  is_significant = ifelse(!is.na(significant), TRUE, FALSE)) %>%
+    dplyr::rename('phosphosite_value' = 'difference')
 
+  # Reorganize the edges_df
+  edges_df_new <- edges_df_new %>%
+    dplyr::select(source, target, sign = interaction, carnival_weight, mechanism = MECHANISM,
+                  residue = RESIDUE,sequence = SEQUENCE, is_significant, phosphosite_value, DIRECT) %>%
+    dplyr::distinct() %>%
+    dplyr::mutate(residue = ifelse(is_significant == TRUE, paste0(residue, '*'), residue),
+                  phosphosite_value = ifelse(is_significant == TRUE, paste0(round(phosphosite_value, 2), '*'), round(phosphosite_value,2)))
+
+  # For rows mapped in the phospho_df
+  # collapse the same edge mapping to different sites
   edges_df_new_with_amino <- edges_df_new %>%
     dplyr::filter(!is.na(phosphosite_value)) %>%
     dplyr::group_by(source, target, sign) %>%
-    dplyr::summarise(aminoacid = paste0(residue,collapse = ';'),
-                     FC = paste0(as.character(phosphosite_value), collapse = ';'))
+    dplyr::reframe(aminoacid = paste0(residue,collapse = ';'),
+                     FC = paste0(as.character(phosphosite_value), collapse = ';'),
+                   direct = paste0(unique(DIRECT), collapse = ';'),
+                   mechanism = paste0(unique(mechanism), collapse = ';')) %>%
+    dplyr::mutate_at('direct', as.logical)
 
   edges_df_new_final <- dplyr::left_join(edges_df_new %>%
-                                           dplyr::select(source, target, sign, carnival_weight) %>%
+                                           dplyr::select(source, target, sign, carnival_weight, direct = DIRECT, mechanism) %>%
                                            dplyr::distinct(),
-                                         edges_df_new_with_amino)
+                                         edges_df_new_with_amino,
+                                         by = c('source', 'target', 'sign', 'direct', 'mechanism'))
 
-  edges_df_new_final$is_quantified <- FALSE
-  edges_df_new_final$is_quantified[is.na(edges_df_new_final$FC) == FALSE] <- TRUE
+  edges_df_new_final <- edges_df_new_final %>%
+    dplyr::mutate(is_quantified = ifelse(is.na(FC), FALSE, TRUE),
+                  is_significant = ifelse(grepl('\\*', FC), TRUE, FALSE))
 
+  # When there are duplicated interactions because of different mechanism
+  # paste them all together
+
+  edges_df_new_final <- edges_df_new_final %>% dplyr::group_by(source, target, sign, carnival_weight) %>%
+    dplyr::reframe(direct = paste0(unique(direct), collapse = ';'),
+            mechanism = paste0(na.omit(mechanism), collapse = ';'),
+            aminoacid = paste0(na.omit(aminoacid), collapse = ';'),
+            is_quantified = paste0(unique(is_quantified), collapse = ';'),
+            is_significant = paste0(unique(is_significant), collapse = ';'),
+            FC = paste0(na.omit(FC), collapse = ';'))
+
+  # Create igraph object
   CARNIVAL_graph <- igraph::graph_from_data_frame(edges_df_new_final, nodes_df, directed = TRUE)
 
-  unique(c(edges_df_new_final$source, edges_df_new_final$target)) %in% nodes_df$name
+
+  SP_object <- list(igraph_network = CARNIVAL_graph,
+                    nodes_df = nodes_df,
+                    edges_df = edges_df_new_final)
 
   if(files == TRUE){
+    message(paste0('Creating validated optimized network file in tabular form in ', path_sif))
     igraphToSif(CARNIVAL_graph, path_sif, 'sign')
-    saveRDS(CARNIVAL_graph, path_rds)
+
+    message(paste0('Creating an RDS object with SP validated optimization in ', path_rds))
+    saveRDS(SP_object, path_rds)
   }
 
   # create carnival output as graph
-  return(list(igraph_network = CARNIVAL_graph,
-              nodes_df = nodes_df,
-              edges_df = edges_df_new_final))
+  return(SP_object)
 }
 
 
@@ -593,11 +689,14 @@ expand_and_map_edges <- function(optimized_graph_rds,
 #' @examples
 keep_only_present_perturbation <- function(source_df, naive_network){
 
-  naive_graph <- igraph::graph_from_data_frame(naive_network)
+  naive_graph <- igraph::graph_from_data_frame(naive_network %>%
+                                                 dplyr::relocate(source, target))
 
   source_df_present <- source_df %>%
-    dplyr::filter(UNIPROT %in% igraph::V(naive_graph)$name)
+    dplyr::filter(gene_name %in% igraph::V(naive_graph)$name)
 
   return(source_df_present)
 }
+
+
 

@@ -95,7 +95,7 @@ for el in signor.split('\n'):
         score= col[27]
         all_entities_uni.append(uni1)
         all_entities_uni.append(uni2)
-        if score != '' and name1 in filter_list and (name2 in filter_list or type2 == 'phenotype'): ### Veronica
+        if score != '' and (name1 in filter_list or type1 != 'protein') and (name2 in filter_list or type2 == 'phenotype'): ### Veronica
             #print(name1, name2)
         #if score != '' and uni1 in filter_list and uni2 in filter_list:
             #distance = 1-float(score)
@@ -154,7 +154,7 @@ for el in signor.split('\n'):
         effect = diz_effect_clean[col[8]]
         direct = col[22]
         score= col[27]
-        if score != '' and name1 in filter_list and (name2 in filter_list or type2 == 'phenotype'): ### Veronica 
+        if score != '' and (name1 in filter_list or type1 != 'protein') and (name2 in filter_list or type2 == 'phenotype'): ### Veronica 
             distance = 1-float(score)
             corrected_distance = parameter_1*distance + parameter_2* diz_in_degree[uni2] + parameter_2* diz_out_degree[uni1]
             if (direct == 't' or type2 == 'phenotype') and (effect != 'unknown') and (type1 in accepted_list_source and type2 in accepted_list_target) :

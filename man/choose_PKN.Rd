@@ -4,12 +4,20 @@
 \alias{choose_PKN}
 \title{choose_PKN}
 \usage{
-choose_PKN(organism, with_atlas = FALSE, custom = FALSE, custom_path = NULL)
+choose_PKN(
+  organism,
+  with_atlas = TRUE,
+  direct = FALSE,
+  custom = FALSE,
+  custom_path = NULL
+)
 }
 \arguments{
 \item{organism}{string, 'mouse' or 'human'}
 
-\item{with_atlas}{Boolean value, default FALSE, if TRUE you can use PKN integrated with kinome atlas data}
+\item{with_atlas}{Boolean value, default TRUE, if FALSE you exclude the relations in the PKN integrated with kinome atlas data}
+
+\item{direct}{Boolean value, default FALSE, if TRUE you choose only direct interactions between entities}
 
 \item{custom}{Boolean value, default FALSE, if TRUE you can provide the path for your custom PKN}
 

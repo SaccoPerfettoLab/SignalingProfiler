@@ -17,7 +17,7 @@ convert_gene_name_in_uniprotid <- function(bio_dataset, organism){
   # bio_dataset <- f
   # organism <- 'mouse'
   if(organism == 'human'){
-    db <- PKN_proteins_human
+    db <- PKN_proteins_human_atlas
   }else if(organism == 'mouse' | organism == 'hybrid'){
     db <- PKN_proteins_mouse
   }else{

@@ -7,7 +7,10 @@
 coverage_of_inferred_proteins_in_db(
   prediction_output,
   organism,
-  with_atlas = FALSE,
+  with_atlas = TRUE,
+  direct = FALSE,
+  custom = FALSE,
+  custom_path = FALSE,
   report
 )
 }

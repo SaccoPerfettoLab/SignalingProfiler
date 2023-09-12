@@ -21,7 +21,7 @@ find_all_paths <- function(v_start, v_end, PKN_table, max_length){
     stop('Max length is 4!')
   }
 
-  PKN_table <- PKN_table %>% dplyr::select('ENTITYA', 'INTERACTION', 'ENTITYB')
+  PKN_table <- PKN_table %>% dplyr::select('ENTITYA', 'INTERACTION', 'ENTITYB') %>% dplyr::distinct()
 
   i = 1
   step1 <- PKN_table %>% dplyr::filter(ENTITYA == v_start)
@@ -180,7 +180,7 @@ get_all_shortest_path_custom <- function(start_nodes_gn, target_nodes_gn, PKN_ta
       if( i == 1 & j == 1){
         all_paths_df <- paths_df
       }else{
-        all_paths_df <- dplyr::bind_rows(all_paths_df, paths_df)
+        all_paths_df <- dplyr::bind_rows(all_paths_df, paths_df) %>% dplyr::distinct()
       }
     }
   }
@@ -197,20 +197,24 @@ get_all_shortest_path_custom <- function(start_nodes_gn, target_nodes_gn, PKN_ta
 #' @examples
 create_graph_from_paths <- function(all_paths_df, PKN_table){
 
+
   if(nrow(all_paths_df) == 0){
     stop('SignalingProfiler ERROR: No paths found for you analytes. Try to not preprocessing the PKN')
   }
 
-  edges_paths_df <- dplyr::left_join(all_paths_df, PKN_table, by = c('ENTITYA', 'INTERACTION', 'ENTITYB')) %>%
-    dplyr::relocate(IDA, IDB)
+  edges_paths_df <- dplyr::left_join(all_paths_df, PKN_table,
+                                     by = c('ENTITYA', 'INTERACTION', 'ENTITYB')) %>%
+    dplyr::relocate(ENTITYA, ENTITYB, INTERACTION)
 
-  edges_paths_df$PHOSPHO_KEY_GN_SEQ <- ''
-  edges_paths_df$PHOSPHO_KEY_GN_SEQ[!is.na(edges_paths_df$SEQUENCE)] <- paste0(edges_paths_df$ENTITYB[!is.na(edges_paths_df$SEQUENCE)], '-', edges_paths_df$SEQUENCE[!is.na(edges_paths_df$SEQUENCE)])
+  #edges_paths_df$PHOSPHO_KEY_GN_SEQ <- ''
+  #edges_paths_df$PHOSPHO_KEY_GN_SEQ[!is.na(edges_paths_df$SEQUENCE)] <- paste0(edges_paths_df$ENTITYB[!is.na(edges_paths_df$SEQUENCE)], '-', edges_paths_df$SEQUENCE[!is.na(edges_paths_df$SEQUENCE)])
 
-  nodes_paths_df <- dplyr::bind_rows(edges_paths_df %>% dplyr::select(ENTITY = ENTITYA, ID = IDA),
-                                     edges_paths_df %>% dplyr::select(ENTITY = ENTITYB, ID = IDB)) %>%
-    dplyr::distinct(ID,.keep_all = TRUE) %>% #
-    dplyr::relocate(ID)
+  nodes_paths_df <- dplyr::bind_rows(edges_paths_df %>% dplyr::select(ENTITY = ENTITYA, ID = IDA, TYPE = TYPEA),
+                                     edges_paths_df %>% dplyr::select(ENTITY = ENTITYB, ID = IDB, TYPE = TYPEB)) %>%
+    dplyr::distinct() %>%
+    dplyr::group_by(ENTITY) %>%
+    dplyr::reframe(ID = paste0(ID, collapse = ';'), TYPE = paste0(unique(TYPE), collapse = ';')) %>%
+    dplyr::relocate(ENTITY)
 
   graph <- igraph::graph_from_data_frame(d = edges_paths_df, vertices = nodes_paths_df)
 
