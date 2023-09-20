@@ -14,6 +14,7 @@ three_layer_naive_network(
   max_length_2,
   max_length_3,
   both_intermediates = TRUE,
+  keep_only_connected = FALSE,
   rds_path = "three_layer_naive.RDS",
   sif_path = "three_layer_naive.sif"
 )
@@ -35,8 +36,10 @@ three_layer_naive_network(
 
 \item{max_length_3}{max_length of shortest path from intermediates2 to targets}
 
-\item{both_intermediates}{boolean, TRUE if you want both intermediates as the starting point of the third layer,
+\item{both_intermediates}{Boolean, TRUE if you want both intermediates as the starting point of the third layer,
 FALSE if you want to use only intermediates2 (not suggested)}
+
+\item{keep_only_connected}{Boolean, default FALSE, if TRUE keeps only intermediated connected}
 
 \item{rds_path}{path of network rds file}
 

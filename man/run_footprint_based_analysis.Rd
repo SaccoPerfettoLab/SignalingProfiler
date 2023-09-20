@@ -13,6 +13,8 @@ run_footprint_based_analysis(
   integrated_regulons = FALSE,
   collectri = FALSE,
   hypergeom_corr,
+  correct_proteomics = FALSE,
+  prot_df = NULL,
   GO_annotation = FALSE
 )
 }
@@ -30,8 +32,14 @@ FALSE: all measured analytes}
 
 \item{integrated_regulons}{boolean value, default FALSE; if TRUE uses regulons derived from experimental data}
 
+\item{collectri}{boolean value, TRUE uses CollecTRI regulons}
+
 \item{hypergeom_corr}{boolean value, TRUE apply hypergeometric correction,
 FALSE no correction}
+
+\item{correct_proteomics}{boolean value, TRUE correct VIPER output accordin to protein abundance}
+
+\item{prot_df}{dataframe, containing proteomics data in sp format}
 
 \item{GO_annotation}{boolean value, TRUE perform GO molecular function annotaiton, FALSE default value}
 }

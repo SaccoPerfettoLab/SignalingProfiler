@@ -2,7 +2,7 @@
 % Please edit documentation in R/phenoscore.R
 \name{phenoscore_computation}
 \alias{phenoscore_computation}
-\title{Title}
+\title{phenoscore_computation}
 \usage{
 phenoscore_computation(
   proteins_df,
@@ -48,5 +48,5 @@ phenoscore_computation(
 a list of a plot and result table
 }
 \description{
-Title
+phenoscore_computation
 }

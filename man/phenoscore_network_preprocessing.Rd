@@ -2,7 +2,7 @@
 % Please edit documentation in R/phenoscore.R
 \name{phenoscore_network_preprocessing}
 \alias{phenoscore_network_preprocessing}
-\title{Title}
+\title{phenoscore_network_preprocessing}
 \usage{
 phenoscore_network_preprocessing(proteomics, phospho, local = FALSE)
 }
@@ -15,5 +15,5 @@ phenoscore_network_preprocessing(proteomics, phospho, local = FALSE)
 SIGNOR cleaned according to expressed proteins
 }
 \description{
-Title
+phenoscore_network_preprocessing
 }

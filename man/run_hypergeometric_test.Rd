@@ -4,7 +4,14 @@
 \alias{run_hypergeometric_test}
 \title{Correct viper output with hypergeometric test}
 \usage{
-run_hypergeometric_test(omic_data, viper_output, analysis, organism, collectri)
+run_hypergeometric_test(
+  omic_data,
+  viper_output,
+  analysis,
+  organism,
+  integrated_regulons,
+  collectri
+)
 }
 \arguments{
 \item{omic_data}{dataset containing experimental omic data}
@@ -14,6 +21,8 @@ run_hypergeometric_test(omic_data, viper_output, analysis, organism, collectri)
 \item{analysis}{type of analysis}
 
 \item{organism}{organism}
+
+\item{integrated_regulons}{boolean,  if TRUE uses Kinome Atlas regulons}
 
 \item{collectri}{boolean, if TRUE uses collectri regulons}
 }
