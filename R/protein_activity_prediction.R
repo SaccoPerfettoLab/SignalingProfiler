@@ -385,6 +385,9 @@ filter_VIPER_output <- function(inferred_proteins_mf, analysis){
 #' FALSE no correction
 #' @param integrated_regulons boolean value, default FALSE; if TRUE uses regulons derived from experimental data
 #' @param GO_annotation boolean value, TRUE perform GO molecular function annotaiton, FALSE default value
+#' @param collectri boolean value, TRUE uses CollecTRI regulons
+#' @param correct_proteomics boolean value, TRUE correct VIPER output accordin to protein abundance
+#' @param prot_df dataframe, containing proteomics data in sp format
 #'
 #' @return dataset of inferred proteins: transcription factor (tfea)
 #' or kinases and phosphatases (ksea)
