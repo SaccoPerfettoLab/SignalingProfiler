@@ -8,7 +8,8 @@ add_output_carnival_nodes_attributes(
   carnival_result,
   proteins_df,
   organism,
-  with_atlas = FALSE
+  with_atlas = TRUE,
+  direct = FALSE
 )
 }
 \arguments{
@@ -18,7 +19,9 @@ add_output_carnival_nodes_attributes(
 
 \item{organism}{string, 'mouse' or 'human'}
 
-\item{with_atlas}{Boolean value, default FALSE, if TRUE uses regulons}
+\item{with_atlas}{Boolean value, default TRUE, if FALSE exclude kinome atlas interactions}
+
+\item{direct}{Boolean value, default FALSE, if TRUE uses direct interactions}
 }
 \value{
 dataframe with nodes and attributes

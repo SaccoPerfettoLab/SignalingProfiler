@@ -11,10 +11,12 @@ run_carnival_and_create_graph(
   carnival_options,
   proteins_df,
   organism,
-  with_atlas = FALSE,
+  topbottom = FALSE,
+  with_atlas = TRUE,
+  direct = FALSE,
   files = TRUE,
   path_sif = "./optimized_network.sif",
-  path_rds = "./optimized_network.RDS"
+  path_rds = "./optimized_SP_oject.RDS"
 )
 }
 \arguments{
@@ -31,7 +33,11 @@ otherwise, tibble with source nodes discretized among 1 and -1}
 
 \item{organism}{string, organism you are using}
 
-\item{with_atlas}{Boolean value, default FALSE, if TRUE uses regulons}
+\item{topbottom}{Boolean value, default FALSE, if TRUE optimization priorities sources}
+
+\item{with_atlas}{Boolean value, default TRUE, if FALSE excludes Kinome Altas derived regulons}
+
+\item{direct}{Boolean value, default FALSE, if TRUE uses only direct interactions}
 
 \item{files}{boolean value, TRUE if you want output files}
 

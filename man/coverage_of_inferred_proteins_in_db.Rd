@@ -11,7 +11,7 @@ coverage_of_inferred_proteins_in_db(
   direct = FALSE,
   custom = FALSE,
   custom_path = FALSE,
-  report
+  report = FALSE
 )
 }
 \arguments{

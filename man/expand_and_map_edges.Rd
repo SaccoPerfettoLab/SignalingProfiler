@@ -5,20 +5,18 @@
 \title{expand_and_map_edges}
 \usage{
 expand_and_map_edges(
-  optimized_graph_rds,
-  optimized_graph_sif,
+  optimized_object,
   organism,
   phospho_df,
   files,
   with_atlas = FALSE,
+  direct = FALSE,
   path_sif,
   path_rds
 )
 }
 \arguments{
-\item{optimized_graph_rds}{igraph object output of the run_carnival_and_create_graph}
-
-\item{optimized_graph_sif}{table output of the run_carnival_and_create_graph}
+\item{optimized_object}{SP object containing optimized graphs, nodes and edges of run_carnival_and_create_graph}
 
 \item{organism}{#string, human or mouse}
 
@@ -28,9 +26,11 @@ expand_and_map_edges(
 
 \item{with_atlas}{Boolean value, FALSE default, if TRUE uses integrated regulons}
 
-\item{path_sif}{string of the path  of output sif file}
+\item{direct}{Boolean value, FALSE default, if TRUE uses indirect interactions for mapping}
 
-\item{path_rds}{string of the path of RDS file}
+\item{path_sif}{string of the path of output sif file (network)}
+
+\item{path_rds}{string of the path of RDS file (SP object)}
 }
 \value{
 list with igraph object, optimized nodes df and optimized edges df
