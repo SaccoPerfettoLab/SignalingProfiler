@@ -11,6 +11,7 @@ run_footprint_based_analysis(
   reg_minsize,
   exp_sign,
   integrated_regulons = FALSE,
+  benchmark = NULL,
   collectri = FALSE,
   hypergeom_corr,
   correct_proteomics = FALSE,
@@ -31,6 +32,8 @@ run_footprint_based_analysis(
 FALSE: all measured analytes}
 
 \item{integrated_regulons}{boolean value, default FALSE; if TRUE uses regulons derived from experimental data}
+
+\item{benchmark}{string, default NULL, specify a string of a database for benchmarking}
 
 \item{collectri}{boolean value, TRUE uses CollecTRI regulons}
 

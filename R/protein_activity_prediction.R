@@ -78,6 +78,7 @@ create_viper_format <- function(omic_data, analysis, significance){
 #' @param reg_minsize viper function param: minimum regulon size to consider
 #' @param integrated_regulons boolean value, default FALSE; if TRUE, uses regulons derived from experimental data
 #' @param collectri boolean, if TRUE uses collectri regulons for tfea
+#' @param benchmark string, default NULL, specifies a dataset used in tfea benchmarking
 #'
 #' @return a list containing significantly enriched proteins and
 #' all inferred proteins
@@ -89,7 +90,8 @@ run_viper <- function(viper_format,
                       organism,
                       reg_minsize,
                       integrated_regulons = FALSE,
-                      collectri = FALSE){
+                      collectri = FALSE,
+                      benchmark = NULL){
 
   if(analysis == 'ksea' & collectri == TRUE){
     stop('collectri is only a \'tfea\' parameter')
@@ -106,11 +108,31 @@ run_viper <- function(viper_format,
   if(analysis == 'tfea'){
     if(organism == 'human'){
 
-      if(collectri == FALSE){
-        regulons <- tfea_db_human
+      if(!is.null(benchmark)){
+
+        if(benchmark == 'Doro'){
+          regulons <- bench_doro_db
+        }else if(benchmark == 'DoroSign'){
+          regulons <- bench_dorosign_db
+        }else if(benchmark == 'Coll'){
+          regulons <- bench_coll_db
+        }else if(benchmark == 'CollSign'){
+          regulons <- bench_collsign_db
+        }else{
+          stop('Wrong type of benchmark dataset')
+        }
+
       }else{
-        regulons <- tfea_db_human_collectri
+
+        if(collectri == FALSE){
+          regulons <- tfea_db_human
+        }else{
+          regulons <- tfea_db_human_collectri
+        }
+
       }
+
+
 
     }else if(organism == 'mouse'){
       regulons <- tfea_db_mouse
@@ -388,6 +410,7 @@ filter_VIPER_output <- function(inferred_proteins_mf, analysis){
 #' @param collectri boolean value, TRUE uses CollecTRI regulons
 #' @param correct_proteomics boolean value, TRUE correct VIPER output accordin to protein abundance
 #' @param prot_df dataframe, containing proteomics data in sp format
+#' @param benchmark string, default NULL, specify a string of a database for benchmarking
 #'
 #' @return dataset of inferred proteins: transcription factor (tfea)
 #' or kinases and phosphatases (ksea)
@@ -400,6 +423,7 @@ run_footprint_based_analysis <- function(omic_data,
                                          reg_minsize,
                                          exp_sign,
                                          integrated_regulons = FALSE,
+                                         benchmark = NULL,
                                          collectri = FALSE,
                                          hypergeom_corr,
                                          correct_proteomics = FALSE,
@@ -436,7 +460,8 @@ run_footprint_based_analysis <- function(omic_data,
 
   output <- run_viper(viper_format = viper_format, analysis = analysis,
                       organism = organism, reg_minsize = reg_minsize,
-                      integrated_regulons = integrated_regulons, collectri = collectri)
+                      integrated_regulons = integrated_regulons, collectri = collectri,
+                      benchmark = benchmark)
 
   # if no inferred protein from VIPER analysis
   if(nrow(output$sign) == 0){

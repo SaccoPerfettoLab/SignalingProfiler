@@ -10,7 +10,8 @@ run_viper(
   organism,
   reg_minsize,
   integrated_regulons = FALSE,
-  collectri = FALSE
+  collectri = FALSE,
+  benchmark = NULL
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ run_viper(
 \item{integrated_regulons}{boolean value, default FALSE; if TRUE, uses regulons derived from experimental data}
 
 \item{collectri}{boolean, if TRUE uses collectri regulons for tfea}
+
+\item{benchmark}{string, default NULL, specifies a dataset used in tfea benchmarking}
 }
 \value{
 a list containing significantly enriched proteins and
