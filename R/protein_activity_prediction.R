@@ -29,7 +29,7 @@ create_viper_format <- function(omic_data, analysis, significance){
 
       # Separate analytes according to collapsed UNIPROT
       omic_filtered <- omic_filtered %>%
-        dplyr::separate_rows(UNIPROT, sep = ';')
+        tidyr::separate_rows(UNIPROT, sep = ';')
 
       # Create key for phosphosites
       omic_filtered$ID <- paste0(omic_filtered$UNIPROT,
