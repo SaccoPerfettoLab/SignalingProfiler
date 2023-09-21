@@ -368,7 +368,7 @@ weight_viper_score <- function(ea_output){
   # Scale according to 4x weight the unsignificant genes
   # derived from the hypergeometric test
   ea_output_log <- ea_output_log %>%
-    dplyr::mutate(weightedNES = ifelse(pWeight > 0.05,
+    dplyr::mutate(weightedNES = ifelse(pWeight < 0.05,
                                        NES * weight*4,
                                        NES)) %>%
     dplyr::arrange(gene_name)
