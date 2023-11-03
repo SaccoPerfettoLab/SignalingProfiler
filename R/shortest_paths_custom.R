@@ -14,7 +14,7 @@ find_all_paths <- function(v_start, v_end, PKN_table, max_length){
 
   # v_start = 'FLT3'
   # v_end = 'TFEB'
-  # max_length = 3
+  # max_length = 4
   # PKN_table = PKN_human_atlas_dir
   #
 
@@ -31,26 +31,40 @@ find_all_paths <- function(v_start, v_end, PKN_table, max_length){
 
   # STEP 1
   i = 1
+
   type_1 <- interactions[entitya == v_start]
   interactors_1 <- entityb[entitya == v_start]
 
   if(v_end %in% interactors_1){
     # define in some way paths
-    paths <- tibble(ENTITYA = v_start, INTERACTION = type_1, ENTITYB = interactors_1)
+
+    type_ve <- interactions[entitya == v_start & entityb == v_end]
+    paths <- tibble(ENTITYA = v_start, INTERACTION = type_ve, ENTITYB = v_end)
     paths <- paths %>% distinct()
+
     return(paths)
+
   }else{
     if(i == max_length){
       return(NULL)
     }else{
       i = i+1
 
+      # Position of interactors in ENTITYA
       entitya_2 <- entitya[entitya %in% unique(interactors_1)]
       type_2 <- interactions[entitya %in% unique(interactors_1)]
       interactors_2 <- entityb[entitya %in% unique(interactors_1)]
 
       if(v_end %in% interactors_2){
-        # define in some way paths
+
+        # Take the subset of entitya2, type2 and interactors that represents v_end
+        entitya_2 <- entitya_2[interactors_2 == v_end]
+        type_2 <- type_2[interactors_2 == v_end]
+        interactors_2 <-  interactors_2[interactors_2 == v_end]
+
+        # Take the subset of interactors_1 representing the proteins that are regulators of interactors2
+        type_1 <- type_1[interactors_1  %in% unique(entitya_2)]
+        interactors_1 <- interactors_1[interactors_1 %in% unique(entitya_2)]
 
         paths <- tibble(ENTITYA = c(rep(v_start, length(interactors_1)), entitya_2),
                         INTERACTION = c(type_1, type_2),
@@ -71,7 +85,22 @@ find_all_paths <- function(v_start, v_end, PKN_table, max_length){
           interactors_3 <- entityb[entitya %in% unique(interactors_2)]
 
           if(v_end %in% interactors_3){
-            # define in some way paths
+
+            # Take the subset of entitya3, type3 and interactors3 that represents v_end
+            entitya_3 <- entitya_3[interactors_3 == v_end]
+            type_3 <- type_3[interactors_3 == v_end]
+            interactors_3 <-  interactors_3[interactors_3 == v_end]
+
+            # Take the subset of interactors_2 representing the proteins that are regulators of interactors3
+
+            type_2 <- type_2[interactors_2 %in% unique(entitya_3)]
+            entitya_2 <- entitya_2[interactors_2 %in% unique(entitya_3)]
+            interactors_2 <- interactors_2[interactors_2 %in% unique(entitya_3)]
+
+
+            # Take the subset of interactors_1 representing the proteins that are regulators of interactors2
+            type_1 <- type_1[interactors_1 %in% unique(entitya_2)]
+            interactors_1 <- interactors_1[interactors_1 %in% unique(entitya_2)]
 
             paths <- tibble(ENTITYA = c(rep(v_start, length(interactors_1)), entitya_2, entitya_3),
                             INTERACTION = c(type_1, type_2, type_3),
@@ -94,6 +123,26 @@ find_all_paths <- function(v_start, v_end, PKN_table, max_length){
               if(v_end %in% interactors_4){
 
                 # define in some way paths
+                entitya_4 <- entitya_4[interactors_4 == v_end]
+                type_4 <- type_4[interactors_4 == v_end]
+                interactors_4 <-  interactors_4[interactors_4 == v_end]
+
+                # Take the subset of entitya3, type3 and interactors3 that represents v_end
+                type_3 <- type_3[interactors_3 %in% unique(entitya_4)]
+                entitya_3 <- entitya_3[interactors_3 %in% unique(entitya_4)]
+                interactors_3 <- interactors_3[interactors_3 %in% unique(entitya_4)]
+
+                # Take the subset of interactors_2 representing the proteins that are regulators of interactors3
+
+                type_2 <- type_2[interactors_2 %in% unique(entitya_3)]
+                entitya_2 <- entitya_2[interactors_2 %in% unique(entitya_3)]
+                interactors_2 <- interactors_2[interactors_2 %in% unique(entitya_3)]
+
+
+                # Take the subset of interactors_1 representing the proteins that are regulators of interactors2
+                type_1 <- type_1[interactors_1 %in% unique(entitya_2)]
+                interactors_1 <- interactors_1[interactors_1 %in% unique(entitya_2)]
+
                 paths <- tibble(ENTITYA = c(rep(v_start, length(interactors_1)), entitya_2, entitya_3, entitya_4),
                                 INTERACTION = c(type_1, type_2, type_3, type_4),
                                 ENTITYB = c(interactors_1, interactors_2, interactors_3, interactors_4))
