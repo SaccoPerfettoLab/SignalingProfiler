@@ -397,13 +397,19 @@ three_layer_naive_network <- function(starts_gn, intermediate1_gn, intermediate2
 #' @examples
 prepare_carnival_input <- function(naive_network, prediction_output, recept_list, organism){
 
+
+  # naive_network <- three_layer_naive
+  # prediction_output <- activity_proteo_combined_filtered
+  # recept_list <- receptor_list1
+  # organism = 'human'
+
   # naive_network <- one_layer_toy
   # prediction_output <- toy_prot_activity_df
   # recept_list <- list('FLT3' = -1)
 
   # filter prediction
   prediction_output_filt <- prediction_output %>%
-    dplyr::filter(gene_name %in% igraph::V(naive_network)$ENTITY) %>%
+    dplyr::filter(gene_name %in% igraph::V(naive_network)$name) %>%
     dplyr::arrange(gene_name)
 
   if(!is.null(recept_list)){
