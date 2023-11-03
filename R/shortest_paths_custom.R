@@ -12,10 +12,11 @@
 #' @examples
 find_all_paths <- function(v_start, v_end, PKN_table, max_length){
 
-  # v_start = 'Cdk1'
-  # v_end = 'Mapk3'
-  # organism = 'mouse'
-  # max_length = 5
+  # v_start = 'FLT3'
+  # v_end = 'TFEB'
+  # max_length = 3
+  # PKN_table = PKN_human_atlas_dir
+  #
 
   if(max_length > 4){
     stop('Max length is 4!')
@@ -23,202 +24,156 @@ find_all_paths <- function(v_start, v_end, PKN_table, max_length){
 
   PKN_table <- PKN_table %>% dplyr::select('ENTITYA', 'INTERACTION', 'ENTITYB') %>% dplyr::distinct()
 
-  i = 1
-  step1 <- PKN_table %>% dplyr::filter(ENTITYA == v_start)
+  # Transform the PKN in a set of vectors
+  entitya = PKN_table$ENTITYA
+  entityb = PKN_table$ENTITYB
+  interactions = PKN_table$INTERACTION
 
-  if(v_end %in% step1$ENTITYB){
-    paths <- step1 %>% dplyr::filter(ENTITYB == v_end) %>% dplyr::distinct()
+  # STEP 1
+  i = 1
+  type_1 <- interactions[entitya == v_start]
+  interactors_1 <- entityb[entitya == v_start]
+
+  if(v_end %in% interactors){
+    # define in some way paths
+    paths <- tibble(ENTITYA = v_start, INTERACTION = type_1, ENTITYB = interactors_1)
+    paths <- paths %>% distinct()
     return(paths)
   }else{
-    if(i == max_length){ # stop if max_length = 1
-      #message(paste0('No paths found of ', max_length, ' maximum length'))
+    if(i == max_length){
       return(NULL)
     }else{
-      i = i + 1
-      step2 <- dplyr::left_join(step1,
-                                PKN_table,
-                                by = c('ENTITYB' = 'ENTITYA'),
-                                suffix = c('step1', 'step2')) %>%
-        dplyr::rename(ENTITYBstep1 = ENTITYB)
+      i = i+1
 
-      if(v_end %in% step2$ENTITYBstep2){
-        paths <- step2 %>% dplyr::filter(ENTITYBstep2 == v_end) %>% dplyr::distinct()
+      entitya_2 <- entitya[entitya %in% unique(interactors_1)]
+      type_2 <- interactions[entitya %in% unique(interactors_1)]
+      interactors_2 <- entityb[entitya %in% unique(interactors_1)]
 
-        step1_paths <- paths %>% dplyr::select("ENTITYA","INTERACTIONstep1","ENTITYBstep1")
-        colnames(step1_paths) <- c('ENTITYA', 'INTERACTION', 'ENTITYB')
+      if(v_end %in% interactors_2){
+        # define in some way paths
 
-        step2_paths <- paths %>% dplyr::select("ENTITYBstep1","INTERACTIONstep2","ENTITYBstep2")
-        colnames(step2_paths) <- c('ENTITYA', 'INTERACTION', 'ENTITYB')
+        paths <- tibble(ENTITYA = c(rep(v_start, length(interactors_1)), entitya_2),
+                        INTERACTION = c(type_1, type_2),
+                        ENTITYB = c(interactors_1, interactors_2))
+        paths <- paths %>% distinct()
 
-        paths_df <- dplyr::bind_rows(step1_paths, step2_paths) %>%
-          dplyr::distinct()
+        return(paths)
+      } else {
 
-        return(paths_df)
-      }else{
-        if(i == max_length){ # stop if max_length == 2
-          #message(paste0('No paths found of ', max_length, ' maximum length'))
+        if( i == max_length){
           return(NULL)
+
         }else{
           i = i + 1
-          step3 <- dplyr::left_join(step2, PKN_table,
-                                    by = c('ENTITYBstep2' = 'ENTITYA'),
-                                    suffix = c('step2', 'step3')) %>%
-            dplyr::rename(ENTITYBstep3 = ENTITYB,
-                          INTERACTIONstep3 = INTERACTION)
 
-          if(v_end %in% step3$ENTITYBstep3){
-            paths <- step3 %>% dplyr::filter(ENTITYBstep3 == v_end) %>% dplyr::distinct()
+          entitya_3 <- entitya[entitya %in% unique(interactors_2)]
+          type_3 <- interactions[entitya %in% unique(interactors_2)]
+          interactors_3 <- entityb[entitya %in% unique(interactors_2)]
 
-            step1_paths <- paths %>% dplyr::select("ENTITYA","INTERACTIONstep1","ENTITYBstep1")
-            colnames(step1_paths) <- c('ENTITYA', 'INTERACTION', 'ENTITYB')
+          if(v_end %in% interactors_3){
+            # define in some way paths
 
-            step2_paths <- paths %>% dplyr::select("ENTITYBstep1","INTERACTIONstep2","ENTITYBstep2")
-            colnames(step2_paths) <- c('ENTITYA', 'INTERACTION', 'ENTITYB')
+            paths <- tibble(ENTITYA = c(rep(v_start, length(interactors_1)), entitya_2, entitya_3),
+                            INTERACTION = c(type_1, type_2, type_3),
+                            ENTITYB = c(interactors_1, interactors_2, interactors_3))
 
-            step3_paths <- paths %>% dplyr::select("ENTITYBstep2","INTERACTIONstep3","ENTITYBstep3")
-            colnames(step3_paths) <- c('ENTITYA', 'INTERACTION', 'ENTITYB')
+            paths <- paths %>% distinct()
+            return(paths)
+          } else {
 
-            paths_df <- dplyr::bind_rows(step1_paths, step2_paths, step3_paths) %>%
-              dplyr::distinct()
-
-            return(paths_df)
-          }else{
-            if(i == max_length){ # stop if max_length == 3
-              #message(paste0('No paths found of ', max_length, ' maximum length'))
+            if ( i == max_length){
               return(NULL)
             }else{
+
               i = i + 1
-              step4 <- dplyr::left_join(step3, PKN_table,
-                                        by = c('ENTITYBstep3' = 'ENTITYA'),
-                                        suffix = c('step3', 'step4')) %>%
-                dplyr::rename(ENTITYBstep4 = ENTITYB,
-                              INTERACTIONstep4 = INTERACTION)
 
-              if(v_end %in% step4$ENTITYBstep4){
-                paths <- step4 %>% dplyr::filter(ENTITYBstep4 == v_end) %>% dplyr::distinct()
-                step1_paths <- paths %>% dplyr::select("ENTITYA","INTERACTIONstep1","ENTITYBstep1")
-                colnames(step1_paths) <-  c('ENTITYA', 'INTERACTION', 'ENTITYB')
+              entitya_4 <- entitya[entitya %in% unique(interactors_3)]
+              type_4 <- interactions[entitya %in% unique(interactors_3)]
+              interactors_4 <- entityb[entitya %in% unique(interactors_3)]
 
-                step2_paths <- paths %>% dplyr::select("ENTITYBstep1","INTERACTIONstep2", "ENTITYBstep2")
-                colnames(step2_paths) <- c('ENTITYA', 'INTERACTION', 'ENTITYB')
+              if(v_end %in% interactors_4){
 
-                step3_paths <- paths %>% dplyr::select("ENTITYBstep2","INTERACTIONstep3","ENTITYBstep3")
-                colnames(step3_paths) <- c('ENTITYA', 'INTERACTION', 'ENTITYB')
+                # define in some way paths
+                paths <- tibble(ENTITYA = c(rep(v_start, length(interactors_1)), entitya_2, entitya_3, entitya_4),
+                                INTERACTION = c(type_1, type_2, type_3, type_4),
+                                ENTITYB = c(interactors_1, interactors_2, interactors_3, interactors_4))
 
-                step4_paths <- paths %>% dplyr::select("ENTITYBstep3","INTERACTIONstep4","ENTITYBstep4")
-                colnames(step4_paths) <- c('ENTITYA', 'INTERACTION', 'ENTITYB')
-
-                paths_df <- dplyr::bind_rows(step1_paths, step2_paths, step3_paths, step4_paths) %>%
-                  dplyr::distinct()
-                return(paths_df)
-              }else{
-                #message(paste0('No paths found from ', v_start, ' to ', v_end))
+                paths <- paths %>% distinct()
+                return(paths)
+              } else {
                 return(NULL)
-              }
-
-                # }else{
-                #   i = i + 1
-                #   step5 <- dplyr::left_join(step4, PKN_table,
-                #                             by = c('ENTITYBstep3' = 'ENTITYA'),
-                #                             suffix = c('step4', 'step5')) %>%
-                #     dplyr::rename(ENTITYBstep5 = ENTITYB,
-                #                   INTERACTIONstep5 = INTERACTION)
-                #   if(v_end %in% step5$ENTITYBstep5){
-                #     paths <- step5 %>% dplyr::filter(ENTITYBstep5 == v_end) %>% dplyr::distinct()
-                #     step1_paths <- paths %>% dplyr::select("ENTITYA","INTERACTIONstep1","ENTITYBstep1")
-                #
-                #     colnames(step1_paths) <- c('ENTITYA', 'INTERACTION', 'ENTITYB')
-                #
-                #     step2_paths <- paths %>% dplyr::select("ENTITYBstep1","INTERACTIONstep2", "ENTITYBstep2")
-                #     colnames(step2_paths) <- c('ENTITYA', 'INTERACTION', 'ENTITYB')
-                #
-                #     step3_paths <- paths %>% dplyr::select("ENTITYBstep2","INTERACTIONstep3","ENTITYBstep3")
-                #     colnames(step3_paths) <- c('ENTITYA', 'INTERACTION', 'ENTITYB')
-                #
-                #     step4_paths <- paths %>% dplyr::select("ENTITYBstep3","INTERACTIONstep4","ENTITYBstep4")
-                #     colnames(step4_paths) <- c('ENTITYA', 'INTERACTION', 'ENTITYB')
-                #
-                #     step5_paths <- paths %>% dplyr::select("ENTITYBstep4","INTERACTIONstep5","ENTITYBstep5")
-                #     colnames(step5_paths) <- c('ENTITYA', 'INTERACTION', 'ENTITYB')
-                #
-                #     paths_df <- dplyr::bind_rows(step1_paths, step2_paths, step3_paths, step4_paths, step5_paths) %>%
-                #       dplyr::distinct()
-                #     return(paths_df)
-                #   }else{
-                #     message(paste0('No paths found of ', max_length, ' maximum length'))
-                #   }
               }
             }
           }
         }
       }
     }
-}
+  }
 
 
-#' get_all_shortest_path_custom
-#'
-#' @param start_nodes_gn vector of gene_names of starting nodes
-#' @param target_nodes_gn vector of gene_names of target nodes
-#' @param PKN_table tibble of all causal interactions
-#' @param max_length integer, 1 to 4
-#'
-#' @return
-#' @export
-#'
-#' @examples
-get_all_shortest_path_custom <- function(start_nodes_gn, target_nodes_gn, PKN_table, max_length){
-  # start_nodes_gn <- kinphos_gn
-  # target_nodes_gn <- tfs_gn
-  # path_length <- 'shortest'
+  #' get_all_shortest_path_custom
+  #'
+  #' @param start_nodes_gn vector of gene_names of starting nodes
+  #' @param target_nodes_gn vector of gene_names of target nodes
+  #' @param PKN_table tibble of all causal interactions
+  #' @param max_length integer, 1 to 4
+  #'
+  #' @return
+  #' @export
+  #'
+  #' @examples
+  get_all_shortest_path_custom <- function(start_nodes_gn, target_nodes_gn, PKN_table, max_length){
+    # start_nodes_gn <- kinphos_gn
+    # target_nodes_gn <- tfs_gn
+    # path_length <- 'shortest'
 
 
-  for(i in c(1:length(start_nodes_gn))){
-    for(j in c(1:length(target_nodes_gn))){
-      paths_df <- find_all_paths(start_nodes_gn[i], target_nodes_gn[j], PKN_table = PKN_table, max_length)
+    for(i in c(1:length(start_nodes_gn))){
+      for(j in c(1:length(target_nodes_gn))){
+        paths_df <- find_all_paths(start_nodes_gn[i], target_nodes_gn[j], PKN_table = PKN_table, max_length)
 
-      if( i == 1 & j == 1){
-        all_paths_df <- paths_df
-      }else{
-        all_paths_df <- dplyr::bind_rows(all_paths_df, paths_df) %>% dplyr::distinct()
+        if( i == 1 & j == 1){
+          all_paths_df <- paths_df
+        }else{
+          all_paths_df <- dplyr::bind_rows(all_paths_df, paths_df) %>% dplyr::distinct()
+        }
       }
     }
-  }
-  return(all_paths_df)
-}
-
-#' create_graph_from_paths
-#'
-#' @param all_paths_df tibble with edges of shortest paths
-#' @param PKN_table tibble of all causal interactions
-#'
-#' @return igraph object of naive network
-#'
-#' @examples
-create_graph_from_paths <- function(all_paths_df, PKN_table){
-
-
-  if(nrow(all_paths_df) == 0){
-    stop('SignalingProfiler ERROR: No paths found for you analytes. Try to not preprocessing the PKN')
+    return(all_paths_df)
   }
 
-  edges_paths_df <- dplyr::left_join(all_paths_df, PKN_table,
-                                     by = c('ENTITYA', 'INTERACTION', 'ENTITYB')) %>%
-    dplyr::relocate(ENTITYA, ENTITYB, INTERACTION)
+  #' create_graph_from_paths
+  #'
+  #' @param all_paths_df tibble with edges of shortest paths
+  #' @param PKN_table tibble of all causal interactions
+  #'
+  #' @return igraph object of naive network
+  #'
+  #' @examples
+  create_graph_from_paths <- function(all_paths_df, PKN_table){
 
-  #edges_paths_df$PHOSPHO_KEY_GN_SEQ <- ''
-  #edges_paths_df$PHOSPHO_KEY_GN_SEQ[!is.na(edges_paths_df$SEQUENCE)] <- paste0(edges_paths_df$ENTITYB[!is.na(edges_paths_df$SEQUENCE)], '-', edges_paths_df$SEQUENCE[!is.na(edges_paths_df$SEQUENCE)])
 
-  nodes_paths_df <- dplyr::bind_rows(edges_paths_df %>% dplyr::select(ENTITY = ENTITYA, ID = IDA, TYPE = TYPEA),
-                                     edges_paths_df %>% dplyr::select(ENTITY = ENTITYB, ID = IDB, TYPE = TYPEB)) %>%
-    dplyr::distinct() %>%
-    dplyr::group_by(ENTITY) %>%
-    dplyr::reframe(ID = paste0(ID, collapse = ';'), TYPE = paste0(unique(TYPE), collapse = ';')) %>%
-    dplyr::relocate(ENTITY)
+    if(nrow(all_paths_df) == 0){
+      stop('SignalingProfiler ERROR: No paths found for you analytes. Try to not preprocessing the PKN')
+    }
 
-  graph <- igraph::graph_from_data_frame(d = edges_paths_df, vertices = nodes_paths_df)
+    edges_paths_df <- dplyr::left_join(all_paths_df, PKN_table,
+                                       by = c('ENTITYA', 'INTERACTION', 'ENTITYB')) %>%
+      dplyr::relocate(ENTITYA, ENTITYB, INTERACTION)
 
-  return(graph)
-}
+    #edges_paths_df$PHOSPHO_KEY_GN_SEQ <- ''
+    #edges_paths_df$PHOSPHO_KEY_GN_SEQ[!is.na(edges_paths_df$SEQUENCE)] <- paste0(edges_paths_df$ENTITYB[!is.na(edges_paths_df$SEQUENCE)], '-', edges_paths_df$SEQUENCE[!is.na(edges_paths_df$SEQUENCE)])
+
+    nodes_paths_df <- dplyr::bind_rows(edges_paths_df %>% dplyr::select(ENTITY = ENTITYA, ID = IDA, TYPE = TYPEA),
+                                       edges_paths_df %>% dplyr::select(ENTITY = ENTITYB, ID = IDB, TYPE = TYPEB)) %>%
+      dplyr::distinct() %>%
+      dplyr::group_by(ENTITY) %>%
+      dplyr::reframe(ID = paste0(ID, collapse = ';'), TYPE = paste0(unique(TYPE), collapse = ';')) %>%
+      dplyr::relocate(ENTITY)
+
+    graph <- igraph::graph_from_data_frame(d = edges_paths_df, vertices = nodes_paths_df)
+
+    return(graph)
+  }
 
 
