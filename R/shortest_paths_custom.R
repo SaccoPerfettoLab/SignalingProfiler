@@ -109,6 +109,7 @@ find_all_paths <- function(v_start, v_end, PKN_table, max_length){
       }
     }
   }
+}
 
 
   #' get_all_shortest_path_custom
@@ -141,7 +142,6 @@ find_all_paths <- function(v_start, v_end, PKN_table, max_length){
     }
     return(all_paths_df)
   }
-
   #' create_graph_from_paths
   #'
   #' @param all_paths_df tibble with edges of shortest paths
