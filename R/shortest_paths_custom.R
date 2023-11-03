@@ -34,7 +34,7 @@ find_all_paths <- function(v_start, v_end, PKN_table, max_length){
   type_1 <- interactions[entitya == v_start]
   interactors_1 <- entityb[entitya == v_start]
 
-  if(v_end %in% interactors){
+  if(v_end %in% interactors_1){
     # define in some way paths
     paths <- tibble(ENTITYA = v_start, INTERACTION = type_1, ENTITYB = interactors_1)
     paths <- paths %>% distinct()
