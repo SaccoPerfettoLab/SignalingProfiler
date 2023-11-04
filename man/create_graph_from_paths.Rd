@@ -4,12 +4,14 @@
 \alias{create_graph_from_paths}
 \title{create_graph_from_paths}
 \usage{
-create_graph_from_paths(all_paths_df, PKN_table)
+create_graph_from_paths(all_paths_df, PKN_table, connect_all = FALSE)
 }
 \arguments{
 \item{all_paths_df}{tibble with edges of shortest paths}
 
 \item{PKN_table}{tibble of all causal interactions}
+
+\item{connect_all}{Boolean, if TRUE connect intermediate nodes}
 }
 \value{
 igraph object of naive network
