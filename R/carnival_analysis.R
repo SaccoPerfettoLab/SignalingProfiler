@@ -122,10 +122,11 @@ add_output_carnival_nodes_attributes <- function(carnival_result,
     dplyr::mutate_at('carnival_activity', as.numeric) #%>%
     #dplyr::mutate(Node = gsub('_', '-', Node))
 
+  # Taking UNIPROTs from PKN
   nodes_df <- dplyr::left_join(optimal_nodes, PKN_proteins, by = c('Node' = 'ENTITY')) %>%
     dplyr::rename('gene_name' = 'Node','UNIPROT' = 'ID')
 
-  nodes_df <- dplyr::left_join(nodes_df, proteins_df, by = c('gene_name', 'UNIPROT')) %>%
+  nodes_df <- dplyr::left_join(nodes_df, proteins_df %>% dplyr::select(-UNIPROT), by = c('gene_name')) %>%
     dplyr::select(gene_name, carnival_activity, UNIPROT, mf, final_score, method)
 
   # annotate missing genes in the network
@@ -183,7 +184,7 @@ create_discretized_initiators_for_carnival <- function(proteins_df){
 
   initiators_df <- proteins_df %>%
     dplyr::filter(discretized == 1 | discretized == -1) %>%
-    dplyr::select(UNIPROT, gene_name, final_score = discretized, mf)
+    dplyr::select(gene_name, final_score = discretized, mf)
 
   return(initiators_df)
 }
@@ -317,13 +318,13 @@ check_CARNIVAL_inputs <- function(source_df, target_df,
   # check the input proteins
   if(!is.null(source_df)){
     stopifnot(is.data.frame(source_df))
-    stopifnot(all(c("UNIPROT","gene_name","mf","final_score") %in% names(source_df)))
+    stopifnot(all(c("gene_name","mf","final_score") %in% names(source_df)))
     stopifnot(ncol(source_df)>4)
   }
 
   # check the input proteins
   stopifnot(is.data.frame(target_df))
-  stopifnot(all(c("UNIPROT","gene_name","mf","final_score") %in% names(target_df)))
+  stopifnot(all(c("gene_name","mf","final_score") %in% names(target_df)))
   stopifnot(ncol(target_df)>4)
 
   # check naive network
@@ -333,7 +334,7 @@ check_CARNIVAL_inputs <- function(source_df, target_df,
 
   # check meta informations for mapping attributes
   stopifnot(is.data.frame(proteins_df))
-  stopifnot(all(c("UNIPROT","gene_name","mf","final_score", "method") %in% names(proteins_df)))
+  stopifnot(all(c("gene_name","mf","final_score", "method") %in% names(proteins_df)))
   stopifnot(ncol(proteins_df)==5)
 
   # check organism
@@ -375,19 +376,6 @@ run_carnival_and_create_graph <- function(source_df,
                                           files = TRUE,
                                           path_sif = './optimized_network.sif',
                                           path_rds = './optimized_SP_oject.RDS'){
-
-  # source_df = source_df
-  # target_df = target_df
-  # naive_network = unique(naive_network)
-  # proteins_df = bind_rows(source_df, target_df)
-  # organism = 'human'
-  # topbottom = F
-  # carnival_options = carnival_options
-  # files = TRUE
-  # with_atlas = FALSE
-  # direct = FALSE
-  # path_sif = paste0(carnival_dir, patient, '_transcriptional_opt_network.sif')
-  # path_rds = paste0(carnival_dir, patient, '_transcriptional_opt_object.RDS')
 
   if(is.null(source_df)){
     message(' ** Running inverse CARNIVAL (No perturbations) ** ')
@@ -502,7 +490,7 @@ run_carnival_and_create_graph <- function(source_df,
 #' @examples
 convert_output_nodes_in_next_input <- function(carnival_result){
   nodes <- carnival_result$nodes_df
-  formatted_nodes <- nodes %>% dplyr::select(UNIPROT, gene_name, final_score = carnival_activity, mf, method)
+  formatted_nodes <- nodes %>% dplyr::select(gene_name, final_score = carnival_activity, mf, method)
   return(formatted_nodes)
 }
 
