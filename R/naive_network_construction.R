@@ -210,7 +210,7 @@ coverage_of_inferred_proteins_in_db <- function(prediction_output,
 #' @param max_length integer, 1 to 4 for max_length connecting start to end
 #' @param rds_path path of network rds file
 #' @param sif_path path of network sif file
-
+#' @param connect_all if TRUE connect intermediate nodes
 #'
 #' @return naive network
 #' @export
@@ -218,7 +218,7 @@ coverage_of_inferred_proteins_in_db <- function(prediction_output,
 #' @examples
 one_layer_naive_network <- function(starts_gn, targets_gn, PKN_table, max_length,
                                     rds_path = 'one_layer_naive.RDS',
-                                    sif_path = 'one_layer_naive.sif'){
+                                    sif_path = 'one_layer_naive.sif', connect_all = FALSE){
   message('One layer: shortest paths from receptor(s) to all proteins')
 
   # starts_gn = source_df
@@ -228,7 +228,7 @@ one_layer_naive_network <- function(starts_gn, targets_gn, PKN_table, max_length
 
   all_paths_df <- get_all_shortest_path_custom(starts_gn, targets_gn, PKN_table, max_length)
 
-  network <- create_graph_from_paths(all_paths_df, PKN_table)
+  network <- create_graph_from_paths(all_paths_df, PKN_table, connect_all = connect_all)
 
   # set node attributes
   igraph::V(network)$mf_naive <- 'unknown'
@@ -253,6 +253,7 @@ one_layer_naive_network <- function(starts_gn, targets_gn, PKN_table, max_length
 #' @param max_length_2 max_length of shortest path from intermediates to targets
 #' @param rds_path path of network rds file
 #' @param sif_path path of network sif file
+#' @param connect_all Boolean, if TRUE connect intermediate nodes
 #'
 #' @return naive network
 #' @export
@@ -261,7 +262,8 @@ one_layer_naive_network <- function(starts_gn, targets_gn, PKN_table, max_length
 two_layer_naive_network <- function(starts_gn, intermediate_gn, targets_gn,
                                     PKN_table, max_length_1, max_length_2,
                                     rds_path = 'two_layer_naive.RDS',
-                                    sif_path = 'two_layer_naive.sif'){
+                                    sif_path = 'two_layer_naive.sif',
+                                    connect_all = FALSE){
 
 
   message(paste0('First layer: ', max_length_1, ' length paths from starting nodes to intermediates'))
@@ -272,7 +274,7 @@ two_layer_naive_network <- function(starts_gn, intermediate_gn, targets_gn,
 
   all_paths_df <- dplyr::bind_rows(all_paths_layer1_df, all_paths_layer2_df) %>%
     dplyr::distinct()
-  network <- create_graph_from_paths(all_paths_df, PKN_table)
+  network <- create_graph_from_paths(all_paths_df, PKN_table, connect_all = connect_all)
 
   # set node attributes
   igraph::V(network)$mf_naive <- 'unknown'
@@ -303,6 +305,7 @@ two_layer_naive_network <- function(starts_gn, intermediate_gn, targets_gn,
 #' @param both_intermediates Boolean, TRUE if you want both intermediates as the starting point of the third layer,
 #' FALSE if you want to use only intermediates2 (not suggested)
 #' @param keep_only_connected Boolean, default FALSE, if TRUE keeps only intermediated connected
+#' @param connect_all if TRUE connect intermediate nodes
 #'
 #' @return naive network
 #' @export
@@ -315,7 +318,8 @@ three_layer_naive_network <- function(starts_gn, intermediate1_gn, intermediate2
                                       both_intermediates = TRUE,
                                       keep_only_connected = FALSE,
                                       rds_path = 'three_layer_naive.RDS',
-                                      sif_path = 'three_layer_naive.sif'){
+                                      sif_path = 'three_layer_naive.sif',
+                                      connect_all = FALSE){
 
   # create network
   message(paste0('First layer: ', max_length_1, ' length paths from starting nodes to intermediates1'))
@@ -367,7 +371,7 @@ three_layer_naive_network <- function(starts_gn, intermediate1_gn, intermediate2
 
   all_paths_df <- dplyr::bind_rows(all_paths_layer1_df, all_paths_layer2_df, all_paths_layer3_df) %>%
     dplyr::distinct()
-  network <- create_graph_from_paths(all_paths_df, PKN_table)
+  network <- create_graph_from_paths(all_paths_df, PKN_table, connect_all = connect_all)
 
   # set node attributes
   igraph::V(network)$mf_naive <- 'unknown'

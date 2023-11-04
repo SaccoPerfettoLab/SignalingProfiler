@@ -12,7 +12,8 @@ two_layer_naive_network(
   max_length_1,
   max_length_2,
   rds_path = "two_layer_naive.RDS",
-  sif_path = "two_layer_naive.sif"
+  sif_path = "two_layer_naive.sif",
+  connect_all = FALSE
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ two_layer_naive_network(
 \item{rds_path}{path of network rds file}
 
 \item{sif_path}{path of network sif file}
+
+\item{connect_all}{Boolean, if TRUE connect intermediate nodes}
 }
 \value{
 naive network

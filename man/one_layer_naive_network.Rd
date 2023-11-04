@@ -10,7 +10,8 @@ one_layer_naive_network(
   PKN_table,
   max_length,
   rds_path = "one_layer_naive.RDS",
-  sif_path = "one_layer_naive.sif"
+  sif_path = "one_layer_naive.sif",
+  connect_all = FALSE
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ one_layer_naive_network(
 \item{rds_path}{path of network rds file}
 
 \item{sif_path}{path of network sif file}
+
+\item{connect_all}{if TRUE connect intermediate nodes}
 }
 \value{
 naive network

@@ -195,34 +195,76 @@ find_all_paths <- function(v_start, v_end, PKN_table, max_length){
   #'
   #' @param all_paths_df tibble with edges of shortest paths
   #' @param PKN_table tibble of all causal interactions
+  #' @param connect_all Boolean, if TRUE connect intermediate nodes
   #'
   #' @return igraph object of naive network
   #'
   #' @examples
-  create_graph_from_paths <- function(all_paths_df, PKN_table){
-
+  create_graph_from_paths <- function(all_paths_df, PKN_table, connect_all = FALSE){
 
     if(nrow(all_paths_df) == 0){
       stop('SignalingProfiler ERROR: No paths found for you analytes. Try to not preprocessing the PKN')
     }
 
-    edges_paths_df <- dplyr::left_join(all_paths_df, PKN_table,
-                                       by = c('ENTITYA', 'INTERACTION', 'ENTITYB')) %>%
-      dplyr::relocate(ENTITYA, ENTITYB, INTERACTION)
+    if(connect_all == TRUE){ # Apply Marco suggestion
 
-    #edges_paths_df$PHOSPHO_KEY_GN_SEQ <- ''
-    #edges_paths_df$PHOSPHO_KEY_GN_SEQ[!is.na(edges_paths_df$SEQUENCE)] <- paste0(edges_paths_df$ENTITYB[!is.na(edges_paths_df$SEQUENCE)], '-', edges_paths_df$SEQUENCE[!is.na(edges_paths_df$SEQUENCE)])
+      # Transform PKN table in a graph
+      pkn_graph <- pkn_table_as_graph(PKN_table)
 
-    nodes_paths_df <- dplyr::bind_rows(edges_paths_df %>% dplyr::select(ENTITY = ENTITYA, ID = IDA, TYPE = TYPEA),
-                                       edges_paths_df %>% dplyr::select(ENTITY = ENTITYB, ID = IDB, TYPE = TYPEB)) %>%
-      dplyr::distinct() %>%
-      dplyr::group_by(ENTITY) %>%
-      dplyr::reframe(ID = paste0(ID, collapse = ';'), TYPE = paste0(unique(TYPE), collapse = ';')) %>%
-      dplyr::relocate(ENTITY)
+      # Get all entities in all_paths_df
+      entities <- unique(c(all_paths_df$ENTITYA, all_paths_df$ENTITYB))
 
-    graph <- igraph::graph_from_data_frame(d = edges_paths_df, vertices = nodes_paths_df)
+      # Create the subgraph
+      subgraph <- igraph::induced.subgraph(pkn_graph,
+                                           igraph::V(pkn_graph)$name[igraph::V(pkn_graph)$name %in% entities])
 
-    return(graph)
+      return(subgraph)
+
+    } else {
+
+      edges_paths_df <- dplyr::left_join(all_paths_df, PKN_table,
+                                         by = c('ENTITYA', 'INTERACTION', 'ENTITYB')) %>%
+        dplyr::relocate(ENTITYA, ENTITYB, INTERACTION)
+
+      #edges_paths_df$PHOSPHO_KEY_GN_SEQ <- ''
+      #edges_paths_df$PHOSPHO_KEY_GN_SEQ[!is.na(edges_paths_df$SEQUENCE)] <- paste0(edges_paths_df$ENTITYB[!is.na(edges_paths_df$SEQUENCE)], '-', edges_paths_df$SEQUENCE[!is.na(edges_paths_df$SEQUENCE)])
+
+      nodes_paths_df <- dplyr::bind_rows(edges_paths_df %>% dplyr::select(ENTITY = ENTITYA, ID = IDA, TYPE = TYPEA),
+                                         edges_paths_df %>% dplyr::select(ENTITY = ENTITYB, ID = IDB, TYPE = TYPEB)) %>%
+        dplyr::distinct() %>%
+        dplyr::group_by(ENTITY) %>%
+        dplyr::reframe(ID = paste0(ID, collapse = ';'), TYPE = paste0(unique(TYPE), collapse = ';')) %>%
+        dplyr::relocate(ENTITY)
+
+      graph <- igraph::graph_from_data_frame(d = edges_paths_df, vertices = nodes_paths_df)
+
+      return(graph)
+
+    }
+
   }
 
+#' PKN table as graph
+#'
+#' @param PKN_table table of PKN
+#'
+#' @return graph representing the PKN
+#'
+#' @examples
+  pkn_table_as_graph <- function(PKN_table){
 
+    nodes_df <- tidyr::tibble(ENTITY = c(PKN_table$ENTITYA, PKN_table$ENTITYB),
+                       ID = c(PKN_table$IDA, PKN_table$IDB),
+                       TYPE = c(PKN_table$TYPEA, PKN_table$TYPEB),
+                       DATABASE = c(PKN_table$DATABASEA, PKN_table$DATABASEB)) %>% dplyr::distinct()
+
+    nodes_df <- nodes_df %>% dplyr::group_by(ENTITY) %>%
+      dplyr::reframe(ID = paste0(ID, collapse = ';'),
+              TYPE = paste0(TYPE, collapse = ';'),
+              DATABSE = paste0(DATABASE, collapse = ';'))
+
+    PKN_graph <- igraph::graph_from_data_frame(d = PKN_table, vertices = nodes_df)
+
+    return(PKN_graph)
+
+  }
