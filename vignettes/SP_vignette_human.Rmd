@@ -594,7 +594,7 @@ solver = 'cplex'
 carnival_options = default_CARNIVAL_options(solver)
 ```
 
-It is very important to know the *path* of the ILP software.\
+It is very important to know the ***path*** of the ILP software.\
 If you didn't install it using the default path you can set the custom
 path here.
 
