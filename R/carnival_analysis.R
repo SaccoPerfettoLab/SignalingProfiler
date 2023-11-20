@@ -218,6 +218,10 @@ union_of_graphs <- function(graph_1, graph_2, proteins_df, files,
   # graph_2 = output2$igraph_network
   # proteins_df <- carnival_input_toy
 
+  if(sum(unlist(grepl('UNIPROT', colnames(proteins_df)))) == 1){
+    proteins_df$UNIPROT <- NULL #remove old UNIPROT and take the one of database
+  }
+
   #nodes df
   nodes_rec_kin <- tibble::as_tibble(igraph::as_data_frame(graph_1, what = c('vertices'))) %>%
     dplyr::rename(gene_name = 'name') %>%
@@ -231,7 +235,7 @@ union_of_graphs <- function(graph_1, graph_2, proteins_df, files,
     dplyr::distinct() %>%
     dplyr::arrange(gene_name)
 
-  nodes <- dplyr::left_join(nodes, proteins_df, by = c('gene_name', 'UNIPROT')) %>%
+  nodes <- dplyr::left_join(nodes, proteins_df, by = c('gene_name')) %>%
     dplyr::select(gene_name, carnival_activity, UNIPROT, mf, final_score, method) %>%
     dplyr::relocate(gene_name)
 
