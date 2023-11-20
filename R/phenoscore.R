@@ -117,6 +117,13 @@ phenoscore_computation <- function(proteins_df,
     stop('pvalue_threshold should be numeric')
   }
 
+  # if use carnival activity == FALSE, remove proteins without final_score
+  if(!use_carnival_activity){
+    message('Removing proteins withouth a final_score value')
+    proteins_df <- proteins_df %>%
+      dplyr::filter(!is.na(final_score))
+  }
+
   ##############################################################################
   # BUILD SIGNIFICANT PATHS TABLE #
   ##############################################################################
