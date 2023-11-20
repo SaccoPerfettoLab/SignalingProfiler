@@ -68,18 +68,18 @@ phenoscore_computation <- function(proteins_df,
                                    use_carnival_activity = FALSE){
 
   # # TEST PARAMETERS #
-  proteins_df = nodes_df_filt
-  desired_phenotypes = desired_phenotypes
-  pheno_distances_table = pheno_table_distances
-  sp_graph = output$igraph_network
-  path_length = 3
-  stat = 'median'
-  zscore_threshold = -1.96
-  n_random = 1000
-  pvalue_threshold = 0.05
-  remove_cascade = T
-  node_idx = T
-  use_carnival_activity = F
+  # proteins_df = nodes_df_filt
+  # desired_phenotypes = desired_phenotypes
+  # pheno_distances_table = pheno_table_distances
+  # sp_graph = output$igraph_network
+  # path_length = 3
+  # stat = 'median'
+  # zscore_threshold = -1.96
+  # n_random = 1000
+  # pvalue_threshold = 0.05
+  # remove_cascade = T
+  # node_idx = T
+  # use_carnival_activity = F
 
 
   # Distinguish between mouse and human
