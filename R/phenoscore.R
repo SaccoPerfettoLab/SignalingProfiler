@@ -119,11 +119,15 @@ phenoscore_computation <- function(proteins_df,
 
   # if use carnival activity == FALSE, remove proteins without final_score
   if(!use_carnival_activity){
-    message('Removing proteins withouth a final_score value')
+    message('Removing proteins without a final_score value')
     proteins_df <- proteins_df %>%
       dplyr::filter(!is.na(final_score))
   }
 
+  if(is.null(desired_phenotypes)){
+    message('No desired_phenotypes using all phenotypes!')
+    desired_phenotypes <- unique(phenoscore_distances_table$EndPathways)
+  }
   ##############################################################################
   # BUILD SIGNIFICANT PATHS TABLE #
   ##############################################################################
