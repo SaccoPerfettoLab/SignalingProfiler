@@ -538,14 +538,12 @@ expand_and_map_edges <- function(optimized_object,
   # path_rds = paste0(carnival_dir, patient, '_union_carnival_validated.RDS')
 
   # Nodes df
-  nodes_df <- tibble::as_tibble(igraph::as_data_frame(optimized_object$igraph_network, what = 'vertices'))
+  nodes_df <- optimized_object$nodes_df
 
   # Edges df
-  edges_df <- tibble::as_tibble(igraph::as_data_frame(optimized_object$igraph_network, what = 'edges')) %>%
+  edges_df <- optimized_object$edges_df %>%
     dplyr::rename('source' = 'from', 'target' = 'to', 'interaction' = 'sign') %>%
     dplyr::mutate_at('interaction', as.character)
-
-
 
   # output <- readRDS(paste0(carnival_dir, patient, '_union_carnival_object.RDS'))
   # optimized_graph_rds <- output$igraph_network
@@ -591,8 +589,8 @@ expand_and_map_edges <- function(optimized_object,
   # and retrieve information about the mechanism, DIRECT or INDIRECT
 
   edges_df_new <- dplyr::left_join(edges_df, db, by = c('source' = 'ENTITYA',
-                                                 'interaction' = 'INTERACTION',
-                                                 'target' = 'ENTITYB')) %>%
+                                                        'interaction' = 'INTERACTION',
+                                                        'target' = 'ENTITYB')) %>%
     dplyr::distinct()
 
   # Map the expanded edges to experimental data
@@ -601,13 +599,28 @@ expand_and_map_edges <- function(optimized_object,
                                      dplyr::select(-c('gene_name')),
                                    by = c('PHOSPHO_KEY_GN_SEQ'))
 
+  # Check if the mapped is coherent with the proteins' activity status
+  dplyr::inner_join(dplyr::inner_join(edges_df_new,
+                                      nodes_df %>% dplyr::select(gene_name, act_source = carnival_activity),
+                                      by = c('source' = 'gene_name')), nodes_df %>% dplyr::select(gene_name, act_target = carnival_activity),
+                    by = c('target' = 'gene_name')) -> edges_df_new_activity
+
+  edges_df_new_activity %>%
+    dplyr::mutate(keep = ifelse(as.numeric(interaction) * difference * act_target > 0, '+', NA)) -> edges_df_new_activity
+
   # Rename and add some columns as flags like
   # is_quantified, is_significant (derived from significant in phospho_df),
   # phosphosite_value is the abundance in experimental data
   edges_df_new <- edges_df_new %>%
-    dplyr::mutate(is_quantified = ifelse(is.na(difference), FALSE, TRUE),
-                  is_significant = ifelse(!is.na(significant), TRUE, FALSE)) %>%
+    dplyr::mutate(is_quantified = ifelse(!is.na(edges_df_new$difference) & !is.na(edges_df_new_activity$keep), TRUE, FALSE),
+                  is_significant = ifelse(!is.na(significant) & !is.na(edges_df_new_activity$keep), TRUE, FALSE)) %>%
     dplyr::rename('phosphosite_value' = 'difference')
+
+  # Remove phosphosite values mapped but not coherent with protein activities
+  edges_df_new <- edges_df_new %>%
+    dplyr::mutate(phosphosite_value = ifelse(is_quantified == TRUE, phosphosite_value, NA),
+                  aminoacid = ifelse(is_quantified == TRUE, aminoacid, NA),
+                  position = ifelse(is_quantified == TRUE, position, NA))
 
   # Reorganize the edges_df
   edges_df_new <- edges_df_new %>%
@@ -623,7 +636,7 @@ expand_and_map_edges <- function(optimized_object,
     dplyr::filter(!is.na(phosphosite_value)) %>%
     dplyr::group_by(source, target, sign) %>%
     dplyr::reframe(aminoacid = paste0(residue,collapse = ';'),
-                     FC = paste0(as.character(phosphosite_value), collapse = ';'),
+                   FC = paste0(as.character(phosphosite_value), collapse = ';'),
                    direct = paste0(unique(DIRECT), collapse = ';'),
                    mechanism = paste0(unique(mechanism), collapse = ';')) %>%
     dplyr::mutate_at('direct', as.logical)
@@ -643,15 +656,14 @@ expand_and_map_edges <- function(optimized_object,
 
   edges_df_new_final <- edges_df_new_final %>% dplyr::group_by(source, target, sign, carnival_weight) %>%
     dplyr::reframe(direct = paste0(unique(direct), collapse = ';'),
-            mechanism = paste0(na.omit(mechanism), collapse = ';'),
-            aminoacid = paste0(na.omit(aminoacid), collapse = ';'),
-            is_quantified = paste0(unique(is_quantified), collapse = ';'),
-            is_significant = paste0(unique(is_significant), collapse = ';'),
-            FC = paste0(na.omit(FC), collapse = ';'))
+                   mechanism = paste0(na.omit(mechanism), collapse = ';'),
+                   aminoacid = paste0(na.omit(aminoacid), collapse = ';'),
+                   is_quantified = paste0(unique(is_quantified), collapse = ';'),
+                   is_significant = paste0(unique(is_significant), collapse = ';'),
+                   FC = paste0(na.omit(FC), collapse = ';'))
 
   # Create igraph object
   CARNIVAL_graph <- igraph::graph_from_data_frame(edges_df_new_final, nodes_df, directed = TRUE)
-
 
   SP_object <- list(igraph_network = CARNIVAL_graph,
                     nodes_df = nodes_df,
@@ -668,7 +680,6 @@ expand_and_map_edges <- function(optimized_object,
   # create carnival output as graph
   return(SP_object)
 }
-
 
 #' keep_only_present_perturbation
 #'
