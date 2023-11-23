@@ -541,8 +541,10 @@ expand_and_map_edges <- function(optimized_object,
   nodes_df <- optimized_object$nodes_df
 
   # Edges df
-  edges_df <- optimized_object$edges_df %>%
-    dplyr::rename('source' = 'from', 'target' = 'to', 'interaction' = 'sign') %>%
+  edges_df <- optimized_object$edges_df
+  colnames(edges_df) <- c('source', 'target', 'interaction','carnival_weight')
+
+  edges_df <- edges_df %>%
     dplyr::mutate_at('interaction', as.character)
 
   # output <- readRDS(paste0(carnival_dir, patient, '_union_carnival_object.RDS'))
