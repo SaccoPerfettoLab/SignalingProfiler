@@ -47,8 +47,9 @@ phenoscore_network_preprocessing <- function(proteomics, phospho, local = FALSE)
 #' @param n_random number of randomization, 1000
 #' @param stat 'mean' or 'median'
 #' @param node_idx boolean
+#' @param pheno_distances_table table of ProxPath phenotypes distances
+#' @param create_pheno_network Boolean, TRUE or FALSE to add phenotypes to the model
 #' @param use_carnival_activity Boolean, TRUE or FALSE
-#' @param phenoscore_distances_table df output of phenoscore network processing, in NULL take all
 #'
 #' @return a list of a plot and result table
 #' @export
@@ -65,21 +66,25 @@ phenoscore_computation <- function(proteins_df,
                                    pvalue_threshold = 0.05,
                                    remove_cascade = TRUE,
                                    node_idx = FALSE,
-                                   use_carnival_activity = FALSE){
+                                   use_carnival_activity = FALSE,
+                                   create_pheno_network = TRUE){
 
   # # TEST PARAMETERS #
-  # proteins_df = nodes_df_filt
-  # desired_phenotypes = desired_phenotypes
+
+  # top20_phenoscore_anno[1,] -> parameter_row
+  # proteins_df = nodes_df
+  # desired_phenotypes =  str_replace_all(str_to_upper(gold_stadard_pheno$phenotypes), ' ', '_')
   # pheno_distances_table = pheno_table_distances
-  # sp_graph = output$igraph_network
-  # path_length = 3
-  # stat = 'median'
+  # sp_graph = network_graph
+  # path_length = parameter_row$path_length
+  # stat = parameter_row$stat
   # zscore_threshold = -1.96
   # n_random = 1000
   # pvalue_threshold = 0.05
-  # remove_cascade = T
-  # node_idx = T
-  # use_carnival_activity = F
+  # remove_cascade = parameter_row$remove_cascade
+  # node_idx = parameter_row$node_idx
+  # use_carnival_activity = parameter_row$use_carnival_activity
+  # create_pheno_network = TRUE
 
 
   # Distinguish between mouse and human
@@ -88,7 +93,7 @@ phenoscore_computation <- function(proteins_df,
     # if it is mouse organism, convert in uppercase
     proteins_df <- proteins_df %>%
       mutate(gene_name = stringr::str_to_upper(gene_name))
-    igraph::V(sp_graph)$gene_name <- str_to_upper(igraph::V(sp_graph)$gene_name)
+    igraph::V(sp_graph)$name <- str_to_upper(igraph::V(sp_graph)$name)
   }else{
     flag = 'human'
   }
@@ -146,7 +151,7 @@ phenoscore_computation <- function(proteins_df,
 
   pheno_distances_table %>%
     dplyr::filter(Path_Length <= path_length &
-                  EndPathways %in% desired_phenotypes) -> dist.glob.filtered
+                    EndPathways %in% desired_phenotypes) -> dist.glob.filtered
 
   output.table2 <- dist.glob.filtered[,1:8]
 
@@ -308,7 +313,7 @@ phenoscore_computation <- function(proteins_df,
   output.table.final.global$sign[output.table.final.global$pvalue < 0.001]<- '**'
   output.table.final.global$sign[output.table.final.global$pvalue < 0.0001]<- '***'
   output.table.final.global$sign[output.table.final.global$pvalue < 0.00001]<- '****'
-  output.table.final.global$sign[output.table.final.global$pvalue >1 ]<- '!'
+  output.table.final.global$sign[output.table.final.global$pvalue > 1 ]<- '!'
 
   if(is.null(desired_phenotypes)){
     output.table.final.global %>%
@@ -576,7 +581,7 @@ phenoscore_computation <- function(proteins_df,
 
   ggplot2::ggplot(phenoscore_df1,
                   ggplot2::aes(x = forcats::fct_reorder(EndPathways, phenoscore),
-                                              y = phenoscore, fill = reg))+
+                               y = phenoscore, fill = reg))+
     ggplot2::geom_bar(stat = 'identity', alpha = 0.8)+
     ggplot2::scale_fill_manual(values = color_list, labels = names(color_list)) +
     ggplot2::ggtitle(paste0('Phenoscore')) +
@@ -593,6 +598,62 @@ phenoscore_computation <- function(proteins_df,
 
   if(flag == 'mouse'){
     results.table_reg$regulators <- stringr::str_to_title(results.table_reg$regulators)
+  }
+
+  # Create a network with the phenotypes linked
+  if(create_pheno_network == TRUE){
+
+    phenotype_regulators <- results.table_reg %>%
+      dplyr::select(EndPathways, Effect, regulators) %>%
+      tidyr::separate_rows(regulators, sep = ';') %>%
+      dplyr::mutate(Effect = ifelse(Effect == 'down-regulates', -1, 1)) %>%
+      dplyr::rename('source' = 'regulators' , 'sign' = 'Effect', 'target' = 'EndPathways')
+
+    pheno_nodes <- tidyr::tibble(gene_name =  phenoscore_df$EndPathways,
+                                 carnival_activity = NA,
+                                 UNIPROT = NA,
+                                 mf = 'phenotype',
+                                 final_score = phenoscore_df$phenoscore,
+                                 method = 'phenoscore',
+                                 discordant = FALSE
+    )
+
+    pheno_nodes <- pheno_nodes %>%
+      dplyr::mutate(carnival_activity = ifelse(final_score < 0, -100, 100),
+                    gene_name = stringr::str_to_upper(gene_name))
+
+    node_df_pheno <- dplyr::bind_rows(nodes_df, pheno_nodes)
+
+    pheno_edges <- phenotype_regulators %>% dplyr::mutate(target = stringr::str_to_upper(target))
+    pheno_edges <- tidyr::tibble(target = pheno_edges$target,
+                                 sign = as.character(pheno_edges$sign),
+                                 source = pheno_edges$source,
+                                 carnival_weight = 100,
+                                 direct = 'TRUE',
+                                 aminoacid = '',
+                                 is_quantified = 'FALSE',
+                                 is_significant = 'FALSE',
+                                 FC = '' )
+
+    # generate edges table
+
+    edges_df <- tidyr::as_tibble(igraph::as_data_frame(network_graph, what = 'edges'))
+    colnames(edges_df)[1:2] <- c('source', 'target')
+
+    edges_df_pheno <- dplyr::bind_rows(edges_df, pheno_edges)
+
+    pheno_graph <- igraph::graph_from_data_frame(edges_df_pheno,
+                                                 vertices = node_df_pheno %>% dplyr::distinct() )
+
+    pheno_graph_object <- list(igraph_network = pheno_graph,
+                               nodes_df = node_df_pheno,
+                               edges_df = edges_df_pheno)
+
+    return(list(barplot = barplot_phenotypes,
+                table_regulators = results.table_reg,
+                table_phenotypes = phenoscore_df,
+                sp_object_phenotypes = pheno_graph_object))
+
   }
 
   return(list(barplot = barplot_phenotypes,
