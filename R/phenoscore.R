@@ -655,7 +655,7 @@ phenoscore_computation <- function(proteins_df,
 
     # generate edges table
 
-    edges_df <- tidyr::as_tibble(igraph::as_data_frame(network_graph, what = 'edges'))
+    edges_df <- tidyr::as_tibble(igraph::as_data_frame(sp_graph, what = 'edges'))
     colnames(edges_df)[1:2] <- c('source', 'target')
 
     edges_df_pheno <- dplyr::bind_rows(edges_df, pheno_edges)
