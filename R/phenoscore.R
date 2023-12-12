@@ -86,6 +86,20 @@ phenoscore_computation <- function(proteins_df,
   # use_carnival_activity = parameter_row$use_carnival_activity
   # create_pheno_network = TRUE
 
+  # proteins_df = nodes_df_aa
+  # desired_phenotypes = desired_phenotypes
+  # pheno_distances_table = pheno_table_distances
+  # sp_graph = network_graph
+  # path_length = 4
+  # stat = 'mean'
+  # zscore_threshold = -1.96
+  # n_random = 1000
+  # pvalue_threshold = 0.05
+  # remove_cascade = TRUE
+  # node_idx = FALSE
+  # use_carnival_activity = FALSE
+  # create_pheno_network = TRUE
+
 
   # Distinguish between mouse and human
   if(sum(proteins_df$gene_name == stringr::str_to_title(proteins_df$gene_name)) == nrow(proteins_df)){
@@ -577,7 +591,7 @@ phenoscore_computation <- function(proteins_df,
 
   phenoscore_df1 <- phenoscore_df1 %>% dplyr::mutate(reg = ifelse(phenoscore < 0, 'down', 'up'))
 
-  color_list <- list('down' = '#D46A6A', 'up' = '#407F7F')
+  color_list <- list('down' = '#407F7F', 'up' = '#D46A6A')
 
   ggplot2::ggplot(phenoscore_df1,
                   ggplot2::aes(x = forcats::fct_reorder(EndPathways, phenoscore),
@@ -621,6 +635,10 @@ phenoscore_computation <- function(proteins_df,
     pheno_nodes <- pheno_nodes %>%
       dplyr::mutate(carnival_activity = ifelse(final_score < 0, -100, 100),
                     gene_name = stringr::str_to_upper(gene_name))
+
+    igraph::as_data_frame(sp_graph, what = 'vertices') -> nodes_df
+
+    colnames(nodes_df)[1] <- 'gene_name'
 
     node_df_pheno <- dplyr::bind_rows(nodes_df, pheno_nodes)
 
