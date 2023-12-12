@@ -1,3 +1,34 @@
+import importlib
+
+def check_and_install_package(package_name):
+    try:
+        # Try to import the package
+        importlib.import_module(package_name)
+        #print(f"{package_name} is already installed.")
+    except ModuleNotFoundError:
+        # If the package is not installed, try to install it
+        install_package(package_name)
+
+def install_package(package_name):
+    import subprocess
+    import sys
+
+    #print(f"Installing {package_name}...")
+    subprocess.check_call([sys.executable, "-m", "pip", "install", package_name])
+    print(f"{package_name} has been successfully installed.")
+
+# Example: Check and install required package
+check_and_install_package('requests')
+check_and_install_package('csv')
+check_and_install_package('os')
+check_and_install_package('ssl')
+check_and_install_package('requests')
+check_and_install_package('sys')
+check_and_install_package('pandas')
+check_and_install_package('itertools')
+check_and_install_package('datetime')
+
+# After checking and installing, import the necessary libraries
 import csv
 import os
 import ssl
