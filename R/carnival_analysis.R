@@ -540,6 +540,12 @@ expand_and_map_edges <- function(optimized_object,
   # Nodes df
   nodes_df <- optimized_object$nodes_df
 
+  # add MF for remaining nodes
+  nodes_df <- molecular_function_annotation(inferred_proteins_dataset = nodes_df,
+                                            organism = organism)
+
+  nodes_df$method[is.na(nodes_df$final_score)] <- 'CARNIVAL'
+
   # Edges df
   edges_df <- optimized_object$edges_df
   colnames(edges_df) <- c('source', 'target', 'interaction','carnival_weight')
@@ -702,6 +708,65 @@ keep_only_present_perturbation <- function(source_df, naive_network){
 
   return(source_df_present)
 }
+
+#' format_for_visualization
+#'
+#' @param sp_object list of nodes, edges and graph of SP
+#'
+#' @return sp_object with attributes on nodes and edges for Cytoscape visualization
+#' @export
+#'
+#' @examples
+format_for_visualization <- function(sp_object){
+
+  # Format edges table
+  edges_table <- sp_object$edges_df
+
+  # Create a label column which will be the label in the Cytoscape style
+  # with just the significantly modulated phosphosite in one letter notation
+
+  # Change to one letter notation
+  edges_table$label <- stringr::str_replace_all(edges_table$aminoacid, 'Ser', 'S')
+  edges_table$label <- stringr::str_replace_all(edges_table$label, 'Tyr', 'Y')
+  edges_table$label <- stringr::str_replace_all(edges_table$label, 'Thr', 'T')
+
+  # Remove * from the name
+  edges_table %>%
+    tidyr::separate_rows(c('label'), sep = ';') %>%
+    dplyr::mutate(label = ifelse(grepl('\\*', label), label, '')) -> edges_table_new
+
+  edges_table_new %>%
+    dplyr::group_by_at(setdiff(colnames(edges_table_new), 'label')) %>%
+    dplyr::reframe(label = paste0(unique(label), collapse = ';')) %>%
+    dplyr::distinct() -> edges_table_new
+
+  # Add a flag for positive or negative FC for the color of the label in Cytoscape
+  edges_table_new <-edges_table_new %>%
+    dplyr::mutate(label = stringr::str_remove_all(pattern = ';$', edges_table_new$label)) %>%
+    dplyr::mutate(label = stringr::str_remove_all(pattern = '\\*', edges_table_new$label)) %>%
+    dplyr::mutate(FC_sign = ifelse(grepl('-', edges_table_new$FC), 'down', 'up'))
+
+  # Add a flag for phospho-layout
+  edges_table_new <- edges_table_new %>%  dplyr::mutate(highlight = ifelse(label != '', 'Y', 'N'))
+
+  # Format nodes table
+  # Select nodes involved in significant phosphorylation link and add a flag to them
+  phospho_edges <- edges_table_new %>%  dplyr::filter(highlight == 'Y')
+  nodes_phospho_edges <- unique(c(phospho_edges$source, phospho_edges$target))
+  nodes_table <- sp_object$nodes_df
+  nodes_table <- nodes_table %>%
+    dplyr::mutate(highlight = ifelse(gene_name %in% nodes_phospho_edges, 'Y', 'N'))
+
+  # Create a new graph with all the informations
+  SP_graph <- igraph::graph_from_data_frame(edges_table_new, nodes_table, directed = TRUE)
+
+  SP_object <- list(igraph_network = SP_graph,
+                    nodes_df = nodes_table,
+                    edges_df = edges_table_new)
+
+  return(SP_object)
+}
+
 
 
 
