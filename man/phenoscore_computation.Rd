@@ -16,7 +16,8 @@ phenoscore_computation(
   pvalue_threshold = 0.05,
   remove_cascade = TRUE,
   node_idx = FALSE,
-  use_carnival_activity = FALSE
+  use_carnival_activity = FALSE,
+  create_pheno_network = TRUE
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ phenoscore_computation(
 \item{desired_phenotypes}{vector of interesting phenotypes}
 
 \item{sp_graph}{graph of signaling profiler output}
+
+\item{pheno_distances_table}{table of ProxPath phenotypes distances}
 
 \item{path_length}{default 4 (1 to 4 allowed)}
 
@@ -42,7 +45,7 @@ phenoscore_computation(
 
 \item{use_carnival_activity}{Boolean, TRUE or FALSE}
 
-\item{phenoscore_distances_table}{df output of phenoscore network processing, in NULL take all}
+\item{create_pheno_network}{Boolean, TRUE or FALSE to add phenotypes to the model}
 }
 \value{
 a list of a plot and result table

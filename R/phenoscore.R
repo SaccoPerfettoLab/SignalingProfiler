@@ -680,5 +680,47 @@ phenoscore_computation <- function(proteins_df,
 }
 
 
+#' retrieve_functional_circuit
+#'
+#' @param SP_object sp_object list with network, nodes and edges
+#' @param start_nodes character vector of nodes in the model
+#' @param phenotype string reporting a phenotype
+#' @param k integer, path length
+#'
+#' @return a subnetwork linking start nodes to phenotypes with a maximum of k length (shorter paths are included)
+#' @export
+#'
+#' @examples
+retrieve_functional_circuit <- function(SP_object, start_nodes, phenotype, k) {
+
+  SP_graph <- SP_object$igraph_network
+
+  for(i in c(1:length(start_nodes))){
+    start_node <- start_nodes[i]
+
+    # Find all paths of length k between start and end nodes
+    all_paths <- igraph::all_simple_paths(SP_graph, from = start_node, to = phenotype, mode = "out", cutoff = k)
+    all_paths_nodes <- unique(names(unlist(all_paths)))
+
+    if(length(all_paths_nodes) == 0){
+      warning(paste0('No path of length ', k, ' have been found for ', start_node))
+    }
+    if(i == 1){
+      final_nodes <- all_paths_nodes
+    }else{
+      final_nodes <- c(final_nodes, all_paths_nodes)
+    }
+  }
+
+  pheno_circuit <- igraph::induced_subgraph(SP_graph, final_nodes)
+
+  igraph::as_data_frame(pheno_circuit, what = c('edges')) -> pheno_circuit_edges
+  pheno_circuit_edges <- pheno_circuit_edges %>% dplyr::filter(!to %in% start_nodes)
+
+  pheno_circuit_no_incoming <- igraph::graph_from_data_frame(d =pheno_circuit_edges,
+                                                             vertices = igraph::as_data_frame(pheno_circuit, what = c('vertices')))
+
+  return(pheno_circuit_no_incoming)
+}
 
 
