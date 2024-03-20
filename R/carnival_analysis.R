@@ -339,7 +339,7 @@ check_CARNIVAL_inputs <- function(source_df, target_df,
   # check meta informations for mapping attributes
   stopifnot(is.data.frame(proteins_df))
   stopifnot(all(c("gene_name","mf","final_score", "method") %in% names(proteins_df)))
-  stopifnot(ncol(proteins_df)==5)
+  stopifnot(ncol(proteins_df)>=5)
 
   # check organism
   stopifnot(typeof(organism) == 'character')
