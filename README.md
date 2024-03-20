@@ -34,7 +34,7 @@ Signaling Profiler is dependent on Saez lab algorithm CARNIVAL for performing th
 
 You can find the tutorial of Signaling Profiler [here](https://htmlpreview.github.io/?https://github.com/SaccoPerfettoLab/SignalingProfiler/blob/main/vignettes/SignalingProfiler_vignette.html). 
 
-A new tutorial for human analysis is available [here](https://htmlpreview.github.io/?https://github.com/SaccoPerfettoLab/SignalingProfiler/blob/main/vignettes/SP_vignette_human.html)
+A new tutorial for human analysis is available  [here](https://htmlpreview.github.io/?https://github.com/SaccoPerfettoLab/SignalingProfiler/blob/main/vignettes/SP_vignette_human.html)
 
 ## Citation
 If you use SignalingProfiler for your research please cite the [original publication](https://www.nature.com/articles/s41375-022-01785-w).

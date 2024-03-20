@@ -572,7 +572,7 @@ phenoscore_computation <- function(proteins_df,
     if(use_carnival_activity == TRUE){
       phenoscore_df <- only_one_reg_act %>%
         dplyr::group_by(EndPathways) %>%
-        dplyr::summarise(phenoscore = mean(carnival_activity/100*Log10_p_value_plot))
+        dplyr::summarise(phenoscore = mean(carnival_activity/100*Sign*Log10_p_value_plot))
 
     }else{
       phenoscore_df <- only_one_reg_act %>%
