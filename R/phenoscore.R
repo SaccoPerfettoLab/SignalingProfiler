@@ -723,4 +723,133 @@ retrieve_functional_circuit <- function(SP_object, start_nodes, phenotype, k) {
   return(pheno_circuit_no_incoming)
 }
 
+#' optimize_pheno_network
+#'
+#' @param sp_object sp_object list with network, nodes and edges
+#' @param organism string, human or mouse
+#' @param phospho_df tibble of phosphoproteomics data
+#' @param carnival_options list of options returned by default_CARNIVAL_options
+#' @param files boolean value, TRUE if you want output files
+#' @param direct Boolean value, default FALSE, if TRUE uses only direct interactions
+#' @param with_atlas Boolean value, default TRUE, if FALSE excludes Kinome Altas derived regulons
+#' @param path_sif path of the sif output file of network
+#' @param path_rds path of the rds output file of network
+#'
+#' @return SP object list with igraph object, optimized nodes df and optimized edges df
+#' @export
+#'
+#' @examples
+optimize_pheno_network <- function(sp_object,
+                                   organism,
+                                   phospho_df,
+                                   carnival_options,
+                                   files,
+                                   direct = FALSE,
+                                   with_atlas = FALSE,
+                                   path_sif = './pheno_opt_graph.sif',
+                                   path_rds = './pheno_opt_graph.rds'){
+
+  # Create start and end nodes for CARNIVAL analysis
+  start_df <- sp_object$sp_object_phenotypes$nodes_df %>%
+    dplyr::filter(mf != 'phenotype') %>%
+    dplyr::select(UNIPROT, gene_name, final_score = carnival_activity, mf, method)
+
+  pheno_df <- sp_object$sp_object_phenotypes$nodes_df %>%
+    dplyr::filter(mf == 'phenotype') %>%
+    dplyr::select(UNIPROT, gene_name, final_score = carnival_activity, mf, method)
+
+  # Transform the optimized network edges in SIF format
+  pheno_naive_df <- sp_object$sp_object_phenotypes$edges_df %>%
+    dplyr::select(source, interaction = sign, target)
+
+  pheno_out <- run_carnival_and_create_graph(source_df = start_df,
+                                             target_df = pheno_df,
+                                             naive_network = unique(pheno_naive_df),
+                                             proteins_df = sp_object$sp_object_phenotypes$nodes_df %>%
+                                               dplyr::select(UNIPROT, gene_name, final_score, mf, method),
+                                             organism = organism,
+                                             carnival_options = carnival_options,
+                                             files = files,
+                                             direct = direct,
+                                             with_atlas = with_atlas,
+                                             path_sif = path_sif,
+                                             path_rds = path_rds)
+
+  sp_pheno_out_validated <- expand_and_map_edges(optimized_object = pheno_out,
+                                                 organism = 'human',
+                                                 phospho_df = phospho_df,
+                                                 files = files,
+                                                 direct = direct,
+                                                 with_atlas = with_atlas,
+                                                 path_sif = path_sif,
+                                                 path_rds = path_rds)
+
+  # Override old sp_object_phenotypes
+  output_list$sp_object_phenotypes <- sp_pheno_out_validated
+  return(output_list)
+}
+
+#' pheno_to_start_circuit
+#'
+#' @param SP_object sp_object list with network, nodes and edges
+#' @param start_nodes character vector of nodes in the model
+#' @param k integer, path length
+#' @param phenotypes vector of phenotypes
+#' @param start_to_top Boolean, to specify if you want to remove incoming edges on start nodes
+#'
+#' @return a subnetwork linking start nodes to phenotypes with a maximum of k length (shorter paths are included)
+#' @export
+#'
+#' @examples
+pheno_to_start_circuit <- function(SP_object, start_nodes, phenotypes, k, start_to_top = FALSE) {
+
+  # SP_object = opt1$sp_object_phenotypes
+  # start_nodes = start_nodes
+  # phenotype = phenotypes[i_pheno]
+  # k = k_vector[i_pheno]
+
+  SP_graph <- SP_object$igraph_network
+
+  for (i in c(1:length(phenotypes))) {
+    phenotype <- phenotypes[i]
+    to_nodes <- V(SP_graph)$name[V(SP_graph)$name %in% start_nodes]
+
+    all_paths <- igraph::all_simple_paths(
+      SP_graph,
+      from = stringr::str_replace_all(string = phenotype, pattern = "[[:space:]\\\\/]", '_'),
+      to = to_nodes,
+      mode = "in",
+      cutoff = k
+    )
+
+    all_paths_nodes <- unique(names(unlist(all_paths)))
+
+    if (length(all_paths_nodes) == 0) {
+      warning(paste0("No path of length ", k, " have been found for ",
+                     phenotype))
+    }
+
+    if (i == 1) {
+      final_nodes <- all_paths_nodes
+    } else {
+      final_nodes <- c(final_nodes, all_paths_nodes)
+    }
+  }
+
+  pheno_circuit <- igraph::induced_subgraph(SP_graph, final_nodes)
+  pheno_circuit_edges <- igraph::as_data_frame(pheno_circuit,
+                                               what = c("edges"))
+  if(start_to_top == TRUE){
+    pheno_circuit_edges <- pheno_circuit_edges %>% dplyr::filter(!to %in% start_nodes)
+  }
+
+  pheno_circuit_no_incoming <-
+    igraph::graph_from_data_frame(d = pheno_circuit_edges,
+                                  vertices = igraph::as_data_frame(pheno_circuit,
+                                                                   what = c("vertices")))
+
+  return(pheno_circuit_no_incoming)
+}
+
+
 
