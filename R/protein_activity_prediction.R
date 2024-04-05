@@ -699,11 +699,11 @@ run_blast <- function(path_experimental_fasta_file, all = FALSE,
 
   if(is.null(blastp_path)){
     blastp <- paste0('blastp -query ', path_experimental_fasta_file,
-                     ' -subject ', paste0(path_package, 'data/human_phosphosites_db.fasta '),
+                     ' -subject ', paste0(path_package, 'extdata/human_phosphosites_db.fasta '),
                      '-out map2.out -outfmt 7 -evalue 0.05')
   }else{
     blastp <- paste0("\"", blastp_path, "\"", ' -query ', path_experimental_fasta_file,
-                     ' -subject ', paste0(path_package, 'data/human_phosphosites_db.fasta '),
+                     ' -subject ', paste0(path_package, 'extdata/human_phosphosites_db.fasta '),
                      '-out map2.out -outfmt 7 -evalue 0.05')
   }
 
