@@ -848,6 +848,8 @@ map_experimental_on_regulatory_phosphosites <- function(phosphoproteomic_data,
       tidyr::separate(PHOSPHO_KEY_GN_SEQ, sep = '-', into = c('gene_name', 'seq')) %>%
       dplyr::mutate(seq = stringr::str_sub(seq, 7 - offset, 7 + offset)) %>%
       tidyr::unite('PHOSPHO_KEY_GN_SEQ', gene_name:seq, sep = '-')
+    phosphoproteomic_data <- phosphoproteomic_data %>%
+      dplyr::rename(sequence_window_sub = sequence_window)
   }else{
     phosphoproteomic_data <- phosphoproteomic_data %>%
       dplyr::rename(sequence_window_sub = sequence_window)
