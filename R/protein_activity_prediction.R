@@ -836,10 +836,18 @@ map_experimental_on_regulatory_phosphosites <- function(phosphoproteomic_data,
     stop('please provide a valid organism')
   }
 
-  if(nchar(phosphoproteomic_data$sequence_window[1]) != 15){
+  if(nchar(phosphoproteomic_data$sequence_window[1]) > 15){
+    # if it is longer, subset the input sequence to 15-mer
     center <- (nchar(phosphoproteomic_data$sequence_window[1])+1)/2
     phosphoproteomic_data <- phosphoproteomic_data %>%
       dplyr::mutate(sequence_window_sub = stringr::str_sub(sequence_window, center - 7, center + 7))
+  }else if(nchar(phosphoproteomic_data$sequence_window[1]) < 15){
+    #if it is shorter, change the database
+    offset <- (nchar(phosphoproteomic_data$sequence_window[1]) - 1) / 2
+    reg_phos_db <- reg_phos_db %>%
+      tidyr::separate(PHOSPHO_KEY_GN_SEQ, sep = '-', into = c('gene_name', 'seq')) %>%
+      dplyr::mutate(seq = stringr::str_sub(seq, 7 - length_phos, 7 + length_phos)) %>%
+      tidyr::unite('PHOSPHO_KEY_GN_SEQ', gene_name:seq, sep = '-')
   }else{
     phosphoproteomic_data <- phosphoproteomic_data %>%
       dplyr::rename(sequence_window_sub = sequence_window)
