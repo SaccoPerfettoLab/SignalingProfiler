@@ -776,7 +776,7 @@ optimize_pheno_network <- function(sp_object,
                                              path_rds = path_rds)
 
   sp_pheno_out_validated <- expand_and_map_edges(optimized_object = pheno_out,
-                                                 organism = 'human',
+                                                 organism = organism,
                                                  phospho_df = phospho_df,
                                                  files = files,
                                                  direct = direct,
