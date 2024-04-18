@@ -79,6 +79,8 @@ create_viper_format <- function(omic_data, analysis, significance){
 #' @param integrated_regulons boolean value, default FALSE; if TRUE, uses regulons derived from experimental data
 #' @param collectri boolean, if TRUE uses collectri regulons for tfea
 #' @param benchmark string, default NULL, specifies a dataset used in tfea benchmarking
+#' @param custom Boolean, default FALSE, TRUE if you want to provide your regulons
+#' @param custom_path string to the .tsv file of custom regulons
 #'
 #' @return a list containing significantly enriched proteins and
 #' all inferred proteins
@@ -91,7 +93,9 @@ run_viper <- function(viper_format,
                       reg_minsize,
                       integrated_regulons = FALSE,
                       collectri = FALSE,
-                      benchmark = NULL){
+                      benchmark = NULL,
+                      custom = FALSE,
+                      custom_path = NULL){
 
   if(analysis == 'ksea' & collectri == TRUE){
     stop('collectri is only a \'tfea\' parameter')
@@ -105,58 +109,71 @@ run_viper <- function(viper_format,
   # create the format needed for viper
   diff_matrix <- create_matrix_from_VIPER_format(viper_format)
 
-  if(analysis == 'tfea'){
-    if(organism == 'human'){
-
-      if(!is.null(benchmark)){
-
-        if(benchmark == 'Doro'){
-          regulons <- bench_doro_db
-        }else if(benchmark == 'DoroSign'){
-          regulons <- bench_dorosign_db
-        }else if(benchmark == 'Coll'){
-          regulons <- bench_coll_db
-        }else if(benchmark == 'CollSign'){
-          regulons <- bench_collsign_db
-        }else{
-          stop('Wrong type of benchmark dataset')
-        }
-
-      }else{
-
-        if(collectri == FALSE){
-          regulons <- tfea_db_human
-        }else{
-          regulons <- tfea_db_human_collectri
-        }
-
-      }
-
-
-
-    }else if(organism == 'mouse'){
-      regulons <- tfea_db_mouse
+  if(custom){
+    if(is.null(custom_path)){
+      stop('Please provide a path to the regulon table')
     }else{
-      stop('please provide a valid organism name')
+      message('Reading custom regulons')
+      regulons <- readr::read_tsv(custom_path, show_col_types = FALSE)
     }
-
-  }else if(analysis == 'ksea'){
-    if(organism == 'human'){
-      if(integrated_regulons == TRUE){
-        regulons <- ksea_db_human_atlas
-      }else{
-        regulons <- ksea_db_human
-      }
-
-    }else if(organism == 'mouse'){
-      regulons <- ksea_db_mouse
-    }else{
-      stop('please provide a valid organism name')
-    }
-
   }else{
-    stop('please provide a valid analysis name')
+
+    if(analysis == 'tfea'){
+      if(organism == 'human'){
+
+        if(!is.null(benchmark)){
+
+          if(benchmark == 'Doro'){
+            regulons <- bench_doro_db
+          }else if(benchmark == 'DoroSign'){
+            regulons <- bench_dorosign_db
+          }else if(benchmark == 'Coll'){
+            regulons <- bench_coll_db
+          }else if(benchmark == 'CollSign'){
+            regulons <- bench_collsign_db
+          }else{
+            stop('Wrong type of benchmark dataset')
+          }
+
+        }else{
+
+          if(collectri == FALSE){
+            regulons <- tfea_db_human
+          }else{
+            regulons <- tfea_db_human_collectri
+          }
+
+        }
+
+
+
+      }else if(organism == 'mouse'){
+        regulons <- tfea_db_mouse
+      }else{
+        stop('please provide a valid organism name')
+      }
+
+    }else if(analysis == 'ksea'){
+      if(organism == 'human'){
+        if(integrated_regulons == TRUE){
+          regulons <- ksea_db_human_atlas
+        }else{
+          regulons <- ksea_db_human
+        }
+
+      }else if(organism == 'mouse'){
+        regulons <- ksea_db_mouse
+      }else{
+        stop('please provide a valid organism name')
+      }
+
+    }else{
+      stop('please provide a valid analysis name')
+    }
+
   }
+
+
 
   regulons <- regulons %>% dplyr::distinct()
 
@@ -195,13 +212,16 @@ run_viper <- function(viper_format,
 #' @param organism organism
 #' @param collectri boolean, if TRUE uses collectri regulons
 #' @param integrated_regulons boolean,  if TRUE uses Kinome Atlas regulons
+#' @param custom Boolean, default FALSE, TRUE if you want to provide your regulons
+#' @param custom_path string to the .tsv file of custom regulons
 #'
 #' @return table with weight for viper score correction
 #' @export
 #'
 #' @examples
 run_hypergeometric_test <- function(omic_data, viper_output,
-                                    analysis, organism, integrated_regulons, collectri){
+                                    analysis, organism, integrated_regulons,
+                                    collectri, custom = FALSE, custom_path = NULL){
 
   # omic_data <- tr_df
   # viper_output <- a$sign
@@ -237,35 +257,46 @@ run_hypergeometric_test <- function(omic_data, viper_output,
   #   # -- CREATE DATAFRAME WITH COUNT OF MEASURED AND
   #        SIGNIFICANT PHOSPHOSITES FOR EACH KIN/TF-- #
 
-  if(analysis == 'tfea'){
-    # set db
-    if(organism == 'human'){
-      if(collectri == FALSE){
-        df_regulons <- tfea_db_human
-      }else{
-        df_regulons <- tfea_db_human_collectri
-      }
-    }else if(organism == 'mouse'){
-      df_regulons <- tfea_db_mouse
+  if(custom){
+    if(is.null(custom_path)){
+      stop('Please provide a path to the regulon table')
     }else{
-      stop('please prove a valid organism')
+      message('Reading custom regulons')
+      df_regulons <- readr::read_tsv(custom_path,
+                                     show_col_types = FALSE)
     }
-
-  }else if(analysis == 'ksea'){
-
-    if(organism == 'human'){
-      if(integrated_regulons == TRUE){
-        df_regulons <- ksea_db_human_atlas
+  }else{
+    if(analysis == 'tfea'){
+      # set db
+      if(organism == 'human'){
+        if(collectri == FALSE){
+          df_regulons <- tfea_db_human
+        }else{
+          df_regulons <- tfea_db_human_collectri
+        }
+      }else if(organism == 'mouse'){
+        df_regulons <- tfea_db_mouse
       }else{
-        df_regulons <- ksea_db_human
+        stop('please prove a valid organism')
       }
-    }else if(organism == 'mouse'){
-      df_regulons <- ksea_db_mouse
-    }else{
-      stop('please provide a valid organism')
-    }
 
-  }else{stop('please provide a valid analysis type')}
+    }else if(analysis == 'ksea'){
+
+      if(organism == 'human'){
+        if(integrated_regulons == TRUE){
+          df_regulons <- ksea_db_human_atlas
+        }else{
+          df_regulons <- ksea_db_human
+        }
+      }else if(organism == 'mouse'){
+        df_regulons <- ksea_db_mouse
+      }else{
+        stop('please provide a valid organism')
+      }
+
+    }else{stop('please provide a valid analysis type')}
+  }
+
 
   # from viper analysis get all measured analytes
   all_enriched_matrix <- create_matrix_from_VIPER_format(create_viper_format(omic_data, analysis, significance = FALSE))
@@ -428,7 +459,9 @@ run_footprint_based_analysis <- function(omic_data,
                                          hypergeom_corr,
                                          correct_proteomics = FALSE,
                                          prot_df = NULL,
-                                         GO_annotation = FALSE){
+                                         GO_annotation = FALSE,
+                                         custom = FALSE,
+                                         custom_path = NULL){
 
   message(' ** RUNNING FOOTPRINT BASED ANALYSIS ** ')
   message('Credits to Prof. Julio Saez-Rodriguez. For more information read this article: Dugourd A, Saez-Rodriguez J. Footprint-based functional analysis of multiomic data. Curr Opin Syst Biol. 2019 Jun;15:82-90. doi: 10.1016/j.coisb.2019.04.002. PMID: 32685770; PMCID: PMC7357600.')
@@ -461,7 +494,7 @@ run_footprint_based_analysis <- function(omic_data,
   output <- run_viper(viper_format = viper_format, analysis = analysis,
                       organism = organism, reg_minsize = reg_minsize,
                       integrated_regulons = integrated_regulons, collectri = collectri,
-                      benchmark = benchmark)
+                      benchmark = benchmark, custom = custom, custom_path = custom_path)
 
   # if no inferred protein from VIPER analysis
   if(nrow(output$sign) == 0){
@@ -499,7 +532,8 @@ run_footprint_based_analysis <- function(omic_data,
                                                          analysis = analysis,
                                                          organism = organism,
                                                          collectri = collectri,
-                                                         integrated_regulons = integrated_regulons))
+                                                         integrated_regulons = integrated_regulons,
+                                                         custom = custom, custom_path = custom_path))
 
     output_uniprot <- convert_gene_name_in_uniprotid(output, organism)
   }else{
@@ -531,6 +565,8 @@ run_footprint_based_analysis <- function(omic_data,
 #' @param local DEVELOPMENTAL PURPOSES
 #' @param GO_annotation boolean value, TRUE perform GO molecular function annotaiton, FALSE default value
 #' @param blastp_path optional, Windows path of blastp
+#' @param custom Boolean, default FALSE, TRUE if you want to provide your regulons
+#' @param custom_path string to the .tsv file of custom regulons
 #'
 #' @return phosphoscore dataset with gene_name, inferred activity and
 #' used phosphosites from experimental data
@@ -543,12 +579,19 @@ phosphoscore_computation <- function(phosphoproteomic_data,
                                      path_fasta = './phospho.fasta',
                                      blastp_path = NULL,
                                      local = FALSE,
-                                     GO_annotation = FALSE){
+                                     GO_annotation = FALSE,
+                                     custom = FALSE,
+                                     custom_path = NULL){
+
   message('** RUNNING PHOSPHOSCORE ANALYSIS **')
 
   if(organism == 'mouse' | organism =='human'){
     phosphoscore_df_output <- map_experimental_on_regulatory_phosphosites(phosphoproteomic_data,
-                                                                          organism, activatory, path_fasta)
+                                                                          organism,
+                                                                          activatory,
+                                                                          path_fasta,
+                                                                          custom = custom,
+                                                                          custom_path = custom_path)
     phosphoscore_df <- phosphoscore_df_output$phosphoscore_df
   }else if(organism == 'hybrid'){
     phosphoscore_df_output <- phospho_score_hybrid_computation(phosphoproteomic_data,
@@ -787,6 +830,8 @@ generate_hybrid_db <- function(mh_alignment, activatory){
 #'
 #' @param path_fasta
 #' @param blastp_path path of blastp in windows
+#' @param custom Boolean, default FALSE, TRUE if you want to provide your regulatory phosphosites
+#' @param custom_path string to the .tsv file of custom regulatory phosphosites
 #'
 #' @return phosphoscore_df representing experimentally quantified phosphosites
 #' associated to their fold-change
@@ -798,43 +843,55 @@ map_experimental_on_regulatory_phosphosites <- function(phosphoproteomic_data,
                                                         activatory,
                                                         path_fasta,
                                                         blastp_path = NULL,
-                                                        local = FALSE){
+                                                        local = FALSE,
+                                                        custom = FALSE,
+                                                        custom_path = NULL){
 
   #phosphoproteomic_data <- readRDS('./data/TKD_phospho.RDS')
   # path_fasta = './phospho.fasta'
   # organism = 'mouse'
   # local = TRUE
 
-  if(organism == 'human'){
-    message('Mapping experimental phosphopeptides on human database of regulatory roles')
-    if(activatory == TRUE){
-      reg_phos_db <- good_phos_df_human_act
+  if(custom){
+    if(is.null(custom_path)){
+      stop('Please provide a path to the regulatory phosphosites table')
     }else{
-      reg_phos_db <- good_phos_df_human_all
+      message('Reading custom phosphosites')
+      reg_phos_db <- readr::read_tsv(custom_path, show_col_types = FALSE)
     }
-  }else if(organism == 'mouse'){
-    message('Mapping experimental phosphopeptides on mouse database of regulatory roles')
-    if(activatory == TRUE){
-      reg_phos_db <- good_phos_df_mouse_act
-    }else{
-      reg_phos_db <- good_phos_df_mouse_all
-    }
-  }else if(organism == 'hybrid'){
-    message('Mapping mouse experimental phosphopeptides on human database of regulatory roles to enhance coverage')
-
-    if(file.exists(path_fasta)){
-      command <- paste0('rm ', path_fasta)
-      system(command)
-      create_fasta(phosphoproteomic_data, path_fasta)
-    }else{
-      create_fasta(phosphoproteomic_data, path_fasta)
-    }
-
-    reg_phos_db <- generate_hybrid_db(mh_alignment = run_blast(path_fasta, blastp_path = blastp_path, local = local)$mapped,
-                                      activatory)
   }else{
-    stop('please provide a valid organism')
+    if(organism == 'human'){
+      message('Mapping experimental phosphopeptides on human database of regulatory roles')
+      if(activatory == TRUE){
+        reg_phos_db <- good_phos_df_human_act
+      }else{
+        reg_phos_db <- good_phos_df_human_all
+      }
+    }else if(organism == 'mouse'){
+      message('Mapping experimental phosphopeptides on mouse database of regulatory roles')
+      if(activatory == TRUE){
+        reg_phos_db <- good_phos_df_mouse_act
+      }else{
+        reg_phos_db <- good_phos_df_mouse_all
+      }
+    }else if(organism == 'hybrid'){
+      message('Mapping mouse experimental phosphopeptides on human database of regulatory roles to enhance coverage')
+
+      if(file.exists(path_fasta)){
+        command <- paste0('rm ', path_fasta)
+        system(command)
+        create_fasta(phosphoproteomic_data, path_fasta)
+      }else{
+        create_fasta(phosphoproteomic_data, path_fasta)
+      }
+
+      reg_phos_db <- generate_hybrid_db(mh_alignment = run_blast(path_fasta, blastp_path = blastp_path, local = local)$mapped,
+                                        activatory)
+    }else{
+      stop('please provide a valid organism')
+    }
   }
+
 
   if(nchar(phosphoproteomic_data$sequence_window[1]) > 15){
     # if it is longer, subset the input sequence to 15-mer
