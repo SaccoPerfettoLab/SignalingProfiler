@@ -10,7 +10,9 @@ map_experimental_on_regulatory_phosphosites(
   activatory,
   path_fasta,
   blastp_path = NULL,
-  local = FALSE
+  local = FALSE,
+  custom = FALSE,
+  custom_path = NULL
 )
 }
 \arguments{
@@ -23,6 +25,10 @@ map_experimental_on_regulatory_phosphosites(
 \item{blastp_path}{path of blastp in windows}
 
 \item{local}{DEVELOPMENTAL PURPOSES TRUE OR FALSE}
+
+\item{custom}{Boolean, default FALSE, TRUE if you want to provide your regulatory phosphosites}
+
+\item{custom_path}{string to the .tsv file of custom regulatory phosphosites}
 }
 \value{
 phosphoscore_df representing experimentally quantified phosphosites

@@ -11,7 +11,9 @@ run_viper(
   reg_minsize,
   integrated_regulons = FALSE,
   collectri = FALSE,
-  benchmark = NULL
+  benchmark = NULL,
+  custom = FALSE,
+  custom_path = NULL
 )
 }
 \arguments{
@@ -28,6 +30,10 @@ run_viper(
 \item{collectri}{boolean, if TRUE uses collectri regulons for tfea}
 
 \item{benchmark}{string, default NULL, specifies a dataset used in tfea benchmarking}
+
+\item{custom}{Boolean, default FALSE, TRUE if you want to provide your regulons}
+
+\item{custom_path}{string to the .tsv file of custom regulons}
 }
 \value{
 a list containing significantly enriched proteins and

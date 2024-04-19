@@ -10,7 +10,9 @@ run_hypergeometric_test(
   analysis,
   organism,
   integrated_regulons,
-  collectri
+  collectri,
+  custom = FALSE,
+  custom_path = NULL
 )
 }
 \arguments{
@@ -25,6 +27,10 @@ run_hypergeometric_test(
 \item{integrated_regulons}{boolean,  if TRUE uses Kinome Atlas regulons}
 
 \item{collectri}{boolean, if TRUE uses collectri regulons}
+
+\item{custom}{Boolean, default FALSE, TRUE if you want to provide your regulons}
+
+\item{custom_path}{string to the .tsv file of custom regulons}
 }
 \value{
 table with weight for viper score correction
