@@ -11,7 +11,9 @@ phosphoscore_computation(
   path_fasta = "./phospho.fasta",
   blastp_path = NULL,
   local = FALSE,
-  GO_annotation = FALSE
+  GO_annotation = FALSE,
+  custom = FALSE,
+  custom_path = NULL
 )
 }
 \arguments{
@@ -28,6 +30,10 @@ phosphoscore_computation(
 \item{local}{DEVELOPMENTAL PURPOSES}
 
 \item{GO_annotation}{boolean value, TRUE perform GO molecular function annotaiton, FALSE default value}
+
+\item{custom}{Boolean, default FALSE, TRUE if you want to provide your regulons}
+
+\item{custom_path}{string to the .tsv file of custom regulons}
 }
 \value{
 phosphoscore dataset with gene_name, inferred activity and

@@ -16,7 +16,9 @@ run_footprint_based_analysis(
   hypergeom_corr,
   correct_proteomics = FALSE,
   prot_df = NULL,
-  GO_annotation = FALSE
+  GO_annotation = FALSE,
+  custom = FALSE,
+  custom_path = NULL
 )
 }
 \arguments{

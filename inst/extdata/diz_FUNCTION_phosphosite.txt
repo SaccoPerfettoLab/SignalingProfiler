@@ -1,0 +1,32 @@
+activity, inhibited	down-regulates_activity	-1
+enzymatic activity, inhibited	down-regulates_activity	-1
+receptor desensitization, induced	down-regulates_activity	-1
+receptor inactivation, induced	down-regulates_activity	-1
+receptor internalization, induced	down-regulates_quantity	-1
+receptor recycling, induced	down-regulates_quantity	-1
+protein degradation	down-regulates_quantity_by_destabilization	-1
+acetylation	unknown	0
+enzymatic activity, altered	unknown	0
+intracellular localization	unknown	0
+methylation	unknown	0
+molecular association, regulation	unknown	0
+neddylation	unknown	0
+O-GalNAc glycosylation	unknown	0
+O-GlcNAc glycosylation	unknown	0
+palmitoylation	unknown	0
+phosphorylation	unknown	0
+protein conformation	unknown	0
+protein processing	unknown	0
+receptor desensitization, altered	unknown	0
+receptor internalization, altered	unknown	0
+receptor recycling, altered	unknown	0
+sumoylation	unknown	0
+ubiquitination	unknown	0
+activity, induced	up-regulates_activity	1
+enzymatic activity, induced	up-regulates_activity	1
+receptor desensitization, inhibited	up-regulates_activity	1
+receptor inactivation, altered	up-regulates_activity	1
+receptor internalization, inhibited	up-regulates_quantity	1
+receptor recycling, inhibited	up-regulates_quantity	1
+protein stabilization	up-regulates_quantity_by_stabilization	1
+unknown	unknown	0
