@@ -835,9 +835,14 @@ create_PKN <- function(database = c('SIGNOR', 'Omnipath',
   # ** Creath an igraph object **
   PKN_graph <- igraph::graph_from_data_frame(d = PKN_final1, vertices = analytes1)
 
-  return(list(igraph_PKN = PKN_graph,
-              interactions = PKN_final1,
-              entities = analytes1))
+  final_list <- list(igraph_PKN = PKN_graph,
+                     interactions = PKN_final1,
+                     entities = analytes1)
+
+  if(!is.null(file_path)){
+    write_rds(final_list, file_path)
+  }
+  return(final_list)
 
 }
 
