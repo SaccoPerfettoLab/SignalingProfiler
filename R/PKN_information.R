@@ -20,13 +20,13 @@ query_uniprot_proteins <- function(id_input, batch_size = 400){
   colnames(df_uni2seq_fin) <- header_df_uni2seq_fin
 
   for (i in seq(from= 1, to= length(id_input)-(batch_size-1), by = batch_size)){
-    print (i)
+    #print (i)
     id= unique(id_input[i:(i+(batch_size-1))])
 
     query_test= paste0('accession%3A', paste0( id, collapse ='%20OR%20accession%3A'))
     url_test=paste0('https://rest.uniprot.org/uniprotkb/stream?fields=accession%2Creviewed%2Cid%2Cprotein_name%2Cgene_primary%2Corganism_name%2Clength%2Csequence%2Cdate_sequence_modified&format=tsv&query=',query_test)
     result <- httr::GET(url_test)
-    as.character(httr::content(result, "text"))-> file_uni# automatically parses JSON
+    as.character(httr::content(result, "text", encoding = "UTF-8"))-> file_uni# automatically parses JSON
     df_uni2seq <- readr::read_delim(file_uni, delim = '\t',skip_empty_rows = TRUE, show_col_types =  F)
     df_uni2seq_fin <- rbind(df_uni2seq_fin, df_uni2seq )
   }
@@ -35,7 +35,7 @@ query_uniprot_proteins <- function(id_input, batch_size = 400){
   query_test= paste0('accession%3A', paste0( id, collapse ='%20OR%20accession%3A'))
   url_test=paste0('https://rest.uniprot.org/uniprotkb/stream?fields=accession%2Creviewed%2Cid%2Cprotein_name%2Cgene_primary%2Corganism_name%2Clength%2Csequence%2Cdate_sequence_modified&format=tsv&query=',query_test)
   result <- httr::GET(url_test)
-  as.character(httr::content(result, "text"))-> file_uni# automatically parses JSON
+  as.character(httr::content(result, "text", encoding = "UTF-8"))-> file_uni# automatically parses JSON
   df_uni2seq <- readr::read_delim(file_uni, delim = '\t',skip_empty_rows = TRUE,show_col_types = F)
   df_uni2seq_fin <- rbind(df_uni2seq_fin,df_uni2seq ) %>% dplyr::distinct()
 
@@ -125,7 +125,8 @@ signor_parsing <- function(organism, direct = FALSE, file_path = NULL, only_acti
                                          "ANNOTATOR",
                                          "SENTENCE",
                                          "SIGNOR_ID",
-                                         "SCORE"))
+                                         "SCORE"),
+                           show_col_types = FALSE)
 
 
   if(direct){
@@ -136,8 +137,8 @@ signor_parsing <- function(organism, direct = FALSE, file_path = NULL, only_acti
                       'ENTITYB','TYPEB','IDB','DATABASEB','MECHANISM',
                       'RESIDUE', 'SEQUENCE', 'SCORE')) %>%
       dplyr::mutate(SEQUENCE = stringr::str_to_upper(SEQUENCE),
-                    ENTITYA = stringr::str_to_uppertoupper(ENTITYA),
-                    ENTITYB = stringr::str_to_uppertoupper(ENTITYB))
+                    ENTITYA = stringr::str_to_upper(ENTITYA),
+                    ENTITYB = stringr::str_to_upper(ENTITYB))
 
     query_sub_pheno$INTERACTION <- 0
     query_sub_pheno$INTERACTION[grepl('down*', query_sub_pheno$EFFECT)] <- -1
@@ -214,9 +215,10 @@ signor_parsing <- function(organism, direct = FALSE, file_path = NULL, only_acti
 #'
 #' @examples
 integrate_atlas_in_pkn <- function(reg_site_path,
-                                   kin_sub_path, file_path = NULL){
+                                   kin_sub_path, file_path = NULL, local = FALSE){
 
-  path_package <- paste0(.libPaths()[1], '/SignalingProfiler/')
+  path_package <- ifelse(local == TRUE, './inst/',
+                         paste0(.libPaths()[1], '/SignalingProfiler/'))
 
   kinome_atlas_regulons <- readr::read_tsv(paste0(path_package, 'extdata/SerThrAtlas_PsP_regulons_filtered_99.tsv'),
                                            show_col_types = FALSE)
@@ -229,8 +231,6 @@ integrate_atlas_in_pkn <- function(reg_site_path,
   kinase_subs <- read.delim2(kin_sub_path, sep ='\t', skip = 2)
   kinase_org <- kinase_subs %>%
     dplyr::filter(KIN_ORGANISM == 'human' & SUB_ORGANISM == 'human')
-
-  path_package <- paste0(.libPaths()[1], '/SignalingProfiler/')
 
   # Read SIGNOR dictionary
   phospho2SIGNOR <- read.delim2(paste0(path_package, 'extdata/diz_FUNCTION_phosphosite.txt'),
@@ -332,12 +332,14 @@ psp_parsing <- function(reg_site_path,
                         kin_sub_path,
                         organism,
                         with_atlas = FALSE,
-                        file_path = NULL){
+                        file_path = NULL,
+                        local = FALSE){
 
   regulatory_sites <- tibble::tibble(read.delim2(reg_site_path, sep ='\t', skip = 2))
   kinase_subs <- tibble::tibble(read.delim2(kin_sub_path, sep ='\t', skip = 2))
 
-  path_package <- paste0(.libPaths()[1], '/SignalingProfiler/')
+  path_package <- ifelse(local == TRUE, './inst/',
+                         paste0(.libPaths()[1], '/SignalingProfiler/'))
 
   # dictionary for phosphosite-SIGNOR conversion internal in SignalingProfiler
   phospho2SIGNOR <- read.delim2(paste0(path_package, 'extdata/diz_FUNCTION_phosphosite.txt'),
@@ -375,12 +377,6 @@ psp_parsing <- function(reg_site_path,
   kin2res <- kin2res %>% tidyr::separate_rows('ON_FUNCTION', sep = '; ')
   kin2res_mapped <- dplyr::left_join(kin2res, phospho2SIGNOR, by = c('ON_FUNCTION' = 'phospho')) %>%
     dplyr::filter(!is.na(sign) & (sign == 1 | sign == -1))
-
-  if(only_activatory){
-    phosphoscore_table <- phosphoscore_table %>%
-      dplyr::filter(grepl('activity', SIGNOR)) %>%
-      dplyr::select(ENTITY, ID, RESIDUE, SEQUENCE, sign)
-  }
 
   kin2res_mapped <- kin2res_mapped %>%
     dplyr::mutate(TYPEA = 'protein',
@@ -532,7 +528,7 @@ omnipath_parsing <- function(resources, file_path = NULL){
 
 #' create_PKN
 #'
-#' @param database vector, resources can be SIGNOR, OmniPath, PsP, SerThrAtlas
+#' @param database vector, resources can be SIGNOR, Omnipath, PsP, SerThrAtlas
 #' @param file_path string, path for file saving
 #' @param organism string, 'human' or 'mouse'
 #' @param direct Boolean, if TRUE only direct interactions are included
@@ -544,14 +540,14 @@ omnipath_parsing <- function(resources, file_path = NULL){
 #' @export
 #'
 #' @examples
-create_PKN <- function(database = c('SIGNOR', 'OmniPath',
+create_PKN <- function(database = c('SIGNOR', 'Omnipath',
                                     'PsP', 'SerThr_Atlas'),
                        organism = 'human',
                        direct = FALSE,
                        file_path = NULL,
-                       omnipath_resources = NULL,
-                       reg_site_path = NULL,
-                       kin_sub_path = NULL){
+                       omnipath_resources = c("SignaLink3","PhosphoSite","SIGNOR"),
+                       psp_reg_site_path = NULL,
+                       psp_kin_sub_path = NULL){
 
   # organism <- 'human'
   # direct <- TRUE
@@ -567,6 +563,7 @@ create_PKN <- function(database = c('SIGNOR', 'OmniPath',
   }
 
   if('SIGNOR' %in% database){
+    message('Querying SIGNOR database')
     SIGNOR <- signor_parsing(organism, direct)$interactions
     SIGNOR$SOURCE <- 'SIGNOR'
 
@@ -575,19 +572,23 @@ create_PKN <- function(database = c('SIGNOR', 'OmniPath',
 
 
   if('PsP' %in% database){
-    if((is.null(reg_site_path) | is.null(kin_sub_path))){
+    if((is.null(psp_reg_site_path) | is.null(psp_kin_sub_path))){
       stop('Please provide the paths to Kinase-Substrates and Regulatory Sites of
          PhosphoSitePlus database available at
          https://www.phosphosite.org/homeAction.action under registration')
     }else{
       if('SerThr_Atlas' %in% database){
-        PsP <- psp_parsing(reg_site_path = reg_site_path,
-                           kin_sub_path = kin_sub_path, organism = organism,
+        message('Parsing input PsP files and integrating Ser/Thr Kinome Atlas information')
+        PsP <- psp_parsing(reg_site_path = psp_reg_site_path,
+                           kin_sub_path = psp_kin_sub_path,
+                           organism = organism,
                            with_atlas = TRUE)
         PsP$SOURCE <- 'PsP+Atlas'
       }else{
-        PsP <- psp_parsing(reg_site_path = reg_site_path,
-                           kin_sub_path = kin_sub_path, organism = organism,
+        message('Parsing input PsP files')
+        PsP <- psp_parsing(reg_site_path = psp_reg_site_path,
+                           kin_sub_path = psp_kin_sub_path,
+                           organism = organism,
                            with_atlas = FALSE)
         PsP$SOURCE <- 'PsP'
         PsP$DIRECT <- TRUE
@@ -603,9 +604,10 @@ create_PKN <- function(database = c('SIGNOR', 'OmniPath',
 
 
   if('Omnipath' %in% database){
-    if(!is.null(omnipath_resources)){
+    if(is.null(omnipath_resources)){
       stop('Plese provide a vector of resources to download from Omnipath')
     }else{
+      message('Querying OmniPath database using OmniPathR package')
       omnipath <- omnipath_parsing(resources = omnipath_resources)
       omnipath$SOURCE <- 'OmniPath'
       omnipath$DIRECT <- FALSE
@@ -815,7 +817,7 @@ create_PKN <- function(database = c('SIGNOR', 'OmniPath',
   PKN_final1$ENTITYB[grepl('^\\d', PKN_final1$ENTITYB)] <- paste0('X', PKN_final1$ENTITYB[grepl('^\\d', PKN_final1$ENTITYB)])
 
   # ** Creath an igraph object **
-  PKN_graph <- graph_from_data_frame(d = PKN_final1, vertices = analytes1)
+  PKN_graph <- igraph::graph_from_data_frame(d = PKN_final1, vertices = analytes1)
 
   return(list(igraph_PKN = PKN_graph,
               interactions = PKN_final1,
@@ -954,7 +956,7 @@ get_omnipath <- function(organism,
   }else{
     mod_df_filt <- mod_df %>%
       tidyr::separate_rows(sources, sep = ';') %>%
-      dplyr::filter(sources %in% accepted_sources$sources)
+      dplyr::filter(sources %in% resources)
   }
 
   mod_df_filt <- mod_df_filt %>% dplyr::select(-c(sources, references)) %>% dplyr::distinct()
@@ -1003,6 +1005,7 @@ create_ksea_regulons <- function(resources = c('SIGNOR', 'Omnipath'), organism,
 
   }
   if('Omnipath' %in% resources){
+    message('Querying OmniPath database')
     regulons_list[[length(regulons_list)+1]] <- get_omnipath(organism, resources = omni_resources)
   }
 
@@ -1025,7 +1028,7 @@ create_ksea_regulons <- function(resources = c('SIGNOR', 'Omnipath'), organism,
 #' @export
 #'
 #' @examples
-psp_phospho_parsing <- function(organism, reg_site_path, only_activatory = TRUE){
+psp_phospho_parsing <- function(organism, reg_site_path, only_activatory = TRUE, local = FALSE){
 
   regulatory_sites <- tibble::tibble(read.delim2(reg_site_path, sep ='\t', skip = 2))
 
@@ -1035,6 +1038,9 @@ psp_phospho_parsing <- function(organism, reg_site_path, only_activatory = TRUE)
     dplyr::mutate(MOD_RSD = stringr::str_remove(MOD_RSD, '-p')) # remove -p in the column
 
   # Read SIGNOR dictionary
+
+  path_package <- ifelse(local == TRUE, './inst/',
+                         paste0(.libPaths()[1], '/SignalingProfiler/'))
   phospho2SIGNOR <- read.delim2(paste0(path_package, 'extdata/diz_FUNCTION_phosphosite.txt'),
                                 sep ='\t',header=FALSE,
                                 col.names = c('phospho', 'SIGNOR','sign'))
@@ -1077,7 +1083,7 @@ psp_phospho_parsing <- function(organism, reg_site_path, only_activatory = TRUE)
 #'
 #' @examples
 get_phosphoscore_info <- function(resources = c('SIGNOR', 'PsP'), organism,
-                                  psp_reg_site_path = NULL, only_activatory = TRUE){
+                                  psp_reg_site_path = NULL, only_activatory = TRUE, local = FALSE){
 
   phosphoscore_list <- list()
 
@@ -1098,12 +1104,12 @@ get_phosphoscore_info <- function(resources = c('SIGNOR', 'PsP'), organism,
   }
 
   if('PsP' %in% resources){
-    if(is.null(reg_site_path)){
+    if(is.null(psp_reg_site_path)){
       stop('Please provide a valid path to RegulatorySites information of PhosphoSitePlus database')
     }else{
       PsP <- psp_phospho_parsing(organism = organism,
-                                 reg_site_path = reg_site_path,
-                                 only_activatory = only_activatory)
+                                 reg_site_path = psp_reg_site_path,
+                                 only_activatory = only_activatory,local = local)
 
       phosphosite_mech <- PsP %>% dplyr::mutate(PHOSPHO_KEY_GN_SEQ = paste0(ENTITY, '-', SEQUENCE),
                                                 IDB = ID,
