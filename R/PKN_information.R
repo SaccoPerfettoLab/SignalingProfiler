@@ -473,13 +473,16 @@ omnipath_parsing <- function(resources, file_path = NULL){
   query_signor$...4 <- NULL
   query_signor <- query_signor %>% dplyr::mutate(COMPONENTS1 = stringr::str_replace_all(COMPONENTS, ',', '_'))
 
-  complex_table1 <- complex_table1 %>% dplyr::mutate(ID_omni2 = unlist(split_and_sort(ID_omni1)))
-  query_signor <-  query_signor %>% dplyr::mutate(COMPONENTS2 = unlist(split_and_sort(COMPONENTS1)))
+  complex_table1 <- complex_table1 %>%
+    dplyr::mutate(ID_omni2 = unlist(split_and_sort(ID_omni1)))
+  query_signor <-  query_signor %>%
+    dplyr::mutate(COMPONENTS2 = unlist(split_and_sort(COMPONENTS1)))
 
   omni_to_signor <- dplyr::inner_join(complex_table1, query_signor, by = c('ID_omni2' = 'COMPONENTS2'))
   omni_to_signor <- omni_to_signor %>% dplyr::select(ID_omni, gn_omni, SIG_ID, COMPLEX_NAME)
 
-  dictionary_sp_omni_signor_dic <- dplyr::inner_join(PKN_proteins_human, omni_to_signor, by = c('ID' = 'SIG_ID'))
+  dictionary_sp_omni_signor_dic <- dplyr::inner_join(PKN_proteins_human,
+                                                     omni_to_signor, by = c('ID' = 'SIG_ID'))
 
   complex_interactions_simple <- complex_interactions %>%
     dplyr::select(source, target, source_genesymbol, target_genesymbol, INTERACTION)
@@ -509,13 +512,20 @@ omnipath_parsing <- function(resources, file_path = NULL){
 
   complex_interactions_fixed <- entityab_fixed %>%
     dplyr::select(IDA, ENTITYA, INTERACTION, IDB, ENTITYB) %>% distinct()
+
   complex_interactions_fixed %>%
     dplyr::filter(!(grepl('COMPLEX', IDA ) | grepl('COMPLEX', IDB ))) -> no_complex_notation
 
   # Unite interactions of complexes and proteins
   omni2signor %>% dplyr::filter(!(grepl('COMPLEX', IDA ) | grepl('COMPLEX', IDB ))) -> no_complex
+
   dplyr::bind_rows(no_complex, no_complex_notation) -> omni2signor_final
 
+  omni2signor_final <- omni2signor_final %>%
+    dplyr::mutate(TYPEA = ifelse(grepl('SIGNOR-C', IDA), 'complex', 'protein'),
+                TYPEB = ifelse(grepl('SIGNOR-C', IDB), 'complex', 'protein'),
+                DATABASEA = ifelse(grepl('SIGNOR-C', IDA), 'SIGNOR', 'UNIPROT'),
+                DATABASEB = ifelse(grepl('SIGNOR-C', IDA), 'SIGNOR', 'UNIPROT'))
 
   if(!is.null(file_path)){
     readr::write_tsv(omni2signor_final, paste0(file_path, 'PKN_Omnipath_interactions.tsv'))
@@ -548,6 +558,12 @@ create_PKN <- function(database = c('SIGNOR', 'Omnipath',
                        omnipath_resources = c("SignaLink3","PhosphoSite","SIGNOR"),
                        psp_reg_site_path = NULL,
                        psp_kin_sub_path = NULL){
+
+  # database = c('SIGNOR', 'Omnipath', 'PsP')
+  # organism = 'human'
+  # direct = TRUE
+  #            psp_reg_site_path = '../../Lab/Metformin/revisions/input/Regulatory_sites_2023-08-24'
+  #            psp_kin_sub_path = '../../Lab/Metformin/revisions/input/Kinase_Substrate_Dataset_2023-08-24'
 
   # organism <- 'human'
   # direct <- TRUE
@@ -807,8 +823,8 @@ create_PKN <- function(database = c('SIGNOR', 'Omnipath',
 
   analytes1 <- analytes1 %>% dplyr::group_by(ENTITY) %>%
     dplyr::reframe(ID = paste0(unique(ID), collapse =';'),
-                   TYPE = paste0(TYPE, collapse = ';'),
-                   DATABASE = paste0(DATABASE, collapse = ';')) %>%
+                   TYPE = paste0(unique(TYPE), collapse = ';'),
+                   DATABASE = paste0(unique(DATABASE), collapse = ';')) %>%
     dplyr::distinct()
 
   PKN_final1 <- PKN_final %>% dplyr::mutate(ENTITYA = stringr::str_replace_all(ENTITYA, "[^[:alnum:]]", '_'),
