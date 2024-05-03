@@ -613,6 +613,8 @@ phosphoscore_computation <- function(phosphoproteomic_data,
 
   if('source_org' %in% colnames(phosphoscore_df)){
     n_species <- length(unique(phosphoscore_df$source_org))
+  }else{
+    n_species <- 1
   }
 
   raw_output <- phosphoscore_df %>%
@@ -630,15 +632,20 @@ phosphoscore_computation <- function(phosphoproteomic_data,
                                    dplyr::select(PHOSPHO_KEY_GN_SEQ, ACTIVATION, difference),
                                  by = 'PHOSPHO_KEY_GN_SEQ')
 
-  if(organism %in% c('hybrid', 'mouse')){
+  if(organism %in% c('hybrid', 'mouse')){ #transform the mapping key to lower for mice
     exp_fc_sub <- exp_fc_sub %>%
       dplyr::mutate_at('PHOSPHO_KEY_GN_SEQ', toupper) %>%
       dplyr::distinct()
 
     exp_fc_sub <- exp_fc_sub %>% dplyr::mutate(PHOSPHO_KEY_GN_SEQ = paste0(gene_name, '-',
                                                                            sub('.*-', replacement = '', exp_fc_sub$PHOSPHO_KEY_GN_SEQ)))
+
+    # change also raw output
+    raw_output <- raw_output %>%
+      dplyr::mutate_at('gene_name', str_to_title)
   }
 
+  # table for each inferred protein the regulatory phosphosites
   exp_fc_sub <- exp_fc_sub %>%
     dplyr::mutate(aa = paste0(aminoacid, position),
                   gene_name = (gene_name),
