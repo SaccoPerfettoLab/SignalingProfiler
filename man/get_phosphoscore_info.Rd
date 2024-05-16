@@ -8,7 +8,8 @@ get_phosphoscore_info(
   resources = c("SIGNOR", "PsP"),
   organism,
   psp_reg_site_path = NULL,
-  only_activatory = TRUE
+  only_activatory = TRUE,
+  local = FALSE
 )
 }
 \arguments{

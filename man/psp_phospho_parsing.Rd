@@ -4,7 +4,12 @@
 \alias{psp_phospho_parsing}
 \title{psp_phospho_parsing}
 \usage{
-psp_phospho_parsing(organism, reg_site_path, only_activatory = TRUE)
+psp_phospho_parsing(
+  organism,
+  reg_site_path,
+  only_activatory = TRUE,
+  local = FALSE
+)
 }
 \arguments{
 \item{organism}{string, 'human' or 'mouse'}
