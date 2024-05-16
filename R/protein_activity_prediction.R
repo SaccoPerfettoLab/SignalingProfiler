@@ -223,6 +223,14 @@ run_hypergeometric_test <- function(omic_data, viper_output,
                                     analysis, organism, integrated_regulons,
                                     collectri, custom = FALSE, custom_path = NULL){
 
+  # omic_data = omic_data
+  # viper_output = output$sign
+  # analysis = analysis
+  # organism = organism
+  # collectri = collectri
+  # integrated_regulons = integrated_regulons
+  # custom = custom
+  # custom_path = custom_path
   # omic_data <- tr_df
   # viper_output <- a$sign
   # analysis <- 'tfea'
@@ -306,6 +314,7 @@ run_hypergeometric_test <- function(omic_data, viper_output,
     dplyr::count(tf) %>%
     dplyr::rename('freq' = 'n')
 
+
   # from viper analysis get all significant analytes
   all_significant_matrix <- create_matrix_from_VIPER_format(create_viper_format(omic_data, analysis, significance = TRUE))
 
@@ -388,8 +397,8 @@ weight_viper_score <- function(ea_output){
   # if pWeight == 0 replace with min of pWeight otherwise the raw weight becomes Inf
   min <- min(ea_output$pWeight[ea_output$pWeight!= 0])
 
+  ea_output$pWeight[ea_output$pWeight == 0] <- min
   ea_output_log <- ea_output %>%
-    dplyr::mutate(pWeight = ifelse(pWeight == 0, min, pvalues)) %>%
     dplyr::mutate(raw_weight = -log(pWeight))
 
   # Create a weigth balanced on the max raw_weight
@@ -463,6 +472,17 @@ run_footprint_based_analysis <- function(omic_data,
                                          custom = FALSE,
                                          custom_path = NULL){
 
+  # omic_data = phospho_df
+  # analysis = 'ksea'
+  # organism = 'human'
+  # reg_minsize = 3
+  # exp_sign = FALSE
+  # integrated_regulons = TRUE
+  # hypergeom_corr = TRUE
+  # GO_annotation = TRUE
+  # correct_proteomics = TRUE
+  # prot_df = prot_df
+
   message(' ** RUNNING FOOTPRINT BASED ANALYSIS ** ')
   message('Credits to Prof. Julio Saez-Rodriguez. For more information read this article: Dugourd A, Saez-Rodriguez J. Footprint-based functional analysis of multiomic data. Curr Opin Syst Biol. 2019 Jun;15:82-90. doi: 10.1016/j.coisb.2019.04.002. PMID: 32685770; PMCID: PMC7357600.')
 
@@ -528,7 +548,8 @@ run_footprint_based_analysis <- function(omic_data,
 
   if(hypergeom_corr == TRUE){
     message('Starting hypergeometric test correction')
-    output <- weight_viper_score(run_hypergeometric_test(omic_data,output$sign,
+    output <- weight_viper_score(run_hypergeometric_test(omic_data = omic_data,
+                                                         viper_output = output$sign,
                                                          analysis = analysis,
                                                          organism = organism,
                                                          collectri = collectri,
@@ -1132,4 +1153,122 @@ combine_activityscore_proteoscore <- function(activity_score, proteo_score){
 
   return(combined_score)
 }
+
+#' phosphoscore_computation_aapos
+#'
+#' @param phosphoproteomic_data table with SP formatted phosphoproteomic data
+#' @param organism string, 'human' or 'mouse'
+#' @param activatory Boolean, TRUE or FALSE
+#' @param GO_annotation Boolean, TRUE or FALSE
+#'
+#' @return PhosphoScore table
+#' @export
+#'
+#' @examples
+phosphoscore_computation_aapos <- function(phosphoproteomic_data,
+                                     organism,
+                                     activatory,
+                                     GO_annotation = FALSE, custom = FALSE, custom_path = NULL){
+
+  message('** RUNNING PHOSPHOSCORE ANALYSIS WITH AA and POS **')
+
+  if(custom){
+    if(is.null(custom_path)){
+      stop('Please provide a path to the regulatory phosphosites table')
+    }else{
+      message('Reading custom phosphosites')
+      reg_phos_db <- readr::read_tsv(custom_path, show_col_types = FALSE)
+    }
+  }else{
+    if(organism == 'human'){
+      if(activatory == TRUE){
+        reg_phos_db <- good_phos_df_human_act_aapos
+      }else{
+        reg_phos_db <- good_phos_df_human_all_aapos
+      }
+    }else if(organism == 'mouse'){
+      message('Mapping experimental phosphopeptides on mouse database of regulatory roles')
+      if(activatory == TRUE){
+        reg_phos_db <- good_phos_df_mouse_act_aapos
+      }else{
+        reg_phos_db <- good_phos_df_mouse_all_aapos
+      }
+    }else{
+      stop('please provide a valid organism')
+    }
+  }
+
+  # Filter experimental data
+  if(organism == 'mouse'){
+
+  }else{
+    exp_fc <- phosphoproteomic_data %>%
+      dplyr::filter(significant == '+') %>%
+      dplyr::mutate(residue_mapp = ifelse(aminoacid == 'S', 'Ser',
+                                          ifelse(aminoacid == 'Y', 'Tyr',
+                                                 ifelse(aminoacid == 'T', 'Thr', aminoacid)))) %>%
+      dplyr::mutate(PHOSPHO_KEY_GN_SEQ = paste0(toupper(gene_name), '-', residue_mapp, position)) %>%
+      dplyr::filter(PHOSPHO_KEY_GN_SEQ %in% reg_phos_db$PHOSPHO_KEY_GN_SEQ)
+  }
+
+
+  if(nrow(exp_fc) == 0){
+    warning('No annotated regulatory phosphosites significantly modulated in your dataset')
+    return(NULL)
+  }else{
+    phosphoscore_df <- dplyr::left_join(exp_fc, reg_phos_db, by = 'PHOSPHO_KEY_GN_SEQ') %>%
+      dplyr::select(PHOSPHO_KEY_GN_SEQ, ACTIVATION, difference) %>%
+      dplyr::arrange(PHOSPHO_KEY_GN_SEQ) %>%
+      dplyr::mutate(gene_name  = unlist(lapply(PHOSPHO_KEY_GN_SEQ,
+                                               function(x){stringr::str_split(x, '-')[[1]][1]})),
+                    inferred_activity = as.numeric(ACTIVATION) * as.numeric(difference)) %>%
+      dplyr::distinct()
+  }
+
+
+
+    return(list(used_exp_data = exp_fc,
+                phosphoscore_df = phosphoscore_df))
+
+  raw_output <- phosphoscore_df %>%
+    #tidyr::separate(PHOSPHO_KEY_GN_SEQ, into = c('h_gene_name', 'phosphoseq'), sep = '-') %>%
+    #dplyr::select(-c('h_gene_name')) %>%
+    dplyr::group_by(gene_name) %>%
+    dplyr::summarize(phosphoscore = mean(inferred_activity))
+
+  exp_fc_sub <- exp_fc %>%
+    dplyr::select(gene_name, PHOSPHO_KEY_GN_SEQ, aminoacid, position) %>%
+    dplyr::distinct()
+
+  exp_fc_sub <- dplyr::left_join(exp_fc_sub,
+                                 phosphoscore_df %>%
+                                   dplyr::select(PHOSPHO_KEY_GN_SEQ, ACTIVATION, difference),
+                                 by = 'PHOSPHO_KEY_GN_SEQ')
+
+  # table for each inferred protein the regulatory phosphosites
+  exp_fc_sub <- exp_fc_sub %>%
+    dplyr::mutate(aa = paste0(aminoacid, position),
+                  gene_name = (gene_name),
+                  difference = as.character(round(exp_fc_sub$difference,2))) %>%
+    dplyr::group_by(gene_name) %>%
+    dplyr::summarise(n_sign_phos = dplyr::n(),
+                     phos = paste0(aa, collapse = ';'),
+                     act_rol = paste0(ACTIVATION, collapse =';'),
+                     phosphosite_fc = paste0(difference, collapse =';'))
+
+  output <- dplyr::left_join(raw_output, exp_fc_sub, by = 'gene_name')
+
+  # add uniprot and molecular function
+  output <- convert_gene_name_in_uniprotid(bio_dataset = output, organism = organism)
+
+  if(GO_annotation == TRUE){
+    output <- molecular_function_annotation(output, organism) %>%
+      dplyr::distinct()
+    return(output)
+  }
+
+  return(output)
+}
+
+
 

@@ -4,7 +4,12 @@
 \alias{integrate_atlas_in_pkn}
 \title{integrate_atlas_in_pkn}
 \usage{
-integrate_atlas_in_pkn(reg_site_path, kin_sub_path, file_path = NULL)
+integrate_atlas_in_pkn(
+  reg_site_path,
+  kin_sub_path,
+  file_path = NULL,
+  local = FALSE
+)
 }
 \arguments{
 \item{reg_site_path}{path to the PhosphoSitePlus 'Regulatory Sites' file}

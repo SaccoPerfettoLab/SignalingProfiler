@@ -5,17 +5,17 @@
 \title{create_PKN}
 \usage{
 create_PKN(
-  database = c("SIGNOR", "OmniPath", "PsP", "SerThr_Atlas"),
+  database = c("SIGNOR", "Omnipath", "PsP", "SerThr_Atlas"),
   organism = "human",
   direct = FALSE,
   file_path = NULL,
-  omnipath_resources = NULL,
-  reg_site_path = NULL,
-  kin_sub_path = NULL
+  omnipath_resources = c("SignaLink3", "PhosphoSite", "SIGNOR"),
+  psp_reg_site_path = NULL,
+  psp_kin_sub_path = NULL
 )
 }
 \arguments{
-\item{database}{vector, resources can be SIGNOR, OmniPath, PsP, SerThrAtlas}
+\item{database}{vector, resources can be SIGNOR, Omnipath, PsP, SerThrAtlas}
 
 \item{organism}{string, 'human' or 'mouse'}
 

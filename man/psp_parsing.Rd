@@ -9,7 +9,8 @@ psp_parsing(
   kin_sub_path,
   organism,
   with_atlas = FALSE,
-  file_path = NULL
+  file_path = NULL,
+  local = FALSE
 )
 }
 \arguments{
