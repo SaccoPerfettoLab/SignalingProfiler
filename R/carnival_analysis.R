@@ -575,11 +575,24 @@ expand_and_map_edges <- function(optimized_object,
 
   # Create substring of phosphopeptide sequence in phospho_df
   # for mapping to PKN, if necessary
-  if(nchar(phospho_df$sequence_window[1]) != 15){
+  if(nchar(phospho_df$sequence_window[1]) > 15){
+    # if it is longer, subset the input sequence to 15-mer
     center <- (nchar(phospho_df$sequence_window[1])+1)/2
     phospho_df <- phospho_df %>%
       dplyr::mutate(sequence_window_sub = stringr::str_sub(sequence_window, center - 7, center + 7))
-  }else{ #if it is rename the column just to have a homogeneous variable
+  }else if(nchar(phospho_df$sequence_window[1]) < 15){
+    #if it is shorter, change the database
+    offset <- (nchar(phospho_df$sequence_window[1]) - 1) / 2
+
+    # Adjust PKN with the length of phosphoproteomic data
+    db <- db %>%
+      tidyr::separate(PHOSPHO_KEY_GN_SEQ, sep = '-', into = c('gene_name', 'seq')) %>%
+      dplyr::filter(nchar(seq) == 15) %>% #remove strange sequences
+      dplyr::mutate(seq = stringr::str_sub(seq, 7 - offset + 1, 7 + offset + 1)) %>%
+      tidyr::unite('PHOSPHO_KEY_GN_SEQ', gene_name:seq, sep = '-')
+    phospho_df <- phospho_df %>%
+      dplyr::rename(sequence_window_sub = sequence_window)
+  }else{
     phospho_df <- phospho_df %>%
       dplyr::rename(sequence_window_sub = sequence_window)
   }
