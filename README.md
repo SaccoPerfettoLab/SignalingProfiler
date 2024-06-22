@@ -32,12 +32,14 @@ Signaling Profiler is dependent on Saez lab algorithm CARNIVAL for performing th
 
 ## Tutorial
 
-You can find the tutorial of Signaling Profiler [here](https://htmlpreview.github.io/?https://github.com/SaccoPerfettoLab/SignalingProfiler/blob/main/vignettes/SignalingProfiler_vignette.html). 
+The latest tutorial of *SignalingProfiler* 2.0 is available [here](https://htmlpreview.github.io/?https://github.com/SaccoPerfettoLab/SignalingProfiler/blob/main/SignalingProfiler 2.0 tutorial/SignalingProfiler-2.0-tutorial.html).
 
-A new tutorial for human analysis is available  [here](https://htmlpreview.github.io/?https://github.com/SaccoPerfettoLab/SignalingProfiler/blob/main/vignettes/SP_vignette_human.html)
+Another tutorial for human is available [here](https://htmlpreview.github.io/?https://github.com/SaccoPerfettoLab/SignalingProfiler/blob/main/vignettes/SP_vignette_human.html)
+
+You can find an example of SignalingProfiler analysis for mouse [here](https://htmlpreview.github.io/?https://github.com/SaccoPerfettoLab/SignalingProfiler/blob/main/vignettes/SignalingProfiler_vignette.html). 
 
 ## Citation
-If you use SignalingProfiler for your research please cite the [original publication](https://www.nature.com/articles/s41375-022-01785-w).
+If you use SignalingProfiler in your research please cite the [original publication](https://www.nature.com/articles/s41375-022-01785-w).
 
 > Massacci, G., Venafra, V., Latini, S. et al. A key role of the WEE1-CDK1 axis in mediating TKI-therapy resistance in FLT3-ITD positive acute myeloid leukemia patients. Leukemia (2022). https://doi.org/10.1038/s41375-022-01785-w
 
