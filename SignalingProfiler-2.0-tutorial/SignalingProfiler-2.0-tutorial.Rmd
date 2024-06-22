@@ -1,6 +1,6 @@
 ---
 title: "SignalingProfiler 2.0 tutorial"
-author: "[SaccoPerfettoLab](SaccoPerfettoLab/)"
+author: "SaccoPerfettoLab"
 date: "Last updated: `r format(Sys.time(), '%d %B, %Y')`"
 output:
   html_document:
@@ -34,7 +34,7 @@ knitr::opts_chunk$set(
 klippy::klippy()
 ```
 
-```{r Load libraries, message = FALSE, include = FALSE}
+```{r Load libraries, message = FALSE, include = TRUE}
 library(DT)
 library(ggplot2)
 library(xfun)
