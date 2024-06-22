@@ -1,6 +1,6 @@
 ---
 title: "SignalingProfiler 2.0 tutorial"
-author: "[SaccoPerfettoLab](https://github.com/SaccoPerfettoLab/)"
+author: "[SaccoPerfettoLab](SaccoPerfettoLab/)"
 date: "Last updated: `r format(Sys.time(), '%d %B, %Y')`"
 output:
   html_document:
