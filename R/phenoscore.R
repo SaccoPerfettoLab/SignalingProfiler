@@ -785,8 +785,8 @@ optimize_pheno_network <- function(sp_object,
                                                  path_rds = path_rds)
 
   # Override old sp_object_phenotypes
-  output_list$sp_object_phenotypes <- sp_pheno_out_validated
-  return(output_list)
+  sp_object$sp_object_phenotypes <- sp_pheno_out_validated
+  return(sp_object)
 }
 
 #' pheno_to_start_circuit
