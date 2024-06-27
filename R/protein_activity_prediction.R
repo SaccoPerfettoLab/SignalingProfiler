@@ -1107,6 +1107,10 @@ combine_footprint_and_phosphoscore <- function(footprint_output, phosphoscore_df
   comp$final_score[is.na(comp$weightedNES) & !is.na(comp$phosphoscore)] <- comp$phosphoscore[is.na(comp$weightedNES) & !is.na(comp$phosphoscore)]
   comp$method[is.na(comp$weightedNES) & !is.na(comp$phosphoscore)] <- 'PhosphoScore'
 
+  if(!'weightedNES' %in% colnames(footprint_output)){
+    comp <- comp %>% dplyr::rename('NES' = 'weightedNES')
+  }
+
   return(comp)
 }
 
