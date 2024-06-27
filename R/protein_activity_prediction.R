@@ -1080,18 +1080,23 @@ combine_footprint_and_phosphoscore <- function(footprint_output, phosphoscore_df
         dplyr::filter(mf == 'kin' | mf == 'phos')
     }else{stop('please provide valid analysis type')}
 
+    # If there is no hypergeometric test
+    if(!'weightedNES' %in% colnames(footprint_output)){
+      footprint_output <- footprint_output %>% dplyr::rename('weightedNES' = 'NES')
+    }
+
     comp <- dplyr::full_join(footprint_output, phosphoscore_df, by = c('gene_name', 'UNIPROT', 'mf'))
   }else{
+
+    # If there is no hypergeometric test
+    if(!'weightedNES' %in% colnames(footprint_output)){
+      footprint_output <- footprint_output %>% dplyr::rename('weightedNES' = 'NES')
+    }
     comp <- dplyr::full_join(footprint_output, phosphoscore_df, by = c('gene_name', 'UNIPROT'))
   }
 
   comp$final_score <- NA
   comp$method <- NA
-
-  # If there is no hypergeometric test
-  if(!'weightedNES' %in% colnames(footprint_output)){
-    footprint_output <- footprint_output %>% dplyr::rename('weightedNES' = 'NES')
-  }
 
   comp$final_score[!is.na(comp$weightedNES) & !is.na(comp$phosphoscore)] <- rowMeans(comp[!is.na(comp$weightedNES) & !is.na(comp$phosphoscore), c('weightedNES', 'phosphoscore')])
   comp$method[!is.na(comp$weightedNES) & !is.na(comp$phosphoscore)] <- 'VIPER+PhosphoScore'
@@ -1101,10 +1106,6 @@ combine_footprint_and_phosphoscore <- function(footprint_output, phosphoscore_df
 
   comp$final_score[is.na(comp$weightedNES) & !is.na(comp$phosphoscore)] <- comp$phosphoscore[is.na(comp$weightedNES) & !is.na(comp$phosphoscore)]
   comp$method[is.na(comp$weightedNES) & !is.na(comp$phosphoscore)] <- 'PhosphoScore'
-
-  if(!'weightedNES' %in% colnames(footprint_output)){
-    comp <- comp %>% dplyr::rename('NES' = 'weightedNES' )
-  }
 
   return(comp)
 }
