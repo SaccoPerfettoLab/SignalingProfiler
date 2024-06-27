@@ -1083,8 +1083,10 @@ combine_footprint_and_phosphoscore <- function(footprint_output, phosphoscore_df
     # If there is no hypergeometric test
     if(!'weightedNES' %in% colnames(footprint_output)){
       footprint_output <- footprint_output %>% dplyr::rename('weightedNES' = 'NES')
+      flag = '+'
+    }else{
+      flag = '-'
     }
-
     comp <- dplyr::full_join(footprint_output, phosphoscore_df, by = c('gene_name', 'UNIPROT', 'mf'))
   }else{
 
