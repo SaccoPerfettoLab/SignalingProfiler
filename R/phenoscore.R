@@ -422,8 +422,8 @@ phenoscore_computation <- function(proteins_df,
 
           # handling NA in gene_name column
 
-          true_table_from <- igraph::V(sp_graph)$gene_name == combinatios[1,i]
-          true_table_to <- igraph::V(sp_graph)$gene_name == combinatios[2,i]
+          true_table_from <- igraph::V(sp_graph)$name == combinatios[1,i]
+          true_table_to <- igraph::V(sp_graph)$name == combinatios[2,i]
 
           true_table_from[is.na(true_table_from)] <- FALSE
           true_table_to[is.na(true_table_to)] <- FALSE
@@ -455,10 +455,10 @@ phenoscore_computation <- function(proteins_df,
           # print('i reverse')
           # print(i)
 
-          true_table_from_rev <- igraph::V(sp_graph)$gene_name == combinatios[2,i]
+          true_table_from_rev <- igraph::V(sp_graph)$name == combinatios[2,i]
           true_table_from_rev[is.na(true_table_from_rev)] <- FALSE
 
-          true_table_to_rev <- igraph::V(sp_graph)$gene_name == combinatios[1,i]
+          true_table_to_rev <- igraph::V(sp_graph)$name == combinatios[1,i]
           true_table_to_rev[is.na(true_table_to_rev)] <- FALSE
 
           if(sum(true_table_from_rev) == 0 | sum(true_table_to_rev) == 0){
@@ -612,6 +612,8 @@ phenoscore_computation <- function(proteins_df,
 
   if(flag == 'mouse'){
     results.table_reg$regulators <- stringr::str_to_title(results.table_reg$regulators)
+    igraph::V(sp_graph)$name <- stringr::str_to_title(igraph::V(sp_graph)$name)
+
   }
 
   # Create a network with the phenotypes linked
