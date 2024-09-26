@@ -31,7 +31,9 @@ molecular_function_annotation <- function(inferred_proteins_dataset, organism){
   inferred_proteins_dataset$mf[is.na(inferred_proteins_dataset$mf) & grepl('SIGNOR-C', inferred_proteins_dataset$UNIPROT)] <- 'complex'
   inferred_proteins_dataset$mf[is.na(inferred_proteins_dataset$mf) & grepl('SIGNOR-F', inferred_proteins_dataset$UNIPROT)] <- 'fusion protein'
   inferred_proteins_dataset$mf[is.na(inferred_proteins_dataset$mf)] <- 'other'
-  inferred_proteins_dataset$mf[inferred_proteins_dataset$method == 'user'] <- 'rec'
+  if ("method" %in% colnames(inferred_proteins_dataset)){
+    inferred_proteins_dataset$mf[inferred_proteins_dataset$method == 'user'] <- 'rec'
+  }
 
   return(inferred_proteins_dataset)
 }
