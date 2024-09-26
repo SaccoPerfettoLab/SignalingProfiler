@@ -323,13 +323,13 @@ check_CARNIVAL_inputs <- function(source_df, target_df,
   if(!is.null(source_df)){
     stopifnot(is.data.frame(source_df))
     stopifnot(all(c("gene_name","mf","final_score") %in% names(source_df)))
-    stopifnot(ncol(source_df)>4)
+    stopifnot(ncol(source_df)>=4)
   }
 
   # check the input proteins
   stopifnot(is.data.frame(target_df))
   stopifnot(all(c("gene_name","mf","final_score") %in% names(target_df)))
-  stopifnot(ncol(target_df)>4)
+  stopifnot(ncol(target_df)>=4)
 
   # check naive network
   stopifnot(is.data.frame(naive_network))
