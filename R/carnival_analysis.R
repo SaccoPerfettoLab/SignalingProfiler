@@ -494,7 +494,7 @@ run_carnival_and_create_graph <- function(source_df,
 #' @examples
 convert_output_nodes_in_next_input <- function(carnival_result){
   nodes <- carnival_result$nodes_df
-  formatted_nodes <- nodes %>% dplyr::select(gene_name, final_score = carnival_activity, mf, method)
+  formatted_nodes <- nodes %>% dplyr::select(UNIPROT, gene_name, final_score = carnival_activity, mf, method)
   return(formatted_nodes)
 }
 
