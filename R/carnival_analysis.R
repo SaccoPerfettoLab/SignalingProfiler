@@ -126,7 +126,9 @@ add_output_carnival_nodes_attributes <- function(carnival_result,
   nodes_df <- dplyr::left_join(optimal_nodes, PKN_proteins, by = c('Node' = 'ENTITY')) %>%
     dplyr::rename('gene_name' = 'Node','UNIPROT' = 'ID')
 
-  nodes_df <- dplyr::left_join(nodes_df, proteins_df %>% dplyr::select(-UNIPROT), by = c('gene_name')) %>%
+  nodes_df <- dplyr::left_join(nodes_df, proteins_df %>% dplyr::select(-UNIPROT) %>%
+                                 dplyr::mutate(gene_name = str_to_upper(str_replace_all(gene_name, "[^[:alnum:]]", '_'))),
+                               by = c('gene_name')) %>%
     dplyr::select(gene_name, carnival_activity, UNIPROT, mf, final_score, method)
 
   # annotate missing genes in the network
@@ -156,9 +158,6 @@ add_output_carnival_nodes_attributes <- function(carnival_result,
 #'
 #' @examples
 add_output_carnival_edges_attributes <- function(carnival_result){
-
-
-
   optimal_edges <- tibble::as_tibble(carnival_result$weightedSIF)
 
   edges_df <- tibble::tibble(source = optimal_edges$Node1,
@@ -380,6 +379,7 @@ run_carnival_and_create_graph <- function(source_df,
                                           files = TRUE,
                                           path_sif = './optimized_network.sif',
                                           path_rds = './optimized_SP_oject.RDS'){
+
 
   if(is.null(source_df)){
     message(' ** Running inverse CARNIVAL (No perturbations) ** ')
