@@ -1243,11 +1243,6 @@ phosphoscore_computation_aapos <- function(phosphoproteomic_data,
       dplyr::distinct()
   }
 
-
-
-    return(list(used_exp_data = exp_fc,
-                phosphoscore_df = phosphoscore_df))
-
   raw_output <- phosphoscore_df %>%
     #tidyr::separate(PHOSPHO_KEY_GN_SEQ, into = c('h_gene_name', 'phosphoseq'), sep = '-') %>%
     #dplyr::select(-c('h_gene_name')) %>%
