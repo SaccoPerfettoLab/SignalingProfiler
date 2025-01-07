@@ -13,7 +13,8 @@ phenoscore_network_preprocessing <- function(proteomics, phospho, local = FALSE)
   if(local == TRUE){
     path_package <- './inst/'
   }else{
-    path_package <- paste0(.libPaths()[1], '/SignalingProfiler/')
+    #path_package <- paste0(.libPaths()[1], '/SignalingProfiler/')
+    path_package <- paste0(.libPaths(), '/SignalingProfiler/')
   }
 
   home_dir <- path.expand('~')
@@ -23,16 +24,36 @@ phenoscore_network_preprocessing <- function(proteomics, phospho, local = FALSE)
 
   #reticulate::use_python("/usr/local/bin/python")
   reticulate::py_config()
-  reticulate::py_run_file(paste0(path_package, "/python/script.py"))
 
-  # Read Python processed file
-  signor_filtered <- readr::read_tsv(paste0(home_dir, '/Global_result_final_table_minimized.txt'))
+  # Loop on all lib locations to find script.py
+  for(path in path_package){
 
-  file.remove(paste0(home_dir, '/Global_result_final_table_minimized.txt'))
-  file.remove(paste0(home_dir, '/proteomics.tsv'))
-  file.remove(paste0(home_dir, '/phosphoproteomics.tsv'))
+    flag <- FALSE
+    result <- tryCatch({
+      reticulate::py_run_file(paste0(path, "/python/script.py"))
+      flag <<- TRUE
+    }, error = function(e) {
+      #message("An error occurred: ", e$message)
+      NA  # Return NA if an error occurs
+    })
 
-  return(signor_filtered)
+    if(flag){
+      break
+    }
+  }
+
+  if(!flag){
+    stop('Cannot find script.py in SignalingProfiler location')
+  }else{
+    # Read Python processed file
+    signor_filtered <- readr::read_tsv(paste0(home_dir, '/Global_result_final_table_minimized.txt'))
+
+    file.remove(paste0(home_dir, '/Global_result_final_table_minimized.txt'))
+    file.remove(paste0(home_dir, '/proteomics.tsv'))
+    file.remove(paste0(home_dir, '/phosphoproteomics.tsv'))
+
+    return(signor_filtered)
+  }
 }
 
 #' phenoscore_computation
