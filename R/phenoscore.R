@@ -32,27 +32,20 @@ phenoscore_network_preprocessing <- function(proteomics, phospho,
 
   reticulate::py_config()
 
-  print(paste0(path_package, collapse = '\n'))
-
   # Loop on all lib locations to find script.py
   for(path in path_package){
 
-    flag <- FALSE
     result <- tryCatch({
       reticulate::py_run_file(paste0(path, "/python/script.py"))
-      flag <<- TRUE
+      break
     }, error = function(e) {
       message("An error occurred: ", e$message, 'with path ', path)
       NA  # Return NA if an error occurs
     })
-
-    if(flag){
-      break
-    }
   }
 
-  if(!flag){
-    stop('Try changing python path with \'python_path\' parameter')
+  if(is.na(result)){
+    stop('Try changing python path with \'python_path\' parameter for reticulate')
   }else{
     # Read Python processed file
     signor_filtered <- readr::read_tsv(paste0(home_dir, '/Global_result_final_table_minimized.txt'))
