@@ -32,6 +32,8 @@ phenoscore_network_preprocessing <- function(proteomics, phospho,
 
   reticulate::py_config()
 
+  print(paste0(path_package, collapse = '\n'))
+
   # Loop on all lib locations to find script.py
   for(path in path_package){
 
