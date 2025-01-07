@@ -39,8 +39,11 @@ Another tutorial for human is available [here](https://html-preview.github.io/?u
 You can find an example of SignalingProfiler analysis for mouse [here](https://html-preview.github.io/?url=https://github.com/SaccoPerfettoLab/SignalingProfiler/blob/main/vignettes/SignalingProfiler_vignette.html). 
 
 ## Citation
-If you use SignalingProfiler in your research please cite the [original publication](https://www.nature.com/articles/s41375-022-01785-w).
+If you use SignalingProfiler in your research please cite the [latest publication](https://www.nature.com/articles/s41540-024-00417-6) and the [first publication](https://www.nature.com/articles/s41375-022-01785-w).
+
+> Venafra V, Sacco F, Perfetto L. SignalingProfiler 2.0 a network-based approach to bridge multi-omics data to phenotypic hallmarks. NPJ Syst Biol Appl. (2024). https://doi.org/10.1038/s41540-024-00417-6. 
 
 > Massacci, G., Venafra, V., Latini, S. et al. A key role of the WEE1-CDK1 axis in mediating TKI-therapy resistance in FLT3-ITD positive acute myeloid leukemia patients. Leukemia (2022). https://doi.org/10.1038/s41375-022-01785-w
+
 
 ## License
