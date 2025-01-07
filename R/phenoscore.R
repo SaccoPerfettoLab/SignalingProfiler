@@ -3,12 +3,15 @@
 #'
 #' @param proteomics protemics dataframe processed for SP
 #' @param phospho phosphoproteomics dataframe processed for SP
+#' @param python_path specify python3 path if reticulate default doesn't work
 #'
 #' @return SIGNOR cleaned according to expressed proteins
 #' @export
 #'
 #' @examples
-phenoscore_network_preprocessing <- function(proteomics, phospho, local = FALSE){
+phenoscore_network_preprocessing <- function(proteomics, phospho,
+                                             local = FALSE,
+                                             python_path = NULL){
 
   if(local == TRUE){
     path_package <- './inst/'
@@ -23,6 +26,10 @@ phenoscore_network_preprocessing <- function(proteomics, phospho, local = FALSE)
   write_tsv(phospho, paste0(home_dir, '/phosphoproteomics.tsv'))
 
   #reticulate::use_python("/usr/local/bin/python")
+  if(!is.null(python_path)){
+    reticulate::use_python(python_path)
+  }
+
   reticulate::py_config()
 
   # Loop on all lib locations to find script.py
@@ -43,7 +50,7 @@ phenoscore_network_preprocessing <- function(proteomics, phospho, local = FALSE)
   }
 
   if(!flag){
-    stop('Cannot find script.py in SignalingProfiler location')
+    stop('Try changing python path with \'python_path\' parameter')
   }else{
     # Read Python processed file
     signor_filtered <- readr::read_tsv(paste0(home_dir, '/Global_result_final_table_minimized.txt'))
