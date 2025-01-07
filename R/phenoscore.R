@@ -40,7 +40,7 @@ phenoscore_network_preprocessing <- function(proteomics, phospho,
       reticulate::py_run_file(paste0(path, "/python/script.py"))
       flag <<- TRUE
     }, error = function(e) {
-      #message("An error occurred: ", e$message)
+      message("An error occurred: ", e$message, 'with path ', path)
       NA  # Return NA if an error occurs
     })
 
