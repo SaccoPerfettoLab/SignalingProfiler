@@ -764,7 +764,7 @@ retrieve_functional_circuit <- function(SP_object, start_nodes, phenotype, k) {
 #' @examples
 optimize_pheno_network <- function(sp_object,
                                    organism,
-                                   phospho_df,
+                                   phospho_df = NULL,
                                    carnival_options,
                                    files,
                                    direct = FALSE,
@@ -798,17 +798,21 @@ optimize_pheno_network <- function(sp_object,
                                              path_sif = path_sif,
                                              path_rds = path_rds)
 
-  sp_pheno_out_validated <- expand_and_map_edges(optimized_object = pheno_out,
-                                                 organism = organism,
-                                                 phospho_df = phospho_df,
-                                                 files = files,
-                                                 direct = direct,
-                                                 with_atlas = with_atlas,
-                                                 path_sif = path_sif,
-                                                 path_rds = path_rds)
+  if(!is.null(phospho_df)){
+    sp_pheno_out_validated <- expand_and_map_edges(optimized_object = pheno_out,
+                                                   organism = organism,
+                                                   phospho_df = phospho_df,
+                                                   files = files,
+                                                   direct = direct,
+                                                   with_atlas = with_atlas,
+                                                   path_sif = path_sif,
+                                                   path_rds = path_rds)
+    sp_object$sp_object_phenotypes <- sp_pheno_out_validated
+  }else{
+    sp_object$sp_object_phenotypes <- pheno_out
+  }
 
   # Override old sp_object_phenotypes
-  sp_object$sp_object_phenotypes <- sp_pheno_out_validated
   return(sp_object)
 }
 
