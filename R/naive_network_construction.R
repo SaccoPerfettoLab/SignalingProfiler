@@ -425,7 +425,7 @@ prepare_carnival_input <- function(naive_network, prediction_output, recept_list
 
     # Remove from predicted nodes constrains specified by the user
     prediction_output_filt <- prediction_output_filt %>%
-      dplyr::filter(!gene_name %>% recept_df$gene_name)
+      dplyr::filter(!gene_name %in% recept_df$gene_name)
 
     recept_df <- convert_gene_name_in_uniprotid(recept_df, organism) %>%
       dplyr::relocate('UNIPROT')
