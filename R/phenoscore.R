@@ -78,7 +78,8 @@ phenoscore_network_preprocessing <- function(proteomics, phospho,
   }
 
   if(file.exists(paste0(home_dir, '/Global_result_final_table_minimized.txt'))){
-    signor_filtered <- readr::read_tsv(paste0(home_dir, '/Global_result_final_table_minimized.txt'))
+    signor_filtered <- readr::read_tsv(paste0(home_dir, '/Global_result_final_table_minimized.txt'),
+                                       show_col_types = FALSE)
     file.remove(paste0(home_dir, '/Global_result_final_table_minimized.txt'))
     file.remove(paste0(home_dir, '/proteomics.tsv'))
     file.remove(paste0(home_dir, '/phosphoproteomics.tsv'))
