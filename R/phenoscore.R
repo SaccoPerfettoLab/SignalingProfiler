@@ -21,8 +21,8 @@ phenoscore_network_preprocessing <- function(proteomics, phospho,
 
   home_dir <- path.expand('~')
 
-  write_tsv(proteomics, paste0(home_dir, '/proteomics.tsv'))
-  write_tsv(phospho, paste0(home_dir, '/phosphoproteomics.tsv'))
+  readr::write_tsv(proteomics, paste0(home_dir, '/proteomics.tsv'))
+  readr::write_tsv(phospho, paste0(home_dir, '/phosphoproteomics.tsv'))
 
   # Loop on all lib locations to find script.py,
   # if it doesn't work python3 location is the problem
