@@ -4,15 +4,13 @@
 #'
 #' @param proteomics protemics dataframe processed for SP
 #' @param phospho phosphoproteomics dataframe processed for SP
-#' @param python_path specify python3 path if reticulate default doesn't work
 #'
 #' @return SIGNOR cleaned according to expressed proteins
 #' @export
 #'
 #' @examples
 phenoscore_network_preprocessing <- function(proteomics, phospho,
-                                             local = FALSE,
-                                             python_path = NULL){
+                                             local = FALSE){
 
   if(local == TRUE){
     path_package <- './inst/'
@@ -26,22 +24,18 @@ phenoscore_network_preprocessing <- function(proteomics, phospho,
   write_tsv(proteomics, paste0(home_dir, '/proteomics.tsv'))
   write_tsv(phospho, paste0(home_dir, '/phosphoproteomics.tsv'))
 
-  #reticulate::use_python("/usr/local/bin/python")
-  if(!is.null(python_path)){
-    reticulate::use_python(python_path)
-  }
-
-  reticulate::py_config()
-
   # Loop on all lib locations to find script.py,
   # if it doesn't work python3 location is the problem
   for(path in path_package){
     result <- tryCatch({
 
-      env_file <- paste0(path, 'python/environment.yml')
-      reticulate::conda_create(envname = "SignalingProfiler_env", yaml = env_file)
+      env_file <- paste0(path_package, "python/environment.yml")
+      reticulate::conda_create(envname = "SignalingProfiler_env",
+                               yaml = env_file)
+      reticulate::use_condaenv("SignalingProfiler_env",
+                               required = TRUE)
+      reticulate::py_config()
 
-      reticulate::use_condaenv('SignalingProfiler_env', required = TRUE)
       reticulate::py_run_file(paste0(path, "/python/script.py"))
     }, error = function(e) {
       #message("An error occurred: ", e$message, 'with path ', path)
