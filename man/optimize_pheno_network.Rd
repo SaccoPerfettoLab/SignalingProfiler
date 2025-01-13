@@ -7,7 +7,7 @@
 optimize_pheno_network(
   sp_object,
   organism,
-  phospho_df,
+  phospho_df = NULL,
   carnival_options,
   files,
   direct = FALSE,

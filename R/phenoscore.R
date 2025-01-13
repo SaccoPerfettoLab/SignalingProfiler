@@ -1,4 +1,40 @@
 
+#' config_env
+#'
+#' This function configurates SignalingProfiler_env for securely running python
+#'
+#' @param local Boolean, default is FALSE (for development purposes)
+#'
+#' @return
+#' @export
+#'
+#' @examples
+config_env <- function(local = FALSE){
+
+  if(local == TRUE){
+    path_package <- './inst/'
+  }else{
+    #path_package <- paste0(.libPaths()[1], '/SignalingProfiler/')
+    path_package <- paste0(.libPaths(), '/SignalingProfiler/')
+  }
+
+  for(path in path_package){
+    result <- tryCatch({
+      env_file <- paste0(path_package, "python/environment.yml")
+      conda_env <<- reticulate::conda_create(envname = "SignalingProfiler_env",
+                                             yaml = env_file)
+    }, error = function(e) {
+      #message("An error occurred: ", e$message, 'with path ', path)
+      NA  # Return NA if an error occurs
+    })
+
+    if(is.na(result)){
+      stop('Problems with conda environment creation!')
+    }else{
+      message('SignalingProfiler_env created at ', result)
+    }
+  }
+}
 
 #' phenoscore_network_preprocessing
 #'
@@ -24,23 +60,21 @@ phenoscore_network_preprocessing <- function(proteomics, phospho,
   readr::write_tsv(proteomics, paste0(home_dir, '/proteomics.tsv'))
   readr::write_tsv(phospho, paste0(home_dir, '/phosphoproteomics.tsv'))
 
-  # Loop on all lib locations to find script.py,
-  # if it doesn't work python3 location is the problem
-  for(path in path_package){
-    result <- tryCatch({
+  if(!'SignalingProfiler_env' %in% reticulate::conda_list()$name){
+    path_list <- config_env()
+  }else{
+    reticulate::use_condaenv("SignalingProfiler_env",
+                             required = TRUE)
+    reticulate::py_config()
 
-      env_file <- paste0(path_package, "python/environment.yml")
-      reticulate::conda_create(envname = "SignalingProfiler_env",
-                               yaml = env_file)
-      reticulate::use_condaenv("SignalingProfiler_env",
-                               required = TRUE)
-      reticulate::py_config()
-
-      reticulate::py_run_file(paste0(path, "/python/script.py"))
-    }, error = function(e) {
-      #message("An error occurred: ", e$message, 'with path ', path)
-      NA  # Return NA if an error occurs
-    })
+    for(path in path_package){
+      result <<- tryCatch({
+        reticulate::py_run_file(paste0(path, "/python/script.py"))
+      }, error = function(e) {
+        #message("An error occurred: ", e$message, 'with path ', path)
+        NA  # Return NA if an error occurs
+      })
+    }
   }
 
   if(file.exists(paste0(home_dir, '/Global_result_final_table_minimized.txt'))){
