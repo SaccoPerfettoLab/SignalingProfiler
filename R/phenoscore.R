@@ -1,4 +1,5 @@
 
+
 #' phenoscore_network_preprocessing
 #'
 #' @param proteomics protemics dataframe processed for SP
@@ -36,6 +37,11 @@ phenoscore_network_preprocessing <- function(proteomics, phospho,
   # if it doesn't work python3 location is the problem
   for(path in path_package){
     result <- tryCatch({
+
+      env_file <- paste0(path, 'python/environment.yml')
+      reticulate::conda_create(envname = "SignalingProfiler_env", yaml = env_file)
+
+      reticulate::use_condaenv('SignalingProfiler_env', required = TRUE)
       reticulate::py_run_file(paste0(path, "/python/script.py"))
     }, error = function(e) {
       #message("An error occurred: ", e$message, 'with path ', path)
