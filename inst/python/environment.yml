@@ -1,0 +1,14 @@
+
+name: SignalingProfiler_py   # Name of the environment
+channels:
+  - conda-forge         # Channels to search for packages
+dependencies:
+  - python=3.9          # Specify Python version
+  - numpy               # Add Python packages
+  - pandas
+  - scipy
+  - matplotlib
+  - os
+  - pip                 # Add pip for installing non-Conda packages
+  - pip:
+      - requests        # Pip-installed packages
