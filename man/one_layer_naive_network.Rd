@@ -9,6 +9,7 @@ one_layer_naive_network(
   targets_gn,
   PKN_table,
   max_length,
+  files = TRUE,
   rds_path = "one_layer_naive.RDS",
   sif_path = "one_layer_naive.sif",
   connect_all = FALSE
@@ -22,6 +23,8 @@ one_layer_naive_network(
 \item{PKN_table}{tibble of all causal interactions}
 
 \item{max_length}{integer, 1 to 4 for max_length connecting start to end}
+
+\item{files}{Boolean, if true will save naive network files}
 
 \item{rds_path}{path of network rds file}
 

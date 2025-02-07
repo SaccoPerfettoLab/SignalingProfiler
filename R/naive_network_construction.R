@@ -211,12 +211,14 @@ coverage_of_inferred_proteins_in_db <- function(prediction_output,
 #' @param rds_path path of network rds file
 #' @param sif_path path of network sif file
 #' @param connect_all if TRUE connect intermediate nodes
+#' @param files Boolean, if true will save naive network files
 #'
 #' @return naive network
 #' @export
 #'
 #' @examples
 one_layer_naive_network <- function(starts_gn, targets_gn, PKN_table, max_length,
+                                    files = TRUE,
                                     rds_path = 'one_layer_naive.RDS',
                                     sif_path = 'one_layer_naive.sif', connect_all = FALSE){
   message('One layer: shortest paths from receptor(s) to all proteins')
@@ -236,9 +238,10 @@ one_layer_naive_network <- function(starts_gn, targets_gn, PKN_table, max_length
   igraph::V(network)[name %in% targets_gn]$mf_naive <- 'target'
 
   # save files
-  message(paste0('Writing in ', getwd(), ' sif and RDS file of the naive network'))
-  saveRDS(network, rds_path)
-  igraphToSif(network, outfile = sif_path, edgeLabel = 'INTERACTION')
+  if(files){
+    saveRDS(network, rds_path)
+    igraphToSif(network, outfile = sif_path, edgeLabel = 'INTERACTION')
+  }
 
   return(network)
 }
@@ -254,6 +257,7 @@ one_layer_naive_network <- function(starts_gn, targets_gn, PKN_table, max_length
 #' @param rds_path path of network rds file
 #' @param sif_path path of network sif file
 #' @param connect_all Boolean, if TRUE connect intermediate nodes
+#' @param files Boolean, if true will save naive network files
 #'
 #' @return naive network
 #' @export
@@ -261,6 +265,7 @@ one_layer_naive_network <- function(starts_gn, targets_gn, PKN_table, max_length
 #' @examples
 two_layer_naive_network <- function(starts_gn, intermediate_gn, targets_gn,
                                     PKN_table, max_length_1, max_length_2,
+                                    files = TRUE,
                                     rds_path = 'two_layer_naive.RDS',
                                     sif_path = 'two_layer_naive.sif',
                                     connect_all = FALSE){
@@ -283,9 +288,10 @@ two_layer_naive_network <- function(starts_gn, intermediate_gn, targets_gn,
   igraph::V(network)[name %in% targets_gn]$mf_naive <- 'target'
 
   # save files
-  message(paste0('Writing in ', getwd(), ' sif and RDS file of the naive network'))
-  saveRDS(network, rds_path)
-  igraphToSif(network, outfile = sif_path, edgeLabel = 'INTERACTION')
+  if(files){
+    saveRDS(network, rds_path)
+    igraphToSif(network, outfile = sif_path, edgeLabel = 'INTERACTION')
+  }
 
   return(network)
 }
@@ -306,6 +312,7 @@ two_layer_naive_network <- function(starts_gn, intermediate_gn, targets_gn,
 #' FALSE if you want to use only intermediates2 (not suggested)
 #' @param keep_only_connected Boolean, default FALSE, if TRUE keeps only intermediated connected
 #' @param connect_all if TRUE connect intermediate nodes
+#' @param files Boolean, if true will save naive network files
 #'
 #' @return naive network
 #' @export
@@ -317,6 +324,7 @@ three_layer_naive_network <- function(starts_gn, intermediate1_gn, intermediate2
                                       max_length_1, max_length_2, max_length_3,
                                       both_intermediates = TRUE,
                                       keep_only_connected = FALSE,
+                                      files = TRUE,
                                       rds_path = 'three_layer_naive.RDS',
                                       sif_path = 'three_layer_naive.sif',
                                       connect_all = FALSE){
@@ -381,9 +389,11 @@ three_layer_naive_network <- function(starts_gn, intermediate1_gn, intermediate2
   igraph::V(network)[name %in% targets_gn]$mf_naive <- 'target'
 
   # save files
-  message(paste0('Writing in ', getwd(), ' sif and RDS file of the naive network'))
-  saveRDS(network, rds_path)
-  igraphToSif(network, outfile = sif_path, edgeLabel = 'INTERACTION')
+  if(files){
+    saveRDS(network, rds_path)
+    igraphToSif(network, outfile = sif_path, edgeLabel = 'INTERACTION')
+  }
+
 
   return(network)
 }
