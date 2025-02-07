@@ -11,6 +11,7 @@ two_layer_naive_network(
   PKN_table,
   max_length_1,
   max_length_2,
+  files = TRUE,
   rds_path = "two_layer_naive.RDS",
   sif_path = "two_layer_naive.sif",
   connect_all = FALSE
@@ -28,6 +29,8 @@ two_layer_naive_network(
 \item{max_length_1}{max_length of shortest path from start to intermediates}
 
 \item{max_length_2}{max_length of shortest path from intermediates to targets}
+
+\item{files}{Boolean, if true will save naive network files}
 
 \item{rds_path}{path of network rds file}
 

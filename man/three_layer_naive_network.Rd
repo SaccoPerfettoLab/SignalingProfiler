@@ -15,6 +15,7 @@ three_layer_naive_network(
   max_length_3,
   both_intermediates = TRUE,
   keep_only_connected = FALSE,
+  files = TRUE,
   rds_path = "three_layer_naive.RDS",
   sif_path = "three_layer_naive.sif",
   connect_all = FALSE
@@ -41,6 +42,8 @@ three_layer_naive_network(
 FALSE if you want to use only intermediates2 (not suggested)}
 
 \item{keep_only_connected}{Boolean, default FALSE, if TRUE keeps only intermediated connected}
+
+\item{files}{Boolean, if true will save naive network files}
 
 \item{rds_path}{path of network rds file}
 
