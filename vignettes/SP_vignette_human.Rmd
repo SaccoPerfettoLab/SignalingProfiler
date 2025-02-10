@@ -136,7 +136,7 @@ columns:
 The next columns regards parameters linked to the statistical test
 performed among your conditions:
 
--   **logpval**: the p-value associated to your fold-change;
+-   **logpval**: the -Log(p-value) associated to your fold-change;
 
 -   **significant**: a column containing a '+' if the gene is
     significantly modulated, NA otherwise;
@@ -173,7 +173,7 @@ Your phosphoproteomics table should contain:
     among two conditions; e.g. the difference between treated and
     control sample;
 
--   **logpval**: the p-value associated to the statistical test
+-   **logpval**: the -Log(p-value) associated to the statistical test
     assessing the significance of your comparisons;
 
 -   **significant**: a column containing a '+' if the gene is
@@ -349,10 +349,15 @@ You can find an example in a built-in object.
 toy_prot_activity_df
 ```
 
-To obtain this table: - get the transcription factor from the
-`combined_tf` object; - get the kinases and phosphatases from the
-`combined_kin_phos` object; - get the other molecular functions from the
-`phosphoscore_df` object; Then, bind them together.
+To obtain this table:
+
+-    get the transcription factor from the `combined_tf` object;
+
+-   get the kinases and phosphatases from the `combined_kin_phos`
+    object;
+
+-   get the other molecular functions from the `phosphoscore_df` object;
+    Then, bind them together.
 
 ```{r eval = FALSE}
 # divide tables according to molecular functions
@@ -365,7 +370,9 @@ toy_other <- phosphoscore_df %>%
 
 # create a unified 'activity modulation' table for the next steps
 toy_activity_df <- dplyr::bind_rows(toy_tf, toy_kin, toy_other) %>%
-  select(UNIPROT, gene_name, mf, final_score, method)
+  dplyr::select(UNIPROT, gene_name, mf, final_score, method)
+
+toy_activity_df
 ```
 
 ## Step2) Naïve network creation
