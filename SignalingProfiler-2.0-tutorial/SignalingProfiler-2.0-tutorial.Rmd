@@ -88,7 +88,7 @@ Your transcriptomics and proteomics tables should contain the following columns:
 
 The next columns regards parameters linked to the statistical test performed among your conditions:
 
--   [**logpval**]{style="color:orange"}: the p-value associated to your fold-change;
+-   [**logpval**]{style="color:orange"}: the -Log(p-value) associated to your fold-change;
 
 -   [**significant**]{style="color:orange"}: a column containing a '+' if the gene is significantly modulated, NA otherwise;
 
@@ -120,7 +120,7 @@ Your phosphoproteomics table should contain:
 
 -   [**difference**]{style="color:orange"}: representing the fold-change in gene expression among two conditions; e.g. the difference between treated and control sample;
 
--   [**logpval**]{style="color:orange"}: the p-value associated to the statistical test assessing the significance of your comparisons;
+-   [**logpval**]{style="color:orange"}: the -Log(p-value) associated to the statistical test assessing the significance of your comparisons;
 
 -   [**significant**]{style="color:orange"}: a column containing a '+' if the gene is significantly modulated, NA otherwise;
 
