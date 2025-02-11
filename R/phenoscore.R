@@ -18,6 +18,10 @@ config_env <- function(local = FALSE){
     path_package <- paste0(.libPaths(), '/SignalingProfiler/')
   }
 
+  # Set Conda to use the correct platform (for example, osx-arm64)
+  platform <- check_conda_platform()
+  system(paste0("conda config --set subdir ", platform))
+
   for(path in path_package){
     result <- tryCatch({
       env_file <- paste0(path_package, "python/environment.yml")
@@ -35,6 +39,20 @@ config_env <- function(local = FALSE){
     }
   }
 }
+
+
+#' check_conda_platform
+#'
+#' @return
+#' @export
+#'
+#' @examples
+check_conda_platform <- function() {
+  platform_info <- system("conda info --json", intern = TRUE)
+  platform_json <- jsonlite::fromJSON(paste(platform_info, collapse = ""))
+  return(platform_json$platform)
+}
+
 
 #' phenoscore_network_preprocessing
 #'
@@ -915,6 +933,8 @@ pheno_to_start_circuit <- function(SP_object, start_nodes, phenotypes, k, start_
 
   return(pheno_circuit_no_incoming)
 }
+
+
 
 
 
