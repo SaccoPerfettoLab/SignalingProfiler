@@ -19,8 +19,8 @@ config_env <- function(local = FALSE){
   }
 
   # Set Conda to use the correct platform (for example, osx-arm64)
-  platform <- check_conda_platform()
-  system(paste0("conda config --set subdir ", platform))
+  # platform <- check_conda_platform()
+  # system(paste0(reticulate::conda_binary(), " config --set subdir ", platform))
 
   for(path in path_package){
     result <- tryCatch({
@@ -48,7 +48,7 @@ config_env <- function(local = FALSE){
 #'
 #' @examples
 check_conda_platform <- function() {
-  platform_info <- system("conda info --json", intern = TRUE)
+  platform_info <- system(paste0(reticulate::conda_binary(), " info --json"), intern = TRUE)
   platform_json <- jsonlite::fromJSON(paste(platform_info, collapse = ""))
   return(platform_json$platform)
 }
