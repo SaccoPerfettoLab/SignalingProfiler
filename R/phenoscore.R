@@ -62,19 +62,22 @@ phenoscore_network_preprocessing <- function(proteomics, phospho,
 
   if(!'SignalingProfiler_env' %in% reticulate::conda_list()$name){
     path_list <- config_env()
+    reticulate::use_condaenv("SignalingProfiler_env",
+                             required = TRUE)
+    reticulate::py_config()
   }else{
     reticulate::use_condaenv("SignalingProfiler_env",
                              required = TRUE)
     reticulate::py_config()
+  }
 
-    for(path in path_package){
-      result <<- tryCatch({
-        reticulate::py_run_file(paste0(path, "/python/script.py"))
-      }, error = function(e) {
-        #message("An error occurred: ", e$message, 'with path ', path)
-        NA  # Return NA if an error occurs
-      })
-    }
+  for(path in path_package){
+    result <<- tryCatch({
+      reticulate::py_run_file(paste0(path, "/python/script.py"))
+    }, error = function(e) {
+      #message("An error occurred: ", e$message, 'with path ', path)
+      NA  # Return NA if an error occurs
+    })
   }
 
   if(file.exists(paste0(home_dir, '/Global_result_final_table_minimized.txt'))){
