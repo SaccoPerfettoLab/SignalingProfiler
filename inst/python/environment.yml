@@ -12,3 +12,5 @@ dependencies:
   - pip                 # Add pip for installing non-Conda packages
   - pip:
       - requests        # Pip-installed packages
+      - networkx
+      - pyreadr
