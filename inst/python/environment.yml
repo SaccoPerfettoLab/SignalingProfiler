@@ -1,5 +1,5 @@
 
-name: SignalingProfiler_py   # Name of the environment
+name: SignalingProfiler_env   # Name of the environment
 channels:
   - conda-forge         # Channels to search for packages
 dependencies:
