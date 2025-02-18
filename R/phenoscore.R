@@ -1,4 +1,28 @@
 
+#' install_sp_py
+#'
+#' @param ...
+#' @param envname "r-signalingprofiler"
+#'
+#' @return
+#' @export
+#'
+#' @examples
+install_sp_py <- function(..., envname = "r-signalingprofiler") {
+
+  if(new_env && reticulate::virtualenv_exists(envname)){
+    reticulate::virtualenv_remove(envname)
+  }
+
+  reticulate::py_install("requests", envname = envname, ...)
+  reticulate::py_install("pandas", envname = envname, ...)
+  reticulate::py_install("itertools", envname = envname, ...)
+  reticulate::py_install("csv", envname = envname, ...)
+  reticulate::py_install("ssl", envname = envname, ...)
+  reticulate::py_install("sys", envname = envname, ...)
+  reticulate::py_install("datetime", envname = envname, ...)
+}
+
 
 #' phenoscore_network_preprocessing
 #'
@@ -34,6 +58,7 @@ phenoscore_network_preprocessing <- function(proteomics, phospho,
   #                            required = TRUE)
   #   reticulate::py_config()
   # }
+
 
   for(path in path_package){
     result <<- tryCatch({
