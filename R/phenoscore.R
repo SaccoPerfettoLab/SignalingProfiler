@@ -39,8 +39,8 @@ phenoscore_network_preprocessing <- function(proteomics, phospho,
     result <<- tryCatch({
       reticulate::py_run_file(paste0(path, "/python/script.py"))
     }, error = function(e) {
-      #message("An error occurred: ", e$message, 'with path ', path)
-      NA  # Return NA if an error occurs
+      message("An error occurred: ", e$message, 'with path ', path)
+      # Return NA if an error occurs
     })
   }
 
