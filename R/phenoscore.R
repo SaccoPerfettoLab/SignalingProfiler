@@ -1,58 +1,4 @@
 
-#' config_env
-#'
-#' This function configurates SignalingProfiler_env for securely running python
-#'
-#' @param local Boolean, default is FALSE (for development purposes)
-#'
-#' @return
-#' @export
-#'
-#' @examples
-config_env <- function(local = FALSE){
-
-  if(local == TRUE){
-    path_package <- './inst/'
-  }else{
-    #path_package <- paste0(.libPaths()[1], '/SignalingProfiler/')
-    path_package <- paste0(.libPaths(), '/SignalingProfiler/')
-  }
-
-  # Set Conda to use the correct platform (for example, osx-arm64)
-  # platform <- check_conda_platform()
-  # system(paste0(reticulate::conda_binary(), " config --set subdir ", platform))
-
-  for(path in path_package){
-    result <- tryCatch({
-      env_file <- paste0(path_package, "python/environment.yml")
-      conda_env <<- reticulate::conda_create(envname = "SignalingProfiler_env",
-                                             yaml = env_file)
-    }, error = function(e) {
-      #message("An error occurred: ", e$message, 'with path ', path)
-      NA  # Return NA if an error occurs
-    })
-
-    if(is.na(result)){
-      stop('Problems with conda environment creation!')
-    }else{
-      message('SignalingProfiler_env created at ', result)
-    }
-  }
-}
-
-
-#' check_conda_platform
-#'
-#' @return
-#' @export
-#'
-#' @examples
-check_conda_platform <- function() {
-  platform_info <- system(paste0(reticulate::conda_binary(), " info --json"), intern = TRUE)
-  platform_json <- jsonlite::fromJSON(paste(platform_info, collapse = ""))
-  return(platform_json$platform)
-}
-
 
 #' phenoscore_network_preprocessing
 #'
@@ -78,16 +24,16 @@ phenoscore_network_preprocessing <- function(proteomics, phospho,
   readr::write_tsv(proteomics, paste0(home_dir, '/proteomics.tsv'))
   readr::write_tsv(phospho, paste0(home_dir, '/phosphoproteomics.tsv'))
 
-  if(!'SignalingProfiler_env' %in% reticulate::conda_list()$name){
-    path_list <- config_env()
-    reticulate::use_condaenv("SignalingProfiler_env",
-                             required = TRUE)
-    reticulate::py_config()
-  }else{
-    reticulate::use_condaenv("SignalingProfiler_env",
-                             required = TRUE)
-    reticulate::py_config()
-  }
+  # if(!'SignalingProfiler_env' %in% reticulate::conda_list()$name){
+  #   path_list <- config_env()
+  #   reticulate::use_condaenv("SignalingProfiler_env",
+  #                            required = TRUE)
+  #   reticulate::py_config()
+  # }else{
+  #   reticulate::use_condaenv("SignalingProfiler_env",
+  #                            required = TRUE)
+  #   reticulate::py_config()
+  # }
 
   for(path in path_package){
     result <<- tryCatch({
