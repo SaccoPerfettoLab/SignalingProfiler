@@ -8,7 +8,8 @@
 #' @export
 #'
 #' @examples
-install_sp_py <- function(..., envname = "r-signalingprofiler") {
+install_sp_py <- function(..., envname = "r-signalingprofiler",
+                          new_env = identical(envname, "r-tensorflow")) {
 
   if(new_env && reticulate::virtualenv_exists(envname)){
     reticulate::virtualenv_remove(envname)
