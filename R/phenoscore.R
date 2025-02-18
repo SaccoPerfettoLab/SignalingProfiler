@@ -3,6 +3,7 @@
 #'
 #' @param ...
 #' @param envname "r-signalingprofiler"
+#' @param new_env
 #'
 #' @return
 #' @export
@@ -55,12 +56,12 @@ phenoscore_network_preprocessing <- function(proteomics, phospho,
   #   reticulate::py_config()
   # }
 
-
   for(path in path_package){
     result <<- tryCatch({
       reticulate::py_run_file(paste0(path, "/python/script.py"))
     }, error = function(e) {
-      message("An error occurred: ", e$message, 'with path ', path)
+      #message("An error occurred: ", e$message, 'with path ', path)
+      NA
       # Return NA if an error occurs
     })
   }
@@ -72,11 +73,9 @@ phenoscore_network_preprocessing <- function(proteomics, phospho,
     file.remove(paste0(home_dir, '/proteomics.tsv'))
     file.remove(paste0(home_dir, '/phosphoproteomics.tsv'))
     return(signor_filtered)
-
   }else{
-    stop('Try changing python path with \'python_path\' parameter for reticulate')
+    stop('Something went wrong with Python calling from R!')
   }
-
 }
 
 #' phenoscore_computation
