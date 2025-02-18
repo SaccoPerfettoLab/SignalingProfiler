@@ -17,9 +17,6 @@ install_sp_py <- function(..., envname = "r-signalingprofiler",
 
   reticulate::py_install("requests", envname = envname, ...)
   reticulate::py_install("pandas", envname = envname, ...)
-  reticulate::py_install("csv", envname = envname, ...)
-  reticulate::py_install("ssl", envname = envname, ...)
-  reticulate::py_install("datetime", envname = envname, ...)
 }
 
 
