@@ -31,6 +31,21 @@ Suggests:
     rmarkdown
 VignetteBuilder: 
     knitr
+Config/reticulate:
+  list(
+    packages = list(
+      list(package = "csv", version = "default", pip = FALSE),
+      list(package = "os", version = "default", pip = FALSE),
+      list(package = "ssl", version = "default", pip = FALSE),
+      list(package = "requests", version = "2.31.0", pip = TRUE),
+      list(package = "sys", version = "default", pip = FALSE),
+      list(package = "pandas", version = "1.5.3", pip = TRUE),
+      list(package = "itertools", version = "default", pip = FALSE),
+      list(package = "datetime", version = "default", pip = FALSE),
+      list(package = "importlib", version = "default", pip = FALSE),
+      list(package = "subprocess", version = "default", pip = FALSE)
+    )
+  )
 biocViews:
 Encoding: UTF-8
 LazyData: true
