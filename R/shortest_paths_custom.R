@@ -39,8 +39,8 @@ find_all_paths <- function(v_start, v_end, PKN_table, max_length){
     # define in some way paths
 
     type_ve <- interactions[entitya == v_start & entityb == v_end]
-    paths <- tibble(ENTITYA = v_start, INTERACTION = type_ve, ENTITYB = v_end)
-    paths <- paths %>% distinct()
+    paths <- tibble::tibble(ENTITYA = v_start, INTERACTION = type_ve, ENTITYB = v_end)
+    paths <- paths %>% dplyr::distinct()
 
     return(paths)
 
@@ -66,10 +66,10 @@ find_all_paths <- function(v_start, v_end, PKN_table, max_length){
         type_1 <- type_1[interactors_1  %in% unique(entitya_2)]
         interactors_1 <- interactors_1[interactors_1 %in% unique(entitya_2)]
 
-        paths <- tibble(ENTITYA = c(rep(v_start, length(interactors_1)), entitya_2),
+        paths <- tibble::tibble(ENTITYA = c(rep(v_start, length(interactors_1)), entitya_2),
                         INTERACTION = c(type_1, type_2),
                         ENTITYB = c(interactors_1, interactors_2))
-        paths <- paths %>% distinct()
+        paths <- paths %>% dplyr::distinct()
 
         return(paths)
       } else {
@@ -102,11 +102,11 @@ find_all_paths <- function(v_start, v_end, PKN_table, max_length){
             type_1 <- type_1[interactors_1 %in% unique(entitya_2)]
             interactors_1 <- interactors_1[interactors_1 %in% unique(entitya_2)]
 
-            paths <- tibble(ENTITYA = c(rep(v_start, length(interactors_1)), entitya_2, entitya_3),
+            paths <- tibble::tibble(ENTITYA = c(rep(v_start, length(interactors_1)), entitya_2, entitya_3),
                             INTERACTION = c(type_1, type_2, type_3),
                             ENTITYB = c(interactors_1, interactors_2, interactors_3))
 
-            paths <- paths %>% distinct()
+            paths <- paths %>% dplyr::distinct()
             return(paths)
           } else {
 
@@ -143,11 +143,11 @@ find_all_paths <- function(v_start, v_end, PKN_table, max_length){
                 type_1 <- type_1[interactors_1 %in% unique(entitya_2)]
                 interactors_1 <- interactors_1[interactors_1 %in% unique(entitya_2)]
 
-                paths <- tibble(ENTITYA = c(rep(v_start, length(interactors_1)), entitya_2, entitya_3, entitya_4),
+                paths <- tibble::tibble(ENTITYA = c(rep(v_start, length(interactors_1)), entitya_2, entitya_3, entitya_4),
                                 INTERACTION = c(type_1, type_2, type_3, type_4),
                                 ENTITYB = c(interactors_1, interactors_2, interactors_3, interactors_4))
 
-                paths <- paths %>% distinct()
+                paths <- paths %>% dplyr::distinct()
                 return(paths)
               } else {
                 return(NULL)
