@@ -40,7 +40,12 @@ phenoscore_network_preprocessing <- function(proteomics, phospho,
     path_package <- paste0(.libPaths(), '/SignalingProfiler/')
   }
 
-  home_dir <- path.expand('~')
+  # Set HOME dir according to OS
+  if (.Platform$OS.type == "windows") {
+    home_dir <- normalizePath(Sys.getenv("USERPROFILE"), winslash = "/")
+  } else {
+    home_dir <- normalizePath(Sys.getenv("HOME"), winslash = "/")
+  }
 
   readr::write_tsv(proteomics, paste0(home_dir, '/proteomics.tsv'))
   readr::write_tsv(phospho, paste0(home_dir, '/phosphoproteomics.tsv'))
