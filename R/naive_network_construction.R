@@ -90,9 +90,9 @@ choose_database_for_building <- function(organism,
         stop('If organism is \'mouse\' with_atlas parameter must be FALSE')
       }else{
         if(direct == TRUE){
-          pkn <- db_mouse_dir
+          pkn <- SignalingProfiler::db_mouse_dir
         }else if(direct == FALSE){
-          pkn <- db_mouse_ind
+          pkn <- SignalingProfiler::db_mouse_ind
         }else{
           stop('direct parameter must be TRUE or FALSE')
         }
@@ -102,9 +102,9 @@ choose_database_for_building <- function(organism,
         stop('If organism is \'mouse\' with_atlas parameter must be FALSE')
       }else{
         if(direct == TRUE){
-          pkn <- PKN_mouse_dir
+          pkn <- SignalingProfiler::PKN_mouse_dir
         }else if(direct == FALSE){
-          pkn <- PKN_mouse_ind
+          pkn <- SignalingProfiler::PKN_mouse_ind
         }else{
           stop('direct parameter must be TRUE or FALSE')
         }
@@ -114,17 +114,17 @@ choose_database_for_building <- function(organism,
     if(format == 'igraph'){
       if(with_atlas == TRUE){
         if(direct == TRUE){
-          pkn <- db_human_atlas_dir
+          pkn <- SignalingProfiler::db_human_atlas_dir
         }else if(direct == FALSE){
-          pkn <- db_human_atlas_ind
+          pkn <- SignalingProfiler::db_human_atlas_ind
         }else{
           stop('direct parameter must be TRUE or FALSE')
         }
       }else if(with_atlas == FALSE){
         if(direct == TRUE){
-          pkn <- db_human_dir
+          pkn <- SignalingProfiler::db_human_dir
         }else if(direct == FALSE){
-          pkn <- db_human_ind
+          pkn <- SignalingProfiler::db_human_ind
         }else{
           stop('direct parameter must be TRUE or FALSE')
         }
@@ -134,17 +134,17 @@ choose_database_for_building <- function(organism,
     }else if(format == 'table'){
       if(with_atlas == TRUE){
         if(direct == TRUE){
-          pkn <- PKN_human_atlas_dir
+          pkn <- SignalingProfiler::PKN_human_atlas_dir
         }else if(direct == FALSE){
-          pkn <- PKN_human_atlas_ind
+          pkn <- SignalingProfiler::PKN_human_atlas_ind
         }else{
           stop('direct parameter must be TRUE or FALSE')
         }
       }else if(with_atlas == FALSE){
         if(direct == TRUE){
-          pkn <- PKN_human_dir
+          pkn <- SignalingProfiler::PKN_human_dir
         }else if(direct == FALSE){
-          pkn <- PKN_human_ind
+          pkn <- SignalingProfiler::PKN_human_ind
         }else{
           stop('direct parameter must be TRUE or FALSE')
         }
