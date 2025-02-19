@@ -56,26 +56,26 @@ choose_PKN <- function(organism,
     if(organism == 'mouse'){
       message('Ignoring with atlas parameter since it is only for human')
       if(direct == TRUE){
-        PKN_table <- PKN_mouse_dir
+        PKN_table <- SignalingProfiler::PKN_mouse_dir
       }else if(direct == FALSE){
-        PKN_table <- PKN_mouse_ind
+        PKN_table <- SignalingProfiler::PKN_mouse_ind
       }else{
         stop('direct parameter must be TRUE or FALSE')
       }
     }else if(organism == 'human'){
       if(with_atlas == TRUE){
         if(direct == TRUE){
-          PKN_table <- PKN_human_atlas_dir
+          PKN_table <- SignalingProfiler::PKN_human_atlas_dir
         }else if(direct == FALSE){
-          PKN_table <- PKN_human_atlas_ind
+          PKN_table <- SignalingProfiler::PKN_human_atlas_ind
         }else{
           stop('direct parameter must be TRUE or FALSE')
         }
       }else{
         if(direct == TRUE){
-          PKN_table <- PKN_human_dir
+          PKN_table <- SignalingProfiler::PKN_human_dir
         }else if(direct == FALSE){
-          PKN_table <- PKN_human_ind
+          PKN_table <- SignalingProfiler::PKN_human_ind
         }else{
           stop('direct parameter must be TRUE or FALSE')
         }

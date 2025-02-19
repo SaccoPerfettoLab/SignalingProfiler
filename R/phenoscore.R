@@ -50,17 +50,6 @@ phenoscore_network_preprocessing <- function(proteomics, phospho,
   readr::write_tsv(proteomics, paste0(home_dir, '/proteomics.tsv'))
   readr::write_tsv(phospho, paste0(home_dir, '/phosphoproteomics.tsv'))
 
-  # if(!'SignalingProfiler_env' %in% reticulate::conda_list()$name){
-  #   path_list <- config_env()
-  #   reticulate::use_condaenv("SignalingProfiler_env",
-  #                            required = TRUE)
-  #   reticulate::py_config()
-  # }else{
-  #   reticulate::use_condaenv("SignalingProfiler_env",
-  #                            required = TRUE)
-  #   reticulate::py_config()
-  # }
-
   for(path in path_package){
     result <<- tryCatch({
       reticulate::py_run_file(paste0(path, "/python/script.py"))
@@ -155,7 +144,7 @@ phenoscore_computation <- function(proteins_df,
     # if it is mouse organism, convert in uppercase
     proteins_df <- proteins_df %>%
       mutate(gene_name = stringr::str_to_upper(gene_name))
-    igraph::V(sp_graph)$name <- str_to_upper(igraph::V(sp_graph)$name)
+    igraph::V(sp_graph)$name <- stringr::str_to_upper(igraph::V(sp_graph)$name)
   }else{
     flag = 'human'
   }
@@ -319,7 +308,7 @@ phenoscore_computation <- function(proteins_df,
                         by = c('EndPathways', 'Effect'),
                         all.x = T)
 
-    base_df_anti <- anti_join(base_df, randomized, by = c('EndPathways', 'Effect'))
+    base_df_anti <- dplyr::anti_join(base_df, randomized, by = c('EndPathways', 'Effect'))
 
     randomized <- rbind(randomized, base_df_anti)
 
@@ -408,7 +397,7 @@ phenoscore_computation <- function(proteins_df,
   #   dplyr::mutate(EndPathways = stringr::str_replace_all(EndPathways, '_', ' '))
 
 
-  output.table7 <- inner_join(output.table6, results.table, by = c('EndPathways', 'Effect'))
+  output.table7 <- dplyr::inner_join(output.table6, results.table, by = c('EndPathways', 'Effect'))
   output.table7 %>%
     dplyr::filter(QueryNode %in% proteins_vector)-> INPUT.Phen.Paths
 
@@ -423,7 +412,7 @@ phenoscore_computation <- function(proteins_df,
       dplyr::filter(Effect != '-')
 
     INPUT.Phen.Paths_clean <- INPUT.Phen.Paths_clean %>%
-      mutate(key = ifelse(INPUT.Phen.Paths_clean$Effect == 'up-regulates',
+      dplyr::mutate(key = ifelse(INPUT.Phen.Paths_clean$Effect == 'up-regulates',
                           paste0(INPUT.Phen.Paths_clean$EndPathways, '-up'),
                           paste0(INPUT.Phen.Paths_clean$EndPathways, '-down')))
 
@@ -441,7 +430,7 @@ phenoscore_computation <- function(proteins_df,
 
       # create a table with proteins on phenotypes multiply regulated
       prot_to_phenotypes_multiple <- prot_to_phenotypes %>%
-        filter(key %in% multiple_regulated_phen$key)
+        dplyr::filter(key %in% multiple_regulated_phen$key)
 
       # select phenotypes
       phenotypes <- unique(prot_to_phenotypes_multiple$key)
@@ -558,9 +547,9 @@ phenoscore_computation <- function(proteins_df,
                                                    by = c('key' = 'phenotype',
                                                           'QueryNode' = 'proteins'))
 
-      INPUT.Phen.Paths <- inner_join(INPUT.Phen.Paths_clean,
-                                     prot_to_phenotypes_clean,
-                                     by = c('QueryNode', 'key'))
+      INPUT.Phen.Paths <- dplyr::inner_join(INPUT.Phen.Paths_clean,
+                                            prot_to_phenotypes_clean,
+                                            by = c('QueryNode', 'key'))
 
     }
 

@@ -16,12 +16,12 @@ molecular_function_annotation <- function(inferred_proteins_dataset, organism){
 
   if(organism == 'human'){
     inferred_proteins_dataset <- dplyr::left_join(inferred_proteins_dataset,
-                                                  gomf_human %>% dplyr::select(gene_name, mf),
+                                                  SignalingProfiler::gomf_human %>% dplyr::select(gene_name, mf),
                                                   by = c('gene_name'))
 
   }else if(organism == 'mouse' | organism == 'hybrid'){
     inferred_proteins_dataset <- dplyr::left_join(inferred_proteins_dataset,
-                                                  gomf_mouse %>% dplyr::select(gene_name, mf),
+                                                  SignalingProfiler::gomf_mouse %>% dplyr::select(gene_name, mf),
                                                   by = c('gene_name'))
 
   }else{

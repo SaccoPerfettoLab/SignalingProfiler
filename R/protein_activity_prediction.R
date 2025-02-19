@@ -124,13 +124,13 @@ run_viper <- function(viper_format,
         if(!is.null(benchmark)){
 
           if(benchmark == 'Doro'){
-            regulons <- bench_doro_db
+            regulons <- SignalingProfiler::bench_doro_db
           }else if(benchmark == 'DoroSign'){
-            regulons <- bench_dorosign_db
+            regulons <- SignalingProfiler::bench_dorosign_db
           }else if(benchmark == 'Coll'){
-            regulons <- bench_coll_db
+            regulons <- SignalingProfiler::bench_coll_db
           }else if(benchmark == 'CollSign'){
-            regulons <- bench_collsign_db
+            regulons <- SignalingProfiler::bench_collsign_db
           }else{
             stop('Wrong type of benchmark dataset')
           }
@@ -138,9 +138,9 @@ run_viper <- function(viper_format,
         }else{
 
           if(collectri == FALSE){
-            regulons <- tfea_db_human
+            regulons <- SignalingProfiler::tfea_db_human
           }else{
-            regulons <- tfea_db_human_collectri
+            regulons <- SignalingProfiler::tfea_db_human_collectri
           }
 
         }
@@ -148,7 +148,7 @@ run_viper <- function(viper_format,
 
 
       }else if(organism == 'mouse'){
-        regulons <- tfea_db_mouse
+        regulons <- SignalingProfiler::tfea_db_mouse
       }else{
         stop('please provide a valid organism name')
       }
@@ -156,13 +156,13 @@ run_viper <- function(viper_format,
     }else if(analysis == 'ksea'){
       if(organism == 'human'){
         if(integrated_regulons == TRUE){
-          regulons <- ksea_db_human_atlas
+          regulons <- SignalingProfiler::ksea_db_human_atlas
         }else{
-          regulons <- ksea_db_human
+          regulons <- SignalingProfiler::ksea_db_human
         }
 
       }else if(organism == 'mouse'){
-        regulons <- ksea_db_mouse
+        regulons <- SignalingProfiler::ksea_db_mouse
       }else{
         stop('please provide a valid organism name')
       }
@@ -278,12 +278,12 @@ run_hypergeometric_test <- function(omic_data, viper_output,
       # set db
       if(organism == 'human'){
         if(collectri == FALSE){
-          df_regulons <- tfea_db_human
+          df_regulons <- SignalingProfiler::tfea_db_human
         }else{
-          df_regulons <- tfea_db_human_collectri
+          df_regulons <- SignalingProfiler::tfea_db_human_collectri
         }
       }else if(organism == 'mouse'){
-        df_regulons <- tfea_db_mouse
+        df_regulons <- SignalingProfiler::tfea_db_mouse
       }else{
         stop('please prove a valid organism')
       }
@@ -292,12 +292,12 @@ run_hypergeometric_test <- function(omic_data, viper_output,
 
       if(organism == 'human'){
         if(integrated_regulons == TRUE){
-          df_regulons <- ksea_db_human_atlas
+          df_regulons <- SignalingProfiler::ksea_db_human_atlas
         }else{
-          df_regulons <- ksea_db_human
+          df_regulons <- SignalingProfiler::ksea_db_human
         }
       }else if(organism == 'mouse'){
-        df_regulons <- ksea_db_mouse
+        df_regulons <- SignalingProfiler::ksea_db_mouse
       }else{
         stop('please provide a valid organism')
       }
@@ -891,16 +891,16 @@ map_experimental_on_regulatory_phosphosites <- function(phosphoproteomic_data,
     if(organism == 'human'){
       message('Mapping experimental phosphopeptides on human database of regulatory roles')
       if(activatory == TRUE){
-        reg_phos_db <- good_phos_df_human_act
+        reg_phos_db <- SignalingProfiler::good_phos_df_human_act
       }else{
-        reg_phos_db <- good_phos_df_human_all
+        reg_phos_db <- SignalingProfiler::good_phos_df_human_all
       }
     }else if(organism == 'mouse'){
       message('Mapping experimental phosphopeptides on mouse database of regulatory roles')
       if(activatory == TRUE){
-        reg_phos_db <- good_phos_df_mouse_act
+        reg_phos_db <- SignalingProfiler::good_phos_df_mouse_act
       }else{
-        reg_phos_db <- good_phos_df_mouse_all
+        reg_phos_db <- SignalingProfiler::good_phos_df_mouse_all
       }
     }else if(organism == 'hybrid'){
       message('Mapping mouse experimental phosphopeptides on human database of regulatory roles to enhance coverage')
@@ -953,7 +953,6 @@ map_experimental_on_regulatory_phosphosites <- function(phosphoproteomic_data,
       dplyr::mutate(PHOSPHO_KEY_GN_SEQ = paste0((gene_name), '-', sequence_window_sub)) %>%
       dplyr::filter(PHOSPHO_KEY_GN_SEQ %in% reg_phos_db$PHOSPHO_KEY_GN_SEQ)
   }
-
 
   if(nrow(exp_fc) == 0){
     warning('No annotated regulatory phosphosites significantly modulated in your dataset')
@@ -1200,16 +1199,16 @@ phosphoscore_computation_aapos <- function(phosphoproteomic_data,
   }else{
     if(organism == 'human'){
       if(activatory == TRUE){
-        reg_phos_db <- good_phos_df_human_act_aapos
+        reg_phos_db <- SignalingProfiler::good_phos_df_human_act_aapos
       }else{
-        reg_phos_db <- good_phos_df_human_all_aapos
+        reg_phos_db <- SignalingProfiler::good_phos_df_human_all_aapos
       }
     }else if(organism == 'mouse'){
       message('Mapping experimental phosphopeptides on mouse database of regulatory roles')
       if(activatory == TRUE){
-        reg_phos_db <- good_phos_df_mouse_act_aapos
+        reg_phos_db <- SignalingProfiler::good_phos_df_mouse_act_aapos
       }else{
-        reg_phos_db <- good_phos_df_mouse_all_aapos
+        reg_phos_db <- SignalingProfiler::good_phos_df_mouse_all_aapos
       }
     }else{
       stop('please provide a valid organism')
