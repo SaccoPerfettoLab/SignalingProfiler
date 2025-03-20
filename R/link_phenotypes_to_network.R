@@ -54,7 +54,7 @@
 link_phenotypes_to_network <- function(phenotype_regulators, phenoscore_df, sp_graph){
 
   # Extract phenotypes regulators
-  phenotype_regulators <- results.table_reg %>%
+  phenotype_regulators <- phenotype_regulators %>%
     dplyr::select(EndPathways, Effect, regulators) %>%
     tidyr::separate_rows(regulators, sep = ';') %>%
     dplyr::mutate(Effect = ifelse(Effect == 'down-regulates', -1, 1)) %>%
