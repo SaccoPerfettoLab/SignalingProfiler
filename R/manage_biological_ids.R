@@ -27,9 +27,9 @@
 #'
 convert_gene_name_in_uniprotid <- function(bio_dataset, organism) {
   if (organism == 'human') {
-    db <- SignalingProfiler::PKN_proteins_human
+    db <- get(data('PKN_proteins_human'))
   } else if (organism == 'mouse' | organism == 'hybrid') {
-    db <- SignalingProfiler::PKN_proteins_mouse
+    db <- get(data('PKN_proteins_mouse'))
   } else{
     stop("Please provide a valid organism: 'human' or 'mouse'.")
   }

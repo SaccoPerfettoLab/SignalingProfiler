@@ -66,8 +66,7 @@ preprocess_PKN <- function(omics_data, PKN_table){
 #'   The columns may vary based on the chosen dataset but typically include
 #'   source and target nodes, interaction types, and supporting evidence.
 #'
-#' @seealso [SignalingProfiler::PKN_human_dir],
-#'   [SignalingProfiler::PKN_mouse_dir]
+#' @seealso [PKN_human_dir], [PKN_mouse_dir]
 #'
 #' @export
 #'
@@ -99,26 +98,26 @@ choose_PKN <- function(organism,
     if(organism == 'mouse'){
       message('Ignoring with atlas parameter since it is only for human')
       if(direct == TRUE){
-        PKN_table <- SignalingProfiler::PKN_mouse_dir
+        PKN_table <- get(data('PKN_mouse_dir'))
       }else if(direct == FALSE){
-        PKN_table <- SignalingProfiler::PKN_mouse_ind
+        PKN_table <- get(data('PKN_mouse_ind'))
       }else{
         stop('direct parameter must be TRUE or FALSE')
       }
     }else if(organism == 'human'){
       if(with_atlas == TRUE){
         if(direct == TRUE){
-          PKN_table <- SignalingProfiler::PKN_human_atlas_dir
+          PKN_table <- get(data('PKN_human_atlas_dir'))
         }else if(direct == FALSE){
-          PKN_table <- SignalingProfiler::PKN_human_atlas_ind
+          PKN_table <- get(data('PKN_human_atlas_ind'))
         }else{
           stop('direct parameter must be TRUE or FALSE')
         }
       }else{
         if(direct == TRUE){
-          PKN_table <- SignalingProfiler::PKN_human_dir
+          PKN_table <- get(data('PKN_human_dir'))
         }else if(direct == FALSE){
-          PKN_table <- SignalingProfiler::PKN_human_ind
+          PKN_table <- get(data('PKN_human_ind'))
         }else{
           stop('direct parameter must be TRUE or FALSE')
         }

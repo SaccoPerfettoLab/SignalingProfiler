@@ -81,30 +81,30 @@ add_output_carnival_nodes_attributes <- function(carnival_result,
     if(with_atlas == TRUE){
       stop('If organism is \'mouse\' with_atlas parameter must be FALSE')
     }else{
-      PKN_proteins <- SignalingProfiler::PKN_proteins_mouse
+      PKN_proteins <-  get(data('PKN_proteins_mouse'))
       if(direct == TRUE){
-        db <- SignalingProfiler::db_mouse_dir
+        db <- get(data('db_mouse_dir'))
       }else{
-        db <- SignalingProfiler::db_mouse_ind
+        db <- get(data('db_mouse_ind'))
       }
     }
   }else if(organism == 'human'){
     if(with_atlas == TRUE){
-      PKN_proteins <- SignalingProfiler::PKN_proteins_human_atlas
+      PKN_proteins <- get(data('PKN_proteins_human_atlas'))
 
       if(direct == TRUE){
-        db <- SignalingProfiler::db_human_atlas_dir
+        db <- get(data('db_human_atlas_dir'))
       }else{
-        db <- SignalingProfiler::db_human_atlas_ind
+        db <- get(data('db_human_atlas_ind'))
       }
 
     }else{
-      PKN_proteins <- SignalingProfiler::PKN_proteins_human
+      PKN_proteins <- get(data('PKN_proteins_human'))
 
       if(direct == TRUE){
-        db <- SignalingProfiler::db_human_dir
+        db <-  get(data('db_human_dir'))
       }else{
-        db <- SignalingProfiler::db_human_ind
+        db <-  get(data('db_human_ind'))
       }
     }
   }else{

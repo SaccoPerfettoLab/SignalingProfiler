@@ -496,7 +496,7 @@ omnipath_parsing <- function(resources, file_path = NULL){
 
 
   # Map OmniPath interactions to SIGNOR internal database
-  omni2signor <- dplyr::left_join(omni_interactions_clean, SignalingProfiler::PKN_human_atlas_ind,
+  omni2signor <- dplyr::left_join(omni_interactions_clean, get(data('PKN_human_atlas_ind')),
                                   by = c('IDA', 'IDB', 'ENTITYA', 'ENTITYB', 'INTERACTION'))
 
   # Identify and process interactions involving Protein Complexes
