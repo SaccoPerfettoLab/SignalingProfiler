@@ -192,8 +192,10 @@ phosphoscore_computation_aapos <- function(phosphoproteomic_data,
     if (is.null(custom_path)) stop("Please provide a path to the regulatory phosphosites table")
     readr::read_tsv(custom_path, show_col_types = FALSE)
   } else {
-    if (activatory) get(data(paste0("good_phos_df_", organism, "_act_aapos")))
-    else get(data(paste0("good_phos_df_", organism, "_all_aapos")))
+    if (activatory)
+      if(organism == 'human') get(data("good_phos_df_human_act_aapos")) else get(data("good_phos_df_mouse_act_aapos"))
+    else
+      if(organism == 'human') get(data("good_phos_df_human_all_aapos")) else get(data("good_phos_df_mouse_all_aapos"))
   }
 
   # Filter experimental data
