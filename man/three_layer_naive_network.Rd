@@ -2,7 +2,7 @@
 % Please edit documentation in R/naive_network_construction.R
 \name{three_layer_naive_network}
 \alias{three_layer_naive_network}
-\title{three_layer_naive_network}
+\title{Generate a Three-Layer Naive Network}
 \usage{
 three_layer_naive_network(
   starts_gn,
@@ -18,42 +18,76 @@ three_layer_naive_network(
   files = TRUE,
   rds_path = "three_layer_naive.RDS",
   sif_path = "three_layer_naive.sif",
-  connect_all = FALSE
+  connect_all = TRUE
 )
 }
 \arguments{
-\item{starts_gn}{gene names of starting nodes}
+\item{starts_gn}{Character vector, Gene Symbols of starting nodes (e.g., receptors).}
 
-\item{intermediate1_gn}{gene names of intermediates1 nodes}
+\item{intermediate1_gn}{Character vector, Gene Symbols of first set of intermediate nodes (e.g., kinases, phosphatases).}
 
-\item{intermediate2_gn}{gene names of intermediates2 nodes}
+\item{intermediate2_gn}{Character vector, Gene Symbols of second set of intermediate nodes (e.g., other phosphorylated proteins).}
 
-\item{targets_gn}{gene names of targets nodes}
+\item{targets_gn}{Character vector, Gene Symbols of target nodes (e.g., transcription factors).}
 
-\item{PKN_table}{tibble of all causal interactions}
+\item{PKN_table}{Data frame, Prior Knowledge Network of causal (signed and oriented) interactions.}
 
-\item{max_length_1}{max_length of shortest path from start to intermediates1}
+\item{max_length_1}{Integer, maximum path length (1 to 4) from starting nodes to `intermediate1_gn`. Default: `3`.}
 
-\item{max_length_2}{max_length of shortest path from intermediates1 to intermediates2}
+\item{max_length_2}{Integer, maximum path length (1 to 4) from `intermediate1_gn` to `intermediate2_gn`. Default: `1`.}
 
-\item{max_length_3}{max_length of shortest path from intermediates2 to targets}
+\item{max_length_3}{Integer, maximum path length (1 to 4) from intermediate nodes to `targets_gn`. Default: `4`.}
 
-\item{both_intermediates}{Boolean, TRUE if you want both intermediates as the starting point of the third layer,
-FALSE if you want to use only intermediates2 (not suggested)}
+\item{both_intermediates}{Logical, if `TRUE`, both `intermediate1_gn` and `intermediate2_gn` are used
+as the starting point of the third layer; otherwise, only `intermediate2_gn` is used. Default: `TRUE`.}
 
-\item{keep_only_connected}{Boolean, default FALSE, if TRUE keeps only intermediated connected}
+\item{keep_only_connected}{Logical, if `TRUE`, only `intermediate1_gn` nodes connected in the first layer are
+considered in the second layer. Default: `FALSE`.}
 
-\item{files}{Boolean, if true will save naive network files}
+\item{files}{Logical, whether to save the naive network as RDS and SIF files. Default: `TRUE`.}
 
-\item{rds_path}{path of network rds file}
+\item{rds_path}{Character, file path to save the naive network as an RDS file. Default: `"three_layer_naive.RDS"`.}
 
-\item{sif_path}{path of network sif file}
+\item{sif_path}{Character, file path to save the naive network in SIF format. Default: `"three_layer_naive.sif"`.}
 
-\item{connect_all}{if TRUE connect intermediate nodes}
+\item{connect_all}{Logical, whether to connect intermediate nodes of independent shortest paths. Default: `TRUE`.}
 }
 \value{
-naive network
+An `igraph` object representing the three-layer naive network.
 }
 \description{
-three_layer_naive_network
+Generate a three-layered naive network by looking for all paths
+equal or shorter than `max_length_1`, `max_length_2`, and `max_length_3` in
+the Prior Knowledge Network (`PKN_table`).
+- The first layer links starting nodes (`starts_gn`) to intermediate nodes (`intermediate1_gn`).
+- The second layer links `intermediate1_gn` to themselves and additional intermediate nodes (`intermediate2_gn`).
+  If `keep_only_connected = TRUE`, only `intermediate1_gn` nodes that were connected in the first layer are considered.
+- The third layer links intermediate nodes to target nodes (`targets_gn`).
+}
+\details{
+If `both_intermediates = TRUE`, both `intermediate1_gn` and `intermediate2_gn` are used as
+starting points in the third layer; otherwise, only `intermediate2_gn` is considered.
+
+The `connect_all = TRUE` parameter ensures that intermediate nodes from independent shortest paths
+are connected by one-step interactions.
+
+
+The function:
+- Identifies shortest paths up to `max_length_1` between `starts_gn` and `intermediate1_gn`.
+- Identifies shortest paths up to `max_length_2` between `intermediate1_gn` and `intermediate2_gn`.
+- Identifies shortest paths up to `max_length_3` between intermediate nodes and `targets_gn`.
+- Constructs an `igraph` object representing the naive network.
+- Optionally saves the network as an RDS file (`rds_path`) and in SIF format (`sif_path`).
+}
+\examples{
+PKN = choose_database_for_building(organism='mouse',format='table')
+three_layer_naive_network(starts_gn=c('Flt3'),
+                          intermediate1_gn=c('Mapk1', 'Mapk3'),
+                          intermediate2_gn=c('Hox9'),
+                          targets_gn=c('Stat5a'),
+                          PKN_table=PKN,
+                          max_length_1=3,
+                          max_length_2=1,
+                          max_length_3=4)
+
 }

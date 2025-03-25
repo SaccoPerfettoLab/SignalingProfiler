@@ -1,14 +1,37 @@
 Package: SignalingProfiler
-Title: What the Package Does (One Line, Title Case)
+Type: Package
+Title: SignalingProfiler bridges multi-omics data to cellular phenotypes
+Description: SignalingProfiler integrates transcriptomics, proteomics, 
+  and phosphoproteomics data with causal prior knowledge 
+  on molecular interactions. It builds signed and oriented context-specific 
+  networks connecting perturbed proteins to cellular functions (phenotypes).
+  It provides methods to infer proteins' and phenotypes activities from omics 
+  dataand connect them in a sign-coherent network.
 Version: 2.1.4
-Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
-Depends: 
-    R (>= 2.10)
+Authors@R: c(
+    person(given = "Veronica", 
+           family = "Venafra",
+           email = "veronica.venafra@uniroma1.it", 
+           role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0003-3830-618X")),
+    person(given = "Francesca", 
+           family = "Sacco",
+           email = "francesca.sacco@uniroma2.it", 
+           role = c("aut"),
+           comment = c(ORCID = "0000-0001-5586-9529")),       
+    person(given = "Livia", 
+           family = "Perfetto",
+           email = "livia.perfetto@uniroma1.it", 
+           role = c("aut"),
+           comment = c(ORCID = "0000-0003-4392-8725")))
+URL: https://github.com/SaccoPerfettoLab/SignalingProfiler
+Bugs: https://github.com/SaccoPerfettoLab/SignalingProfiler/issues
+Depends: R (= 4.4.0)
+License: GPL-3
+Encoding: UTF-8
+LazyData: false
+RoxygenNote: 7.3.2
+VignetteBuilder: knitr
 Imports: 
     CARNIVAL,
     cosmosR,
@@ -26,13 +49,9 @@ Imports:
     tibble,
     UniprotR,
     viper
+SystemRequirements: python3, blastp, ILP solver (cplex, gurobi)
 Suggests: 
     knitr,
     rmarkdown
-VignetteBuilder: 
-    knitr
-biocViews:
-Encoding: UTF-8
-LazyData: true
-Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+biocViews: NetworkInference, GeneExpression, Proteomics, Epigenetics, Transcriptomics, Transcription, GeneRegulation, Annotation
+

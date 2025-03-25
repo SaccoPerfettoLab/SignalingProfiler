@@ -1,151 +1,199 @@
-
-#' find_all_paths
+#' Find All Paths Between Two Nodes in a Prior Knowledge Network
 #'
-#' @param v_start gene_name of starting node
-#' @param v_end gene_name of target node
-#' @param PKN_table tibble of all causal interactions
-#' @param max_length max_length of the desired path, max = 4
+#' Identifies all paths with a length up to `max_length` between
+#' a starting node (`v_start`) and a target node (`v_end`) in a tabular
+#' Prior Knowledge Network (`PKN_table`).
 #'
-#' @return tibble of all shortest paths among start and end nodes
+#' @param v_start Character, Gene Symbol of the starting node.
+#' @param v_end Character, Gene Symbol of the target node.
+#' @param PKN_table Data frame, Prior Knowledge Network of causal (signed and oriented) interactions.
+#' @param max_length Integer, maximum path length between start and end nodes (1 to 4).
+#'
+#'
+#' @return A data frame containing interactions from all the shortest paths
+#'   between `v_start` and `v_end`.
+#'   - `ENTITYA`: Starting node.
+#'   - `INTERACTION`: Interaction type.
+#'   - `ENTITYB`: Target node.
+#'
 #' @export
 #'
 #' @examples
-find_all_paths <- function(v_start, v_end, PKN_table, max_length){
-
-  # v_start = 'FLT3'
-  # v_end = 'TFEB'
-  # max_length = 4
-  # PKN_table = PKN_human_atlas_dir
-  #
-
-  if(max_length > 4){
+#' find_all_paths(v_start = 'FLT3',
+#'                v_end = 'TFEB',
+#'                max_length = 4,
+#'                PKN_table = PKN_human_atlas_dir)
+#'
+find_all_paths <- function(v_start, v_end, PKN_table, max_length) {
+  if (max_length > 4) {
     stop('Max length is 4!')
   }
 
-  PKN_table <- PKN_table %>% dplyr::select('ENTITYA', 'INTERACTION', 'ENTITYB') %>% dplyr::distinct()
+  PKN_table <- PKN_table %>%
+    dplyr::select('ENTITYA', 'INTERACTION', 'ENTITYB') %>%
+    dplyr::distinct()
 
-  # Transform the PKN in a set of vectors
+  ## transform the PKN in a set of vectors
   entitya = PKN_table$ENTITYA
   entityb = PKN_table$ENTITYB
   interactions = PKN_table$INTERACTION
 
-  # STEP 1
+  ## step 1
   i = 1
 
   type_1 <- interactions[entitya == v_start]
   interactors_1 <- entityb[entitya == v_start]
 
-  if(v_end %in% interactors_1){
-    # define in some way paths
-
+  if (v_end %in% interactors_1) {
+    ## define paths
     type_ve <- interactions[entitya == v_start & entityb == v_end]
-    paths <- tibble::tibble(ENTITYA = v_start, INTERACTION = type_ve, ENTITYB = v_end)
+    paths <-
+      tibble::tibble(ENTITYA = v_start,
+                     INTERACTION = type_ve,
+                     ENTITYB = v_end)
     paths <- paths %>% dplyr::distinct()
 
     return(paths)
 
-  }else{
-    if(i == max_length){
+  } else{
+    if (i == max_length) {
       return(NULL)
-    }else{
-      i = i+1
+    } else{
+      i = i + 1
 
-      # Position of interactors in ENTITYA
+      ## position of interactors in ENTITYA
       entitya_2 <- entitya[entitya %in% unique(interactors_1)]
       type_2 <- interactions[entitya %in% unique(interactors_1)]
       interactors_2 <- entityb[entitya %in% unique(interactors_1)]
 
-      if(v_end %in% interactors_2){
-
-        # Take the subset of entitya2, type2 and interactors that represents v_end
+      if (v_end %in% interactors_2) {
+        ## take the subset of entitya2, type2 and interactors representing v_end
         entitya_2 <- entitya_2[interactors_2 == v_end]
         type_2 <- type_2[interactors_2 == v_end]
         interactors_2 <-  interactors_2[interactors_2 == v_end]
 
-        # Take the subset of interactors_1 representing the proteins that are regulators of interactors2
+        ## take the subset of interactors_1 representing  proteins regulating interactors2
         type_1 <- type_1[interactors_1  %in% unique(entitya_2)]
-        interactors_1 <- interactors_1[interactors_1 %in% unique(entitya_2)]
+        interactors_1 <-
+          interactors_1[interactors_1 %in% unique(entitya_2)]
 
-        paths <- tibble::tibble(ENTITYA = c(rep(v_start, length(interactors_1)), entitya_2),
-                        INTERACTION = c(type_1, type_2),
-                        ENTITYB = c(interactors_1, interactors_2))
+        paths <-
+          tibble::tibble(
+            ENTITYA = c(rep(v_start, length(
+              interactors_1
+            )), entitya_2),
+            INTERACTION = c(type_1, type_2),
+            ENTITYB = c(interactors_1, interactors_2)
+          )
         paths <- paths %>% dplyr::distinct()
 
         return(paths)
       } else {
-
-        if( i == max_length){
+        if (i == max_length) {
           return(NULL)
 
-        }else{
+        } else{
           i = i + 1
 
           entitya_3 <- entitya[entitya %in% unique(interactors_2)]
           type_3 <- interactions[entitya %in% unique(interactors_2)]
-          interactors_3 <- entityb[entitya %in% unique(interactors_2)]
+          interactors_3 <-
+            entityb[entitya %in% unique(interactors_2)]
 
-          if(v_end %in% interactors_3){
-
-            # Take the subset of entitya3, type3 and interactors3 that represents v_end
+          if (v_end %in% interactors_3) {
+            ## take the subset of entitya3, type3
+            ## and interactors3 representing v_end
             entitya_3 <- entitya_3[interactors_3 == v_end]
             type_3 <- type_3[interactors_3 == v_end]
             interactors_3 <-  interactors_3[interactors_3 == v_end]
 
-            # Take the subset of interactors_2 representing the proteins that are regulators of interactors3
-
+            ## take the subset of interactors_2 representing
+            ## proteins that are regulators of interactors3
             type_2 <- type_2[interactors_2 %in% unique(entitya_3)]
-            entitya_2 <- entitya_2[interactors_2 %in% unique(entitya_3)]
-            interactors_2 <- interactors_2[interactors_2 %in% unique(entitya_3)]
+            entitya_2 <-
+              entitya_2[interactors_2 %in% unique(entitya_3)]
+            interactors_2 <-
+              interactors_2[interactors_2 %in% unique(entitya_3)]
 
-
-            # Take the subset of interactors_1 representing the proteins that are regulators of interactors2
+            ## take the subset of interactors_1 representing
+            ## proteins that are regulators of interactors2
             type_1 <- type_1[interactors_1 %in% unique(entitya_2)]
-            interactors_1 <- interactors_1[interactors_1 %in% unique(entitya_2)]
+            interactors_1 <-
+              interactors_1[interactors_1 %in% unique(entitya_2)]
 
-            paths <- tibble::tibble(ENTITYA = c(rep(v_start, length(interactors_1)), entitya_2, entitya_3),
-                            INTERACTION = c(type_1, type_2, type_3),
-                            ENTITYB = c(interactors_1, interactors_2, interactors_3))
+            paths <-
+              tibble::tibble(
+                ENTITYA = c(rep(
+                  v_start, length(interactors_1)
+                ), entitya_2, entitya_3),
+                INTERACTION = c(type_1, type_2, type_3),
+                ENTITYB = c(interactors_1, interactors_2, interactors_3)
+              )
 
             paths <- paths %>% dplyr::distinct()
             return(paths)
           } else {
-
-            if ( i == max_length){
+            if (i == max_length) {
               return(NULL)
-            }else{
-
+            } else{
               i = i + 1
 
-              entitya_4 <- entitya[entitya %in% unique(interactors_3)]
-              type_4 <- interactions[entitya %in% unique(interactors_3)]
-              interactors_4 <- entityb[entitya %in% unique(interactors_3)]
+              entitya_4 <-
+                entitya[entitya %in% unique(interactors_3)]
+              type_4 <-
+                interactions[entitya %in% unique(interactors_3)]
+              interactors_4 <-
+                entityb[entitya %in% unique(interactors_3)]
 
-              if(v_end %in% interactors_4){
-
-                # define in some way paths
+              if (v_end %in% interactors_4) {
+                ## define paths
                 entitya_4 <- entitya_4[interactors_4 == v_end]
                 type_4 <- type_4[interactors_4 == v_end]
-                interactors_4 <-  interactors_4[interactors_4 == v_end]
+                interactors_4 <-
+                  interactors_4[interactors_4 == v_end]
 
-                # Take the subset of entitya3, type3 and interactors3 that represents v_end
-                type_3 <- type_3[interactors_3 %in% unique(entitya_4)]
-                entitya_3 <- entitya_3[interactors_3 %in% unique(entitya_4)]
-                interactors_3 <- interactors_3[interactors_3 %in% unique(entitya_4)]
+                ## take the subset of entitya3, type3 and interactors3
+                ## representing v_end
+                type_3 <-
+                  type_3[interactors_3 %in% unique(entitya_4)]
+                entitya_3 <-
+                  entitya_3[interactors_3 %in% unique(entitya_4)]
+                interactors_3 <-
+                  interactors_3[interactors_3 %in% unique(entitya_4)]
 
-                # Take the subset of interactors_2 representing the proteins that are regulators of interactors3
+                ## take the subset of interactors_2 representing
+                ## the proteins that are regulators of interactors3
 
-                type_2 <- type_2[interactors_2 %in% unique(entitya_3)]
-                entitya_2 <- entitya_2[interactors_2 %in% unique(entitya_3)]
-                interactors_2 <- interactors_2[interactors_2 %in% unique(entitya_3)]
+                type_2 <-
+                  type_2[interactors_2 %in% unique(entitya_3)]
+                entitya_2 <-
+                  entitya_2[interactors_2 %in% unique(entitya_3)]
+                interactors_2 <-
+                  interactors_2[interactors_2 %in% unique(entitya_3)]
 
+                ## take the subset of interactors_1 representing the proteins
+                ## regulating interactors2
+                type_1 <-
+                  type_1[interactors_1 %in% unique(entitya_2)]
+                interactors_1 <-
+                  interactors_1[interactors_1 %in% unique(entitya_2)]
 
-                # Take the subset of interactors_1 representing the proteins that are regulators of interactors2
-                type_1 <- type_1[interactors_1 %in% unique(entitya_2)]
-                interactors_1 <- interactors_1[interactors_1 %in% unique(entitya_2)]
-
-                paths <- tibble::tibble(ENTITYA = c(rep(v_start, length(interactors_1)), entitya_2, entitya_3, entitya_4),
-                                INTERACTION = c(type_1, type_2, type_3, type_4),
-                                ENTITYB = c(interactors_1, interactors_2, interactors_3, interactors_4))
+                paths <-
+                  tibble::tibble(
+                    ENTITYA = c(
+                      rep(v_start, length(interactors_1)),
+                      entitya_2,
+                      entitya_3,
+                      entitya_4
+                    ),
+                    INTERACTION = c(type_1, type_2, type_3, type_4),
+                    ENTITYB = c(
+                      interactors_1,
+                      interactors_2,
+                      interactors_3,
+                      interactors_4
+                    )
+                  )
 
                 paths <- paths %>% dplyr::distinct()
                 return(paths)
@@ -160,111 +208,164 @@ find_all_paths <- function(v_start, v_end, PKN_table, max_length){
   }
 }
 
+#' Find All Shortest Paths Between Sets of Nodes
+#'
+#' Applies `find_all_paths` iteratively to find all paths between
+#' multiple starting (`start_nodes_gn`) and target (`target_nodes_gn`) nodes.
+#'
+#' @param start_nodes_gn Character vector, Gene Symbols of starting nodes.
+#' @param target_nodes_gn Character vector, Gene Symbols of target nodes.
+#' @param PKN_table Data frame, Prior Knowledge Network of causal (signed and oriented) interactions.
+#' @param max_length Integer, maximum path length between start and end nodes (1 to 4).
+#'
+#' @return A data frame containing interactions in all shortest paths
+#'   between the given sets of starting and target nodes.
+#'
+#' @export
+#'
+#' @examples
+#' get_all_shortest_path_custom(
+#'   start_nodes_gn = c("FLT3", "KRAS"),
+#'   target_nodes_gn = c("STAT5A", "TFEB"),
+#'   PKN_table = PKN_human_atlas_dir,
+#'   max_length = 4)
+#'
+get_all_shortest_path_custom <-
+  function(start_nodes_gn,
+           target_nodes_gn,
+           PKN_table,
+           max_length) {
+    for (i in c(1:length(start_nodes_gn))) {
+      for (j in c(1:length(target_nodes_gn))) {
+        paths_df <-
+          find_all_paths(start_nodes_gn[i],
+                         target_nodes_gn[j],
+                         PKN_table = PKN_table,
+                         max_length)
 
-  #' get_all_shortest_path_custom
-  #'
-  #' @param start_nodes_gn vector of gene_names of starting nodes
-  #' @param target_nodes_gn vector of gene_names of target nodes
-  #' @param PKN_table tibble of all causal interactions
-  #' @param max_length integer, 1 to 4
-  #'
-  #' @return
-  #' @export
-  #'
-  #' @examples
-  get_all_shortest_path_custom <- function(start_nodes_gn, target_nodes_gn, PKN_table, max_length){
-    # start_nodes_gn <- kinphos_gn
-    # target_nodes_gn <- tfs_gn
-    # path_length <- 'shortest'
-
-
-    for(i in c(1:length(start_nodes_gn))){
-      for(j in c(1:length(target_nodes_gn))){
-        paths_df <- find_all_paths(start_nodes_gn[i], target_nodes_gn[j], PKN_table = PKN_table, max_length)
-
-        if( i == 1 & j == 1){
+        if (i == 1 & j == 1) {
           all_paths_df <- paths_df
-        }else{
-          all_paths_df <- dplyr::bind_rows(all_paths_df, paths_df) %>% dplyr::distinct()
+        } else{
+          all_paths_df <-
+            dplyr::bind_rows(all_paths_df, paths_df) %>%
+            dplyr::distinct()
         }
       }
     }
     return(all_paths_df)
   }
-  #' create_graph_from_paths
-  #'
-  #' @param all_paths_df tibble with edges of shortest paths
-  #' @param PKN_table tibble of all causal interactions
-  #' @param connect_all Boolean, if TRUE connect intermediate nodes
-  #'
-  #' @return igraph object of naive network
-  #'
-  #' @examples
-  create_graph_from_paths <- function(all_paths_df, PKN_table, connect_all = FALSE){
 
-    if(nrow(all_paths_df) == 0){
-      stop('SignalingProfiler ERROR: No paths found for you analytes. Try to not preprocessing the PKN')
+#' Convert Paths Data to an igraph Network
+#'
+#' Converts a data frame of interactions (`all_paths_df`) into an `igraph` object,
+#' optionally adding direct one-step connections between intermediate nodes.
+#'
+#' @param all_paths_df Data frame, interactions in all shortest paths.
+#' @param PKN_table Data frame, Prior Knowledge Network of causal (signed and oriented) interactions.
+#' @param connect_all Logical, whether to connect intermediate nodes of shortest paths. Default: `TRUE`.
+#'
+#' @return An `igraph` object representing the network with all paths.
+#'
+#' @examples
+#' all_paths_df <- get_all_shortest_path_custom(start_nodes_gn=c('FLT3','KRAS'),
+#'                              target_nodes_gn=c('STAT5A', 'TFEB'),
+#'                              PKN_table=PKN_human_atlas_dir,
+#'                              max_length=4)
+#'
+#' create_graph_from_paths(all_paths_df=all_paths_df,
+#'                        PKN_table=PKN_human_atlas_dir,
+#'                        connect_all=TRUE)
+#'
+create_graph_from_paths <-
+  function(all_paths_df, PKN_table, connect_all = TRUE) {
+    if (nrow(all_paths_df) == 0) {
+      stop(
+        'SignalingProfiler ERROR: No paths found for you analytes.
+        Try to not preprocessing the PKN'
+      )
     }
 
-    if(connect_all == TRUE){ # Apply Marco suggestion
-
-      # Transform PKN table in a graph
+    if (connect_all == TRUE) {
+      ## transform PKN table in a graph
       pkn_graph <- pkn_table_as_graph(PKN_table)
 
-      # Get all entities in all_paths_df
-      entities <- unique(c(all_paths_df$ENTITYA, all_paths_df$ENTITYB))
+      ## get all entities in all_paths_df
+      entities <-
+        unique(c(all_paths_df$ENTITYA, all_paths_df$ENTITYB))
 
-      # Create the subgraph
+      ## create the subgraph
       subgraph <- igraph::induced.subgraph(pkn_graph,
                                            igraph::V(pkn_graph)$name[igraph::V(pkn_graph)$name %in% entities])
 
       return(subgraph)
 
     } else {
-
-      edges_paths_df <- dplyr::left_join(all_paths_df, PKN_table,
-                                         by = c('ENTITYA', 'INTERACTION', 'ENTITYB')) %>%
+      edges_paths_df <- dplyr::left_join(all_paths_df,
+                                         PKN_table,
+                                         by = c('ENTITYA',
+                                                'INTERACTION',
+                                                'ENTITYB')) %>%
         dplyr::relocate(ENTITYA, ENTITYB, INTERACTION)
 
-      #edges_paths_df$PHOSPHO_KEY_GN_SEQ <- ''
-      #edges_paths_df$PHOSPHO_KEY_GN_SEQ[!is.na(edges_paths_df$SEQUENCE)] <- paste0(edges_paths_df$ENTITYB[!is.na(edges_paths_df$SEQUENCE)], '-', edges_paths_df$SEQUENCE[!is.na(edges_paths_df$SEQUENCE)])
-
-      nodes_paths_df <- dplyr::bind_rows(edges_paths_df %>% dplyr::select(ENTITY = ENTITYA, ID = IDA, TYPE = TYPEA),
-                                         edges_paths_df %>% dplyr::select(ENTITY = ENTITYB, ID = IDB, TYPE = TYPEB)) %>%
+      nodes_paths_df <-
+        dplyr::bind_rows(
+          edges_paths_df %>% dplyr::select(
+            ENTITY = ENTITYA,
+            ID = IDA,
+            TYPE = TYPEA
+          ),
+          edges_paths_df %>% dplyr::select(
+            ENTITY = ENTITYB,
+            ID = IDB,
+            TYPE = TYPEB
+          )
+        ) %>%
         dplyr::distinct() %>%
         dplyr::group_by(ENTITY) %>%
-        dplyr::reframe(ID = paste0(ID, collapse = ';'), TYPE = paste0(unique(TYPE), collapse = ';')) %>%
+        dplyr::reframe(ID = paste0(ID, collapse = ';'),
+                       TYPE = paste0(unique(TYPE), collapse = ';')) %>%
         dplyr::relocate(ENTITY)
 
-      graph <- igraph::graph_from_data_frame(d = edges_paths_df, vertices = nodes_paths_df)
+      graph <-
+        igraph::graph_from_data_frame(d = edges_paths_df,
+                                      vertices = nodes_paths_df)
 
       return(graph)
-
     }
-
   }
 
-#' PKN table as graph
+#' Convert a Prior Knowledge Network Table to an igraph Object
 #'
-#' @param PKN_table table of PKN
+#' Transforms a tabular Prior Knowledge Network (`PKN_table`) into an
+#' `igraph` object, creating nodes and edges with SIGNOR-compliant attributes
 #'
-#' @return graph representing the PKN
+#' @param PKN_table Data frame, Prior Knowledge Network of causal (signed and oriented) interactions.
+#'
+#' @return An `igraph` object representing the Prior Knowledge Network.
 #'
 #' @examples
-  pkn_table_as_graph <- function(PKN_table){
+#' pkn_table_as_graph(PKN_table=PKN_human_atlas_dir)
+#'
+pkn_table_as_graph <- function(PKN_table) {
+  nodes_df <-
+    tidyr::tibble(
+      ENTITY = c(PKN_table$ENTITYA, PKN_table$ENTITYB),
+      ID = c(PKN_table$IDA, PKN_table$IDB),
+      TYPE = c(PKN_table$TYPEA, PKN_table$TYPEB),
+      DATABASE = c(PKN_table$DATABASEA, PKN_table$DATABASEB)
+    ) %>% dplyr::distinct()
 
-    nodes_df <- tidyr::tibble(ENTITY = c(PKN_table$ENTITYA, PKN_table$ENTITYB),
-                       ID = c(PKN_table$IDA, PKN_table$IDB),
-                       TYPE = c(PKN_table$TYPEA, PKN_table$TYPEB),
-                       DATABASE = c(PKN_table$DATABASEA, PKN_table$DATABASEB)) %>% dplyr::distinct()
+  nodes_df <- nodes_df %>%
+    dplyr::group_by(ENTITY) %>%
+    dplyr::reframe(
+      ID = paste0(ID, collapse = ';'),
+      TYPE = paste0(TYPE, collapse = ';'),
+      DATABASE = paste0(DATABASE, collapse = ';')
+    )
 
-    nodes_df <- nodes_df %>% dplyr::group_by(ENTITY) %>%
-      dplyr::reframe(ID = paste0(ID, collapse = ';'),
-              TYPE = paste0(TYPE, collapse = ';'),
-              DATABSE = paste0(DATABASE, collapse = ';'))
+  PKN_graph <-
+    igraph::graph_from_data_frame(d = PKN_table,
+                                  vertices = nodes_df)
 
-    PKN_graph <- igraph::graph_from_data_frame(d = PKN_table, vertices = nodes_df)
-
-    return(PKN_graph)
-
-  }
+  return(PKN_graph)
+}

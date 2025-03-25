@@ -2,18 +2,35 @@
 % Please edit documentation in R/manage_biological_ids.R
 \name{convert_gene_name_in_uniprotid}
 \alias{convert_gene_name_in_uniprotid}
-\title{add uniprot id in dataset from gene name column}
+\title{Convert Gene Symbol to UniProt IDs}
 \usage{
 convert_gene_name_in_uniprotid(bio_dataset, organism)
 }
 \arguments{
-\item{bio_dataset}{biological dataset without uniprot id}
+\item{bio_dataset}{Data frame, biological dataset containing a `gene_name` column.}
 
-\item{organism}{organism human or mouse}
+\item{organism}{Character string specifying the organism; either \code{"human"} or \code{"mouse"}.}
 }
 \value{
-biological dataset with uniprot id from SIGNOR added
+A data frame identical to `bio_dataset`, but with an additional `UNIPROT` column
+  containing the corresponding UniProt ID(s) retrieved from SignalingProfiler databases.
+  If multiple UniProt IDs are associated with a single gene, they are concatenated with `";"`.
 }
 \description{
-add uniprot id in dataset from gene name column
+Maps Gene Symbols in a biological dataset to their corresponding
+UniProt IDs based on SIGNOR and PhosphoSitePlus databases.
+}
+\details{
+- The function uses predefined SIGNOR-based protein tables:
+  - `"human"` → `PKN_proteins_human_atlas`
+  - `"mouse"` → `PKN_proteins_mouse`
+- The function removes isoform-specific UniProt annotations (e.g., `P12345-1` → `P12345`).
+- Any genes not found in the SIGNOR or PhosphoSitePlus database are excluded from the output.
+}
+\examples{
+bio_data <- data.frame(gene_name = c("TP53", "KRAS", "MAPK1"))
+
+# Convert gene names to UniProt IDs for human proteins
+converted_data <- convert_gene_name_in_uniprotid(bio_data, organism = "human")
+
 }

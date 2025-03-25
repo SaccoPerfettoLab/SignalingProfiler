@@ -2,7 +2,7 @@
 % Please edit documentation in R/shortest_paths_custom.R
 \name{get_all_shortest_path_custom}
 \alias{get_all_shortest_path_custom}
-\title{get_all_shortest_path_custom}
+\title{Find All Shortest Paths Between Sets of Nodes}
 \usage{
 get_all_shortest_path_custom(
   start_nodes_gn,
@@ -12,14 +12,27 @@ get_all_shortest_path_custom(
 )
 }
 \arguments{
-\item{start_nodes_gn}{vector of gene_names of starting nodes}
+\item{start_nodes_gn}{Character vector, Gene Symbols of starting nodes.}
 
-\item{target_nodes_gn}{vector of gene_names of target nodes}
+\item{target_nodes_gn}{Character vector, Gene Symbols of target nodes.}
 
-\item{PKN_table}{tibble of all causal interactions}
+\item{PKN_table}{Data frame, Prior Knowledge Network of causal (signed and oriented) interactions.}
 
-\item{max_length}{integer, 1 to 4}
+\item{max_length}{Integer, maximum path length between start and end nodes (1 to 4).}
+}
+\value{
+A data frame containing interactions in all shortest paths
+  between the given sets of starting and target nodes.
 }
 \description{
-get_all_shortest_path_custom
+Applies `find_all_paths` iteratively to find all paths between
+multiple starting (`start_nodes_gn`) and target (`target_nodes_gn`) nodes.
+}
+\examples{
+get_all_shortest_path_custom(
+  start_nodes_gn = c("FLT3", "KRAS"),
+  target_nodes_gn = c("STAT5A", "TFEB"),
+  PKN_table = PKN_human_atlas_dir,
+  max_length = 4)
+
 }

@@ -2,45 +2,66 @@
 % Please edit documentation in R/naive_network_construction.R
 \name{two_layer_naive_network}
 \alias{two_layer_naive_network}
-\title{two_layer_naive_network}
+\title{Generate a Two-Layers Naive Network}
 \usage{
 two_layer_naive_network(
   starts_gn,
   intermediate_gn,
   targets_gn,
   PKN_table,
-  max_length_1,
-  max_length_2,
+  max_length_1 = 3,
+  max_length_2 = 4,
   files = TRUE,
   rds_path = "two_layer_naive.RDS",
   sif_path = "two_layer_naive.sif",
-  connect_all = FALSE
+  connect_all = TRUE
 )
 }
 \arguments{
-\item{starts_gn}{gene names of starting nodes}
+\item{starts_gn}{Character vector, Gene Symbols of starting nodes (e.g., receptors).}
 
-\item{intermediate_gn}{gene names of intermediate nodes (e.g. kins and phos)}
+\item{intermediate_gn}{Character vector, Gene Symbols of intermediate nodes (e.g., kinases, phosphatases).}
 
-\item{targets_gn}{gene names of target nodes (e.g. transcription factors)}
+\item{targets_gn}{Character vector, Gene Symbols of target nodes (e.g., transcription factors).}
 
-\item{PKN_table}{tibble of all causal interactions}
+\item{PKN_table}{Data frame, Prior Knowledge Network of causal (signed and oriented) interactions.}
 
-\item{max_length_1}{max_length of shortest path from start to intermediates}
+\item{max_length_1}{Integer, maximum path length (1 to 4) from start to intermediate nodes. Default: `3`.}
 
-\item{max_length_2}{max_length of shortest path from intermediates to targets}
+\item{max_length_2}{Integer, maximum path length (1 to 4) from intermediate to target nodes. Default: `4`.}
 
-\item{files}{Boolean, if true will save naive network files}
+\item{files}{Logical, whether to save the naive network in RDS and SIF formats. Default: `TRUE`.}
 
-\item{rds_path}{path of network rds file}
+\item{rds_path}{Character, file path to save the naive network as an RDS file. Default: `"two_layer_naive.RDS"`.}
 
-\item{sif_path}{path of network sif file}
+\item{sif_path}{Character, file path to save the naive network in SIF format. Default: `"two_layer_naive.sif"`.}
 
-\item{connect_all}{Boolean, if TRUE connect intermediate nodes}
+\item{connect_all}{Logical, whether to connect intermediate nodes from independent shortest paths. Default: `TRUE`.}
 }
 \value{
-naive network
+An `igraph` object representing the two-layer naive network.
+
+The function:
+- Identifies all shortest paths (up to `max_length_1`) between `starts_gn` and `intermediate_gn`.
+- Identifies all shortest paths (up to `max_length_2`) between `intermediate_gn` and `targets_gn`.
+- Constructs an `igraph` object representing the naive network.
+- Optionally saves the network as an RDS file (`rds_path`) and in SIF format (`sif_path`).
 }
 \description{
-two_layer_naive_network
+Constructs a two-layer naive network by identifying paths up to `max_length_1`
+between `starts_gn` and `intermediate_gn`, and up to `max_length_2` between
+`intermediate_gn` and `targets_gn` in a Prior Knowledge Network (`PKN_table`).
+The `connect_all = TRUE` parameter ensures that intermediate nodes in independent
+shortest paths are connected by one-step interactions.
+}
+\examples{
+PKN <- choose_database_for_building(organism='mouse',format='table')
+two_layer_naive_network(
+  starts_gn=c('Flt3'),
+  intermediate_gn=c('Mapk1', 'Mapk3'),
+  targets_gn=c('Stat5a'),
+  PKN_table=PKN,
+  max_length_1=3,
+  max_length_2=4)
+
 }

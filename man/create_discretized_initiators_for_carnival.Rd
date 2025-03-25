@@ -2,16 +2,42 @@
 % Please edit documentation in R/carnival_analysis.R
 \name{create_discretized_initiators_for_carnival}
 \alias{create_discretized_initiators_for_carnival}
-\title{create_discretized_initiators_for_carnival}
+\title{Discretize Initiator Proteins for CARNIVAL Analysis}
 \usage{
 create_discretized_initiators_for_carnival(proteins_df)
 }
 \arguments{
-\item{proteins_df}{tibble of initiator proteins}
+\item{proteins_df}{A tibble containing initiator proteins with their
+inferred activity scores. The dataframe must include:
+\describe{
+  \item{gene_name}{Character. Gene symbol of the protein.}
+  \item{final_score}{Numeric. The continuous activity score of the protein.}
+  \item{mf}{Character. Molecular function category (e.g., "kin", "tf").}
+}}
 }
 \value{
-initiators' tibble with discrtized activities
+A tibble containing discretized initiators with the following columns:
+\describe{
+  \item{gene_name}{Character. Gene symbol of the protein.}
+  \item{final_score}{Integer. Discretized activity score (-1 for inhibition, 1 for activation).}
+  \item{mf}{Character. Molecular function of the protein.}
+}
 }
 \description{
-create_discretized_initiators_for_carnival
+This function discretizes protein activity scores into categorical values
+(-1, or 1) for use in `CARNIVAL optimization`. It filters proteins
+that have either positive or negative inferred activity while excluding neutral ones.
+}
+\examples{
+# Example dataframe
+proteins_df <- tibble::tibble(
+  gene_name = c("ProteinA", "ProteinB", "ProteinC"),
+  final_score = c(0.8, -0.5, 0),
+  mf = c("kin", "tf", "phos")
+)
+
+# Convert to discretized format
+initiators <- create_discretized_initiators_for_carnival(proteins_df)
+print(initiators)
+
 }

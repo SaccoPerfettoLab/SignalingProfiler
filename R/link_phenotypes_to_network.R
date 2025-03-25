@@ -61,18 +61,20 @@ link_phenotypes_to_network <- function(phenotype_regulators, phenoscore_df, sp_g
     dplyr::rename('source' = 'regulators' , 'sign' = 'Effect', 'target' = 'EndPathways')
 
   # Create a phenotype table in SignalingProfiler compliant format
-  pheno_nodes <- tidyr::tibble(gene_name =  phenoscore_df$EndPathways,
+
+  pheno_nodes <- tidyr::tibble(gene_name = stringr::str_replace_all(str_to_upper(phenoscore_df$EndPathways), "[^[:alnum:]]", '_'),
                                carnival_activity = NA,
-                               UNIPROT = NA,
-                               mf = 'phenotype',
                                final_score = phenoscore_df$phenoscore,
                                method = 'phenoscore',
                                discordant = FALSE
   )
 
+  # Add UNIPROT ID and molecular function to phenotypes
+  pheno_nodes <- convert_gene_name_in_uniprotid(bio_dataset = pheno_nodes, organism = 'human')
+  pheno_nodes <- molecular_function_annotation(inferred_proteins_dataset = pheno_nodes, organism = 'human')
+
   pheno_nodes <- pheno_nodes %>%
-    dplyr::mutate(carnival_activity = ifelse(final_score < 0, -100, 100),
-                  gene_name = stringr::str_replace_all(str_to_upper(gene_name), "[^[:alnum:]]", '_'))
+    dplyr::mutate(carnival_activity = ifelse(final_score < 0, -100, 100))
 
   # Get SignalingProfiler network proteins
   nodes_df <- igraph::as_data_frame(sp_graph, what = 'vertices')
@@ -98,6 +100,8 @@ link_phenotypes_to_network <- function(phenotype_regulators, phenoscore_df, sp_g
   colnames(edges_df)[1:2] <- c('source', 'target')
   edges_df$sign <- as.character(edges_df$sign)
   edges_df_pheno <- dplyr::bind_rows(edges_df, pheno_edges)
+
+  setdiff(unique(c(pheno_edges$source, pheno_edges$target)), node_df_pheno$gene_name)
 
   # Create igraph object
   pheno_graph <- igraph::graph_from_data_frame(edges_df_pheno,

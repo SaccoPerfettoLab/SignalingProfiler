@@ -2,20 +2,29 @@
 % Please edit documentation in R/carnival_analysis.R
 \name{generateTFList}
 \alias{generateTFList}
-\title{generateTFList}
+\title{Generate Transcription Factor (TF) List}
 \usage{
-generateTFList(df = df, top = 50, access_idx = 1)
+generateTFList(df = df, top = "all", access_idx = 1)
 }
 \arguments{
-\item{df}{df of inferred proteins}
+\item{df}{A dataframe of inferred proteins with their activity scores.}
 
-\item{top}{integer}
+\item{top}{An integer specifying the number of TFs to return (default: 50).
+If `"all"`, returns all proteins in `df`.}
 
-\item{access_idx}{integer}
+\item{access_idx}{An integer index referring to the column containing activity values.}
 }
 \value{
-list of proteins
+A list of ranked proteins with their scores.
 }
 \description{
-generateTFList
+Transform dataframe of proteins with their inferred activity in a list
+compliant with R CARNIVAL analysis. Optionally, it extracts
+the top-ranked proteins (TFs).
+Function re-used from Saez-lab (https://saezlab.github.io/).
+}
+\examples{
+data <- data.frame(TF = c("TP53", "MYC", "STAT3"), score = c(2.1, -1.5, 3.2))
+tf_list <- generateTFList(df = data, top = 2, access_idx = 2)
+
 }

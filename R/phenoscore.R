@@ -53,14 +53,14 @@
 #'
 #' @examples
 #' # Example dataset
-#' data('toy_prot_df')
-#' data('toy_phos_df')
-#' data('toy_sp_output')
+#' data('prot_toy_df')
+#' data('phospho_toy_df')
+#' data('toy_opt_network')
 #' desired_phenotypes <- c("APOPTOSIS", "PROLIFERATION")
 #'
-#' results <- phenoscore_computation(proteins_df = toy_sp_output$nodes_df,
+#' results <- phenoscore_computation(proteins_df = toy_opt_network$nodes_df,
 #'                                   desired_phenotypes = c('APOPTOSIS', 'PROLIFERATION'),
-#'                                   sp_graph = toy_sp_output,
+#'                                   sp_graph = toy_opt_network,
 #'                                   create_pheno_network = TRUE)
 phenoscore_computation <- function(proteins_df,
                                    desired_phenotypes = NULL,
@@ -368,13 +368,13 @@ phenoscore_computation <- function(proteins_df,
     ggplot2::coord_flip()
 
   if(organism_type == 'mouse'){
-    results.table_reg$regulators <- stringr::str_to_title(results.table_reg$regulators)
+    prot_pheno_act$regulators <- stringr::str_to_title(prot_pheno_act$regulators)
     igraph::V(sp_graph)$name <- stringr::str_to_title(igraph::V(sp_graph)$name)
   }
 
   if(create_pheno_network){
     # Link phenotypes in the SignalingProfiler network
-    pheno_graph_object <- link_phenotypes_to_network(phenotype_regulators = results.table_reg,
+    pheno_graph_object <- link_phenotypes_to_network(phenotype_regulators = prot_pheno_act,
                                                      phenoscore_df = phenoscore_df_filt,
                                                      sp_graph = sp_graph)
 

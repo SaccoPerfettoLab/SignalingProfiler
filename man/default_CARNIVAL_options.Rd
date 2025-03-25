@@ -2,16 +2,37 @@
 % Please edit documentation in R/carnival_analysis.R
 \name{default_CARNIVAL_options}
 \alias{default_CARNIVAL_options}
-\title{default_CARNIVAL_options}
+\title{Generate Default Parameters to Run CARNIVAL}
 \usage{
-default_CARNIVAL_options(solver = NULL)
+default_CARNIVAL_options(solver = NULL, gurobi_path = NULL)
 }
 \arguments{
-\item{solver}{string specifying solver}
+\item{solver}{A string specifying the solver to be used for optimization.
+Valid options are:
+\itemize{
+  \item `"lpSolve"` - Uses `lpSolve` as the solver.
+  \item `"cplex"` - Uses IBM CPLEX as the solver.
+  \item `"cbc"` - Uses the CBC (Coin-or branch and cut) solver.
+   \item `"gurobi"` - Uses Gurobi as the solver.
+}}
 }
 \value{
-list of CARNIVAL options
+A named list containing the default CARNIVAL parameters for the
+        specified solver.
 }
 \description{
-default_CARNIVAL_options
+This function provides the default configuration settings for the
+CARNIVAL optimization pipeline, selecting the appropriate Integer
+Linear Programming solver and returning the corresponding default parameters.
+}
+\examples{
+# Generate default options for CPLEX solver
+cplex_options <- default_CARNIVAL_options(solver = "cplex")
+
+# Generate default options for CBC solver
+cbc_options <- default_CARNIVAL_options(solver = "cbc")
+
+ # Generate default options for Gurobi solver
+gurobi_options <- default_CARNIVAL_options(solver = "gurobi",
+                                           gurobi_path = './gurobi.exe')
 }

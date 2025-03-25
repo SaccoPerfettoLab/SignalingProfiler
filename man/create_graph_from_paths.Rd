@@ -2,20 +2,32 @@
 % Please edit documentation in R/shortest_paths_custom.R
 \name{create_graph_from_paths}
 \alias{create_graph_from_paths}
-\title{create_graph_from_paths}
+\title{Convert Paths Data to an igraph Network}
 \usage{
-create_graph_from_paths(all_paths_df, PKN_table, connect_all = FALSE)
+create_graph_from_paths(all_paths_df, PKN_table, connect_all = TRUE)
 }
 \arguments{
-\item{all_paths_df}{tibble with edges of shortest paths}
+\item{all_paths_df}{Data frame, interactions in all shortest paths.}
 
-\item{PKN_table}{tibble of all causal interactions}
+\item{PKN_table}{Data frame, Prior Knowledge Network of causal (signed and oriented) interactions.}
 
-\item{connect_all}{Boolean, if TRUE connect intermediate nodes}
+\item{connect_all}{Logical, whether to connect intermediate nodes of shortest paths. Default: `TRUE`.}
 }
 \value{
-igraph object of naive network
+An `igraph` object representing the network with all paths.
 }
 \description{
-create_graph_from_paths
+Converts a data frame of interactions (`all_paths_df`) into an `igraph` object,
+optionally adding direct one-step connections between intermediate nodes.
+}
+\examples{
+all_paths_df <- get_all_shortest_path_custom(start_nodes_gn=c('FLT3','KRAS'),
+                             target_nodes_gn=c('STAT5A', 'TFEB'),
+                             PKN_table=PKN_human_atlas_dir,
+                             max_length=4)
+
+create_graph_from_paths(all_paths_df=all_paths_df,
+                       PKN_table=PKN_human_atlas_dir,
+                       connect_all=TRUE)
+
 }

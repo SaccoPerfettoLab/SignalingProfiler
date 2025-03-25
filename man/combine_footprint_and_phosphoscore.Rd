@@ -2,20 +2,52 @@
 % Please edit documentation in R/protein_activity_prediction.R
 \name{combine_footprint_and_phosphoscore}
 \alias{combine_footprint_and_phosphoscore}
-\title{Title}
+\title{Combine Footprint-Based and PhosphoScore Analyses}
 \usage{
 combine_footprint_and_phosphoscore(footprint_output, phosphoscore_df, analysis)
 }
 \arguments{
-\item{footprint_output}{output of footprint based}
+\item{footprint_output}{A dataframe containing inferred protein activity from the **VIPER footprint-based** method.}
 
-\item{phosphoscore_df}{output of phosphoscore based}
+\item{phosphoscore_df}{A dataframe containing inferred protein activity from the **PhosphoScore phosphosite-based** method.}
 
-\item{analysis}{type of analysis}
+\item{analysis}{A string specifying the analysis type (`"tfea"` for transcription factor enrichment or `"ksea"` for kinase enrichment).}
 }
 \value{
-dataset of inferred proteins with combined scores
+A dataframe containing:
+\describe{
+  \item{`gene_name`}{The name of the inferred protein.}
+  \item{`UNIPROT`}{The UniProt ID of the inferred protein.}
+  \item{`mf`}{Molecular function (`"tf"` for transcription factors, `"kin"` or `"phos"` for kinases and phosphatases).}
+  \item{`final_score`}{The combined activity score from both methods.}
+  \item{`method`}{Indicates whether the score is derived from `"VIPER"`, `"PhosphoScore"`, or `"VIPER+PhosphoScore"`.}
+}
 }
 \description{
-Title
+This function integrates footprint-based analysis (`VIPER`) with
+regulatory phosphosite-based (`PhosphoScore`) activity inference.
+It computes a **final score** for inferred proteins by merging the results
+of both approaches.
+}
+\examples{
+# Example footprint-based output
+footprint_data <- data.frame(
+  gene_name = c("TP53", "MYC"),
+  UNIPROT = c("P04637", "P01106"),
+  mf = c("tf", "tf"),
+  weightedNES = c(2.5, -1.8)
+)
+
+# Example phosphoscore output
+phosphoscore_data <- data.frame(
+  gene_name = c("TP53", "MYC"),
+  UNIPROT = c("P04637", "P01106"),
+  mf = c("tf", "tf"),
+  phosphoscore = c(1.9, -1.5)
+)
+
+# Combine footprint and phosphoscore analyses
+combined_results <- combine_footprint_and_phosphoscore(footprint_data, phosphoscore_data, "tfea")
+head(combined_results)
+
 }

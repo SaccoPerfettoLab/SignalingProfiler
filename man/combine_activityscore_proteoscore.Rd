@@ -2,18 +2,50 @@
 % Please edit documentation in R/protein_activity_prediction.R
 \name{combine_activityscore_proteoscore}
 \alias{combine_activityscore_proteoscore}
-\title{Title}
+\title{Combine Activity Score and ProteoScore}
 \usage{
 combine_activityscore_proteoscore(activity_score, proteo_score)
 }
 \arguments{
-\item{activity_score}{df with activity measures derived from phosphoproteomics}
+\item{activity_score}{A dataframe containing activity measures derived from phosphoproteomics.}
 
-\item{proteo_score}{df with activity measures derived from proteomics}
+\item{proteo_score}{A dataframe containing activity measures derived from proteomics.}
 }
 \value{
-df with combined activity measures
+A dataframe containing:
+\describe{
+  \item{`gene_name`}{The name of the inferred protein.}
+  \item{`UNIPROT`}{The UniProt ID of the inferred protein.}
+  \item{`mf`}{Molecular function (`"tf"` for transcription factors, `"kin"` or `"phos"` for kinases and phosphatases).}
+  \item{`final_score`}{The combined activity score from phosphoproteomics and proteomics.}
+  \item{`method`}{Indicates whether the score is derived from `"ActivityScore"`, `"ProteoScore"`, or both.}
+}
 }
 \description{
-Title
+This function merges activity measures derived from **footprint-based** and
+**PhosphoScore** techniques (`activity_score`) with significant
+**proteomics** modulations (`proteo_score`), computing a **final score**
+that integrates both data sources.
+}
+\examples{
+# Example phosphoproteomics activity scores
+activity_data <- data.frame(
+  gene_name = c("TP53", "MYC"),
+  UNIPROT = c("P04637", "P01106"),
+  mf = c("tf", "tf"),
+  final_score = c(2.5, -1.8)
+)
+
+# Example proteomics-based activity scores
+proteo_data <- data.frame(
+  gene_name = c("TP53", "MYC"),
+  UNIPROT = c("P04637", "P01106"),
+  mf = c("tf", "tf"),
+  difference = c(1.9, -1.5)
+)
+
+# Combine activity scores
+combined_results <- combine_activityscore_proteoscore(activity_data, proteo_data)
+head(combined_results)
+
 }

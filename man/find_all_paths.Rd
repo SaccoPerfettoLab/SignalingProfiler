@@ -2,22 +2,35 @@
 % Please edit documentation in R/shortest_paths_custom.R
 \name{find_all_paths}
 \alias{find_all_paths}
-\title{find_all_paths}
+\title{Find All Paths Between Two Nodes in a Prior Knowledge Network}
 \usage{
 find_all_paths(v_start, v_end, PKN_table, max_length)
 }
 \arguments{
-\item{v_start}{gene_name of starting node}
+\item{v_start}{Character, Gene Symbol of the starting node.}
 
-\item{v_end}{gene_name of target node}
+\item{v_end}{Character, Gene Symbol of the target node.}
 
-\item{PKN_table}{tibble of all causal interactions}
+\item{PKN_table}{Data frame, Prior Knowledge Network of causal (signed and oriented) interactions.}
 
-\item{max_length}{max_length of the desired path, max = 4}
+\item{max_length}{Integer, maximum path length between start and end nodes (1 to 4).}
 }
 \value{
-tibble of all shortest paths among start and end nodes
+A data frame containing interactions from all the shortest paths
+  between `v_start` and `v_end`.
+  - `ENTITYA`: Starting node.
+  - `INTERACTION`: Interaction type.
+  - `ENTITYB`: Target node.
 }
 \description{
-find_all_paths
+Identifies all paths with a length up to `max_length` between
+a starting node (`v_start`) and a target node (`v_end`) in a tabular
+Prior Knowledge Network (`PKN_table`).
+}
+\examples{
+find_all_paths(v_start = 'FLT3',
+               v_end = 'TFEB',
+               max_length = 4,
+               PKN_table = PKN_human_atlas_dir)
+
 }
