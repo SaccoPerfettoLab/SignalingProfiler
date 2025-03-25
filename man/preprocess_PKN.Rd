@@ -2,18 +2,36 @@
 % Please edit documentation in R/preprocess_PKN.R
 \name{preprocess_PKN}
 \alias{preprocess_PKN}
-\title{preprocess_PKN}
+\title{Filter Prior Knowledge Network Based on Expressed Proteins}
 \usage{
 preprocess_PKN(omics_data, PKN_table)
 }
 \arguments{
-\item{omics_data}{list of all the omics data you have}
+\item{omics_data}{A list of data frames, each containing at least a `gene_name` column
+representing expressed proteins.}
 
-\item{PKN_table}{table derived by choose_PKN}
+\item{PKN_table}{A data frame representing the Prior Knowledge Network,
+derived from `choose_PKN()`.}
 }
 \value{
-table of PKN with interactions between proteins expressed in your system
+A filtered PKN table containing only interactions involving
+  proteins detected in the provided omics datasets.
 }
 \description{
-preprocess_PKN
+Filters a Prior Knowledge Network (PKN) to retain only interactions
+involving proteins expressed in the provided omics datasets.
+}
+\details{
+- The function extracts **unique gene names** from all omics datasets.
+- It filters the **PKN_table** to retain:
+  - Interactions where `ENTITYA` or `ENTITYB` is a detected protein.
+  - Non-protein interactions (e.g., transcription factors, complexes) remain unchanged.
+}
+\examples{
+data('tr_toy_df')
+data('prot_toy_df')
+data('phospho_toy_df')
+omics_list <- list(tr_toy_df, prot_toy_df, phospho_toy_df)
+filtered_PKN <- preprocess_PKN(omics_data = omics_list, PKN_table = PKN_human_atlas_dir)
+
 }

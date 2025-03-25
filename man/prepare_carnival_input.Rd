@@ -2,22 +2,57 @@
 % Please edit documentation in R/naive_network_construction.R
 \name{prepare_carnival_input}
 \alias{prepare_carnival_input}
-\title{prepare_carnival_input}
+\title{Prepare Carnival Input for Signaling Network Optimization}
 \usage{
-prepare_carnival_input(naive_network, prediction_output, recept_list, organism)
+prepare_carnival_input(
+  naive_network,
+  prediction_output,
+  recept_list = NULL,
+  organism
+)
 }
 \arguments{
-\item{naive_network}{naive network connecting inferred proteins}
+\item{naive_network}{An \code{igraph} object representing the naive network connecting inferred proteins.}
 
-\item{prediction_output}{inferred proteins from experimental data}
+\item{prediction_output}{A data frame of inferred proteins obtained from experimental data.}
 
-\item{recept_list}{list of receptors with their desired activity or NULL if you don't have any}
+\item{recept_list}{A named list of receptors with their desired activity values. If \code{NULL}, no receptors are added.
+The names of the list elements should be the gene symbols.}
 
-\item{organism}{string, 'human' or 'mouse'}
+\item{organism}{Character string specifying the organism; either \code{"human"} or \code{"mouse"}.}
 }
 \value{
-inferred protein filtered for presence in naive network
+A data frame of inferred proteins containing the following columns:
+  \item{UNIPROT}{Protein Uniprot ID.}
+  \item{gene_name}{Gene Symbol of the protein.}
+  \item{mf}{Molecular function (e.g., transcription factor (\code{tf}), kinase (\code{kin}),
+    phosphatase (\code{phos}), or other phosphorylated proteins (\code{other}).}
+  \item{final_score}{Activity score for the protein.}
+  \item{method}{Method(s) used for the computation of \code{final_score}.}
 }
 \description{
-prepare_carnival_input
+Creates a protein activity table to be used as input for signaling network optimization.
+This function:
+\enumerate{
+  \item Optionally adds a set of user-defined perturbed proteins (receptors) with specified activity.
+  \item Removes predicted proteins that are not connected in the naive network.
+}
+}
+\details{
+The function first filters the \code{prediction_output} to retain only those proteins that
+are present in the naive network. If a receptor list is provided, it converts the list into a
+data frame, adds the corresponding Uniprot IDs using \code{convert_gene_name_in_uniprotid()},
+and removes any predicted proteins whose gene symbols conflict with the user-specified receptors.
+Finally, the receptor data and the filtered predictions are combined and returned.
+}
+\examples{
+  # Load example data
+  data(naive_network)
+  data(toy_activities)
+
+  # Define a receptor list with a desired activity value
+  recept_list <- list(Flt3 = -1)
+
+  # Prepare the carnival input for the human organism
+  carnival_input <- prepare_carnival_input(naive_network, toy_activities, recept_list, organism = "human")
 }

@@ -2,16 +2,21 @@
 % Please edit documentation in R/carnival_analysis.R
 \name{formatting_proteins_for_carnival}
 \alias{formatting_proteins_for_carnival}
-\title{formatting_proteins_for_carnival}
+\title{Format Inferred Proteins for CARNIVAL Analysis}
 \usage{
 formatting_proteins_for_carnival(proteins_df)
 }
 \arguments{
-\item{proteins_df}{dataframe with inferred proteins with specific mf}
+\item{proteins_df}{A dataframe with inferred protein activities and scores.}
 }
 \value{
-a list of proteins as desired by CARNIVAL
+A formatted list of protein activities for CARNIVAL.
 }
 \description{
-formatting_proteins_for_carnival
+Converts inferred protein scores into a format compatible with CARNIVAL.
+}
+\examples{
+data <- data.frame(gene_name = c("TP53", "MYC"), final_score = c(2.5, -1.8))
+formatted_proteins <- formatting_proteins_for_carnival(data)
+
 }

@@ -1,244 +1,123 @@
-# scripts for building a naive network containing all inferred proteins
-
-# function which converts an igraph object in a sif file
-#' igraphToSif
+#' Get Prior Knowledge Network in multiple formats
 #'
-#' @param inGraph igraph object
-#' @param outfile output file in sif format
-#' @param edgeLabel label to use as edge
+#' Returns the built-in Prior Knowledge Network (PKN) from SIGNOR and PhosphoSitePlus
+#' in different formats, with optional kinase-substrate predicted interactions
+#' from Kinome Atlases (PMIDs: 36631611, 38720073).
+
+#' @param organism Character string, either `"human"` or `"mouse"`, specifying the organism.
+#' @param format Character string, format of the output; choose between `"igraph"` or `"table"`.
+#' @param with_atlas Logical, whether to integrate inferred kinase-substrate
+#'   interactions from the Ser/Thr and Tyr Kinome Atlas (PMIDs: 36631611, 38720073); default: `FALSE`.
+#' @param direct Logical, whether to retain only direct interactions among biological entities; default `TRUE`.
+#' @param custom Logical, whether the user wants to provide a custom PKN.
+#'   If `TRUE`, the function will stop with an error message; default `FALSE`.
 #'
-#' @return igraph object in sif format
+#' @return The prior knowledge network in the specified format:
+#'   - `"igraph"` → An `igraph` object.
+#'   - `"table"` → A `data.frame`.
+
+#' @details
+#' The function selects the appropriate dataset based on user-defined parameters.
+#' If `custom = TRUE`, the function stops since custom PKNs must be handled separately.
+#' For `"mouse"`, kinase-substrate interactions (`with_atlas = TRUE`) are not supported.
 #'
-#' @examples
-igraphToSif <- function(inGraph, outfile="output.sif", edgeLabel="label") {
-
-  # inGraph = union_graph1
-  # outfile = 'output.sif'
-  # edgeLabel = 'INTERACTION'
-
-  if(file.exists(outfile)){
-    file.remove(outfile)
-  }
-
-  file_conn <- file(outfile, open = "wt")
-
-  # Get the edges and attributes of the graph
-  edges <- igraph::as_edgelist(inGraph)
-  attributes <- igraph::edge_attr(inGraph, edgeLabel)
-
-  for (i in 1:nrow(edges)) {
-    edge <- edges[i,]
-    attribute <- attributes[i]
-    cat(paste0(edge[1], '\t', attribute, '\t', edge[2],  '\n'), file = file_conn)
-  }
-
-  close(file_conn)
-  #
-  #
-  #
-  #
-  #
-  # singletons <- as.list(igraph::get.vertex.attribute(inGraph, "name"))
-  # edgeList <- igraph::get.edgelist(inGraph, names=FALSE)
-  # nodeNames <- igraph::get.vertex.attribute(inGraph, "name")
-  # edgeAttribute <- igraph::get.edge.attribute(inGraph, edgeLabel)
-  # numE <- igraph::ecount(inGraph)
-  #
-  # for (i in 1:numE) {
-  #   node1 <- edgeList[i,1]
-  #   node2 <- edgeList[i,2]
-  #   singletons <- singletons[which(singletons != nodeNames[node1])]
-  #   singletons <- singletons[which(singletons != nodeNames[node2])]
-  #   write(paste0(nodeNames[node1], "\t", edgeAttribute[i], "\t", nodeNames[node2], "\n"),
-  #         outfile, append = TRUE)
-  # }
-  #
-  # for (single in singletons) {
-  #   write(paste0(single, "\n"),
-  #         outfile, append = TRUE)
-  # }
-}
-
-
-##### --------- #####
-
-
-#' choose_database_for_building
-#'
-#' @param organism 'human' or 'mouse''
-#' @param format 'igraph', 'table'
-#' @param with_atlas Boolean value, default FALSE, if TRUE uses atlas
-#'
-#' @return built-in database as igraph object or tibble
 #' @export
 #'
 #' @examples
+#' # Retrieve human PKN in table format with direct interactions
+#' choose_database_for_building(organism='human',with_atlas=F,direct=T,custom=F,format='table')
+#'
+#' # Retrieve mouse PKN as an igraph object (without kinase-substrate interactions)
+#' PKN_mouse <- choose_database_for_building(organism = "mouse", format = "igraph")
 choose_database_for_building <- function(organism,
                                          with_atlas = FALSE,
                                          direct = FALSE,
                                          custom = FALSE,
-                                         format){
+                                         format) {
 
-  if(custom == TRUE){
-    stop('This function is not available for custom PKNs')
+  if (custom) {
+    stop("This function is not available for custom PKNs.")
   }
 
-  # db choosing
-  if(organism == 'mouse'){
-    if(format == 'igraph'){
-      if(with_atlas == TRUE){
-        stop('If organism is \'mouse\' with_atlas parameter must be FALSE')
-      }else{
-        if(direct == TRUE){
-          pkn <- SignalingProfiler::db_mouse_dir
-        }else if(direct == FALSE){
-          pkn <- SignalingProfiler::db_mouse_ind
-        }else{
-          stop('direct parameter must be TRUE or FALSE')
-        }
-      }
-    }else if(format == 'table'){
-      if(with_atlas == TRUE){
-        stop('If organism is \'mouse\' with_atlas parameter must be FALSE')
-      }else{
-        if(direct == TRUE){
-          pkn <- SignalingProfiler::PKN_mouse_dir
-        }else if(direct == FALSE){
-          pkn <- SignalingProfiler::PKN_mouse_ind
-        }else{
-          stop('direct parameter must be TRUE or FALSE')
-        }
-      }
-    }else{error('Please provide a valid format among igraph or table')}
-  }else if(organism == 'human'){
-    if(format == 'igraph'){
-      if(with_atlas == TRUE){
-        if(direct == TRUE){
-          pkn <- SignalingProfiler::db_human_atlas_dir
-        }else if(direct == FALSE){
-          pkn <- SignalingProfiler::db_human_atlas_ind
-        }else{
-          stop('direct parameter must be TRUE or FALSE')
-        }
-      }else if(with_atlas == FALSE){
-        if(direct == TRUE){
-          pkn <- SignalingProfiler::db_human_dir
-        }else if(direct == FALSE){
-          pkn <- SignalingProfiler::db_human_ind
-        }else{
-          stop('direct parameter must be TRUE or FALSE')
-        }
-      }else{
-        stop('with_atlas parameter must be TRUE or FALSE')
-      }
-    }else if(format == 'table'){
-      if(with_atlas == TRUE){
-        if(direct == TRUE){
-          pkn <- SignalingProfiler::PKN_human_atlas_dir
-        }else if(direct == FALSE){
-          pkn <- SignalingProfiler::PKN_human_atlas_ind
-        }else{
-          stop('direct parameter must be TRUE or FALSE')
-        }
-      }else if(with_atlas == FALSE){
-        if(direct == TRUE){
-          pkn <- SignalingProfiler::PKN_human_dir
-        }else if(direct == FALSE){
-          pkn <- SignalingProfiler::PKN_human_ind
-        }else{
-          stop('direct parameter must be TRUE or FALSE')
-        }
-      }else{
-        stop('with_atlas parameter must be TRUE or FALSE')
-      }
-    }else{error('Please provide a valid format among igraph or table')}
-  }else{error('Please provide a valid organism')}
-  return(pkn)
+  if (!organism %in% c("human", "mouse")) {
+    stop("Please provide a valid organism: 'human' or 'mouse'.")
+  }
+
+  if (!format %in% c("igraph", "table")) {
+    stop("Please provide a valid format: 'igraph' or 'table'.")
+  }
+
+  if (organism == "mouse" && with_atlas) {
+    stop("If organism is 'mouse', 'with_atlas' must be FALSE.")
+  }
+
+  ## built-in object selection based on name
+  dataset_prefix <- ifelse(organism == "mouse", "mouse", "human")
+  atlas_suffix <- ifelse(with_atlas, "_atlas", "")
+  direct_suffix <- ifelse(direct, "_dir", "_ind")
+
+  dataset_name <- paste0("SignalingProfiler::",
+                         ifelse(format == "igraph", "db_", "PKN_"),
+                         dataset_prefix, atlas_suffix, direct_suffix)
+
+  return(eval(parse(text = dataset_name)))
 }
 
-##### --------- #####
-
-#' coverage_of_inferred_proteins_in_db
+#' Generate a One-Layer Naive Network
 #'
-#' @param prediction_output concatenation of inferred proteins from omics data
-#' @param organism 'human' or 'mouse'
-#' @param report boolean value, if TRUE returns a file containing
-#' the report of the proteins' coverage analysis, if FALSE print it
-#' @param with_atlas Boolean value, default FALSE, if TRUE uses atlas
+#' Constructs a one-layer naive network by identifying paths up to `max_length`
+#' between starting (`starts_gn`) and target (`targets_gn`) nodes in a
+#' Prior Knowledge Network (`PKN_table`).
+#' The `connect_all = TRUE` parameter ensures that intermediate nodes in independent
+#' shortest paths are connected by one-step interactions.
 #'
-#' @return print information about coverage or annotates them in a file
+#' @param starts_gn Character vector, Gene Symbols of starting nodes (e.g., receptors).
+#' @param targets_gn Character vector, Gene Symbols of target nodes (e.g., transcription factors).
+#' @param PKN_table Data frame, Prior Knowledge Network of causal (signed and oriented) interactions.
+#' @param max_length Integer, maximum path length between start and end nodes (1 to 4).
+#' @param rds_path Character, path to save the naive network as an RDS file. Default: `"one_layer_naive.RDS"`.
+#' @param sif_path Character, path to save the naive network in SIF format. Default: `"one_layer_naive.sif"`.
+#' @param connect_all Logical, whether to connect intermediate nodes of independent shortest paths.
+#'   Default is `TRUE`.
+#' @param files Logical, whether to save the naive network as RDS and SIF files. Default is `TRUE`.
+#'
+#' @return An `igraph` object representing the naive network.
+#'
+#' @details
+#' The function:
+#' - Identifies all shortest paths (up to `max_length`) between `starts_gn` and `targets_gn`.
+#' - Creates an `igraph` object representing the naive network.
+#' - Optionally saves the network as an RDS file (`rds_path`) and in SIF format (`sif_path`).
+#'
 #' @export
 #'
 #' @examples
-coverage_of_inferred_proteins_in_db <- function(prediction_output,
-                                                organism,
-                                                with_atlas = TRUE,
-                                                direct = FALSE,
-                                                custom = FALSE,
-                                                custom_path = FALSE,
-                                                report = FALSE){
-
-  # organism <- 'mouse'
-  # report <- TRUE
-  pkn <- choose_database_for_building(organism, with_atlas, direct, custom, format = 'igraph')
-
-  if(report == TRUE){sink('report.txt')}
-
-  for(m in c('tf', 'kin', 'phos', 'other', 'rec')){
-
-    #m <- 'tf'
-    prot_subset <- prediction_output %>%
-      dplyr::filter(mf == m)
-
-    found <- length(igraph::V(pkn)[name %in% prot_subset$gene_name])
-    total <- nrow(prot_subset)
-
-    sentence <- paste0('For ', m, ' molecular function have been found ', found, ' proteins out of ', total)
-    message(sentence)
-    if(report == TRUE){cat(paste0(sentence, '\n'))}
-  }
-  if(report == TRUE){sink()}
-}
-
-##### --------- #####
-
-#' one_layer_naive_network
-#'
-#' @param starts_gn gene names of starting nodes (e.g. receptors)
-#' @param targets_gn gene names of target nodes (e.g. transcription factors)
-#' @param PKN_table tibble of all causal interactions
-#' @param max_length integer, 1 to 4 for max_length connecting start to end
-#' @param rds_path path of network rds file
-#' @param sif_path path of network sif file
-#' @param connect_all if TRUE connect intermediate nodes
-#' @param files Boolean, if true will save naive network files
-#'
-#' @return naive network
-#' @export
-#'
-#' @examples
-one_layer_naive_network <- function(starts_gn, targets_gn, PKN_table, max_length,
+#' PKN = choose_database_for_building(organism='mouse',with_atlas=F,direct=T,custom=F,format='table')
+#' one_layer_naive_network(starts_gn=c('Flt3'), targets_gn=c('Mapk1', 'Mapk3','Stat5a'),PKN_table=PKN,max_length=4)
+one_layer_naive_network <- function(starts_gn,
+                                    targets_gn,
+                                    PKN_table,
+                                    max_length,
                                     files = TRUE,
                                     rds_path = 'one_layer_naive.RDS',
-                                    sif_path = 'one_layer_naive.sif', connect_all = FALSE){
-  message('One layer: shortest paths from receptor(s) to all proteins')
+                                    sif_path = 'one_layer_naive.sif',
+                                    connect_all = TRUE) {
+  message(paste0("One-layer network: Finding shortest paths (maximum = ", max_length,
+                 "), from receptors to all proteins."))
 
-  # starts_gn = source_df
-  # targets_gn = target_df
-  # PKN_table = PKN_human_atlas_ind
-  # max_length = 4
+  all_paths_df <-
+    get_all_shortest_path_custom(starts_gn, targets_gn, PKN_table, max_length)
 
-  all_paths_df <- get_all_shortest_path_custom(starts_gn, targets_gn, PKN_table, max_length)
+  network <-
+    create_graph_from_paths(all_paths_df, PKN_table, connect_all = connect_all)
 
-  network <- create_graph_from_paths(all_paths_df, PKN_table, connect_all = connect_all)
-
-  # set node attributes
+  ## set node attributes
   igraph::V(network)$mf_naive <- 'unknown'
   igraph::V(network)[name %in% starts_gn]$mf_naive <- 'start'
   igraph::V(network)[name %in% targets_gn]$mf_naive <- 'target'
 
-  # save files
-  if(files){
+  ## save files
+  if (files) {
     saveRDS(network, rds_path)
     igraphToSif(network, outfile = sif_path, edgeLabel = 'INTERACTION')
   }
@@ -246,49 +125,91 @@ one_layer_naive_network <- function(starts_gn, targets_gn, PKN_table, max_length
   return(network)
 }
 
-#' two_layer_naive_network
+#' Generate a Two-Layers Naive Network
 #'
-#' @param starts_gn gene names of starting nodes
-#' @param intermediate_gn gene names of intermediate nodes (e.g. kins and phos)
-#' @param targets_gn gene names of target nodes (e.g. transcription factors)
-#' @param PKN_table tibble of all causal interactions
-#' @param max_length_1 max_length of shortest path from start to intermediates
-#' @param max_length_2 max_length of shortest path from intermediates to targets
-#' @param rds_path path of network rds file
-#' @param sif_path path of network sif file
-#' @param connect_all Boolean, if TRUE connect intermediate nodes
-#' @param files Boolean, if true will save naive network files
+#' Constructs a two-layer naive network by identifying paths up to `max_length_1`
+#' between `starts_gn` and `intermediate_gn`, and up to `max_length_2` between
+#' `intermediate_gn` and `targets_gn` in a Prior Knowledge Network (`PKN_table`).
+#' The `connect_all = TRUE` parameter ensures that intermediate nodes in independent
+#' shortest paths are connected by one-step interactions.
 #'
-#' @return naive network
+#' @param starts_gn Character vector, Gene Symbols of starting nodes (e.g., receptors).
+#' @param intermediate_gn Character vector, Gene Symbols of intermediate nodes (e.g., kinases, phosphatases).
+#' @param targets_gn Character vector, Gene Symbols of target nodes (e.g., transcription factors).
+#' @param PKN_table Data frame, Prior Knowledge Network of causal (signed and oriented) interactions.
+#' @param max_length_1 Integer, maximum path length (1 to 4) from start to intermediate nodes. Default: `3`.
+#' @param max_length_2 Integer, maximum path length (1 to 4) from intermediate to target nodes. Default: `4`.
+#' @param rds_path Character, file path to save the naive network as an RDS file. Default: `"two_layer_naive.RDS"`.
+#' @param sif_path Character, file path to save the naive network in SIF format. Default: `"two_layer_naive.sif"`.
+#' @param connect_all Logical, whether to connect intermediate nodes from independent shortest paths. Default: `TRUE`.
+#' @param files Logical, whether to save the naive network in RDS and SIF formats. Default: `TRUE`.
+#'
+#' @return An `igraph` object representing the two-layer naive network.
+#'
+#' The function:
+#' - Identifies all shortest paths (up to `max_length_1`) between `starts_gn` and `intermediate_gn`.
+#' - Identifies all shortest paths (up to `max_length_2`) between `intermediate_gn` and `targets_gn`.
+#' - Constructs an `igraph` object representing the naive network.
+#' - Optionally saves the network as an RDS file (`rds_path`) and in SIF format (`sif_path`).
+#'
 #' @export
 #'
 #' @examples
-two_layer_naive_network <- function(starts_gn, intermediate_gn, targets_gn,
-                                    PKN_table, max_length_1, max_length_2,
+#' PKN <- choose_database_for_building(organism='mouse',format='table')
+#' two_layer_naive_network(
+#'   starts_gn=c('Flt3'),
+#'   intermediate_gn=c('Mapk1', 'Mapk3'),
+#'   targets_gn=c('Stat5a'),
+#'   PKN_table=PKN,
+#'   max_length_1=3,
+#'   max_length_2=4)
+#'
+two_layer_naive_network <- function(starts_gn,
+                                    intermediate_gn,
+                                    targets_gn,
+                                    PKN_table,
+                                    max_length_1 = 3,
+                                    max_length_2 = 4,
                                     files = TRUE,
                                     rds_path = 'two_layer_naive.RDS',
                                     sif_path = 'two_layer_naive.sif',
-                                    connect_all = FALSE){
+                                    connect_all = TRUE) {
 
+  message(paste0("First layer: Identifying paths up to ", max_length_1,
+                 " steps from start to intermediate nodes."))
 
-  message(paste0('First layer: ', max_length_1, ' length paths from starting nodes to intermediates'))
-  all_paths_layer1_df <- get_all_shortest_path_custom(starts_gn, intermediate_gn, PKN_table, max_length_1)
+  all_paths_layer1_df <- get_all_shortest_path_custom(starts_gn,
+                                                      intermediate_gn,
+                                                      PKN_table,
+                                                      max_length_1)
 
-  message(paste0('Second layer: ', max_length_2, ' length paths from intermediates nodes to targets'))
-  all_paths_layer2_df <- get_all_shortest_path_custom(intermediate_gn, targets_gn, PKN_table, max_length_2)
+  message(paste0("Second layer: Identifying paths up to ", max_length_2,
+                 " steps from intermediate to target nodes."))
+  all_paths_layer2_df <-
+    get_all_shortest_path_custom(intermediate_gn,
+                                 targets_gn,
+                                 PKN_table,
+                                 max_length_2)
 
-  all_paths_df <- dplyr::bind_rows(all_paths_layer1_df, all_paths_layer2_df) %>%
+  ## combine and ensure uniqueness
+  all_paths_df <- dplyr::bind_rows(all_paths_layer1_df,
+                                   all_paths_layer2_df) %>%
     dplyr::distinct()
-  network <- create_graph_from_paths(all_paths_df, PKN_table, connect_all = connect_all)
 
-  # set node attributes
+  ## create the network graph
+  network <- create_graph_from_paths(all_paths_df,
+                                     PKN_table,
+                                     connect_all = connect_all)
+
+  ## set node attributes
   igraph::V(network)$mf_naive <- 'unknown'
   igraph::V(network)[name %in% starts_gn]$mf_naive <- 'start'
-  igraph::V(network)[name %in% intermediate_gn]$mf_naive <- 'intermediate'
+  igraph::V(network)[name %in% intermediate_gn]$mf_naive <-
+    'intermediate'
   igraph::V(network)[name %in% targets_gn]$mf_naive <- 'target'
 
-  # save files
-  if(files){
+  ## save files
+  if (files) {
     saveRDS(network, rds_path)
     igraphToSif(network, outfile = sif_path, edgeLabel = 'INTERACTION')
   }
@@ -296,162 +217,246 @@ two_layer_naive_network <- function(starts_gn, intermediate_gn, targets_gn,
   return(network)
 }
 
-#' three_layer_naive_network
+#' Generate a Three-Layer Naive Network
 #'
-#' @param starts_gn gene names of starting nodes
-#' @param intermediate1_gn gene names of intermediates1 nodes
-#' @param intermediate2_gn gene names of intermediates2 nodes
-#' @param targets_gn gene names of targets nodes
-#' @param PKN_table tibble of all causal interactions
-#' @param max_length_1 max_length of shortest path from start to intermediates1
-#' @param max_length_2 max_length of shortest path from intermediates1 to intermediates2
-#' @param max_length_3  max_length of shortest path from intermediates2 to targets
-#' @param rds_path path of network rds file
-#' @param sif_path path of network sif file
-#' @param both_intermediates Boolean, TRUE if you want both intermediates as the starting point of the third layer,
-#' FALSE if you want to use only intermediates2 (not suggested)
-#' @param keep_only_connected Boolean, default FALSE, if TRUE keeps only intermediated connected
-#' @param connect_all if TRUE connect intermediate nodes
-#' @param files Boolean, if true will save naive network files
+#' Generate a three-layered naive network by looking for all paths
+#' equal or shorter than `max_length_1`, `max_length_2`, and `max_length_3` in
+#' the Prior Knowledge Network (`PKN_table`).
+
+#' - The first layer links starting nodes (`starts_gn`) to intermediate nodes (`intermediate1_gn`).
+#' - The second layer links `intermediate1_gn` to themselves and additional intermediate nodes (`intermediate2_gn`).
+#'   If `keep_only_connected = TRUE`, only `intermediate1_gn` nodes that were connected in the first layer are considered.
+#' - The third layer links intermediate nodes to target nodes (`targets_gn`).
 #'
-#' @return naive network
+#' If `both_intermediates = TRUE`, both `intermediate1_gn` and `intermediate2_gn` are used as
+#' starting points in the third layer; otherwise, only `intermediate2_gn` is considered.
+#'
+#' The `connect_all = TRUE` parameter ensures that intermediate nodes from independent shortest paths
+#' are connected by one-step interactions.
+#'
+#' @param starts_gn Character vector, Gene Symbols of starting nodes (e.g., receptors).
+#' @param intermediate1_gn Character vector, Gene Symbols of first set of intermediate nodes (e.g., kinases, phosphatases).
+#' @param intermediate2_gn Character vector, Gene Symbols of second set of intermediate nodes (e.g., other phosphorylated proteins).
+#' @param targets_gn Character vector, Gene Symbols of target nodes (e.g., transcription factors).
+#' @param PKN_table Data frame, Prior Knowledge Network of causal (signed and oriented) interactions.
+#' @param max_length_1 Integer, maximum path length (1 to 4) from starting nodes to `intermediate1_gn`. Default: `3`.
+#' @param max_length_2 Integer, maximum path length (1 to 4) from `intermediate1_gn` to `intermediate2_gn`. Default: `1`.
+#' @param max_length_3 Integer, maximum path length (1 to 4) from intermediate nodes to `targets_gn`. Default: `4`.
+#' @param rds_path Character, file path to save the naive network as an RDS file. Default: `"three_layer_naive.RDS"`.
+#' @param sif_path Character, file path to save the naive network in SIF format. Default: `"three_layer_naive.sif"`.
+#' @param both_intermediates Logical, if `TRUE`, both `intermediate1_gn` and `intermediate2_gn` are used
+#'   as the starting point of the third layer; otherwise, only `intermediate2_gn` is used. Default: `TRUE`.
+#' @param keep_only_connected Logical, if `TRUE`, only `intermediate1_gn` nodes connected in the first layer are
+#'   considered in the second layer. Default: `FALSE`.
+#' @param connect_all Logical, whether to connect intermediate nodes of independent shortest paths. Default: `TRUE`.
+#' @param files Logical, whether to save the naive network as RDS and SIF files. Default: `TRUE`.
+#'
+#' @return An `igraph` object representing the three-layer naive network.
+#'
+#' @details
+#' The function:
+#' - Identifies shortest paths up to `max_length_1` between `starts_gn` and `intermediate1_gn`.
+#' - Identifies shortest paths up to `max_length_2` between `intermediate1_gn` and `intermediate2_gn`.
+#' - Identifies shortest paths up to `max_length_3` between intermediate nodes and `targets_gn`.
+#' - Constructs an `igraph` object representing the naive network.
+#' - Optionally saves the network as an RDS file (`rds_path`) and in SIF format (`sif_path`).
+#'
 #' @export
 #'
 #' @examples
+#' PKN = choose_database_for_building(organism='mouse',format='table')
+#' three_layer_naive_network(starts_gn=c('Flt3'),
+#'                           intermediate1_gn=c('Mapk1', 'Mapk3'),
+#'                           intermediate2_gn=c('Hox9'),
+#'                           targets_gn=c('Stat5a'),
+#'                           PKN_table=PKN,
+#'                           max_length_1=3,
+#'                           max_length_2=1,
+#'                           max_length_3=4)
 #'
-three_layer_naive_network <- function(starts_gn, intermediate1_gn, intermediate2_gn,
-                                      targets_gn, PKN_table,
-                                      max_length_1, max_length_2, max_length_3,
+three_layer_naive_network <- function(starts_gn,
+                                      intermediate1_gn,
+                                      intermediate2_gn,
+                                      targets_gn,
+                                      PKN_table,
+                                      max_length_1,
+                                      max_length_2,
+                                      max_length_3,
                                       both_intermediates = TRUE,
                                       keep_only_connected = FALSE,
                                       files = TRUE,
                                       rds_path = 'three_layer_naive.RDS',
                                       sif_path = 'three_layer_naive.sif',
-                                      connect_all = FALSE){
+                                      connect_all = TRUE) {
 
-  # create network
-  message(paste0('First layer: ', max_length_1, ' length paths from starting nodes to intermediates1'))
-  all_paths_layer1_df <- get_all_shortest_path_custom(starts_gn, intermediate1_gn, PKN_table, max_length_1)
+  message(paste0("First layer: Finding paths up to ", max_length_1,
+                 " steps from starting nodes to intermediate1 nodes."))
 
-  if(keep_only_connected == TRUE){
-    removed <- intermediate1_gn[!intermediate1_gn %in% unique(c(all_paths_layer1_df$ENTITYA, all_paths_layer1_df$ENTITYB))]
+  ## create first layer
+  all_paths_layer1_df <- get_all_shortest_path_custom(starts_gn,
+                                                      intermediate1_gn,
+                                                      PKN_table,
+                                                      max_length_1)
 
-    if(sum(removed == intermediate1_gn) != length(intermediate1_gn)){
-      intermediate1_gn <- intermediate1_gn[intermediate1_gn %in% unique(c(all_paths_layer1_df$ENTITYA, all_paths_layer1_df$ENTITYB))]
-      warning('These proteins were removed from intermediates1 because not linked to source nodes ',  paste0(removed, collapse = ' | '))
-    }else{
-      warning('You selected keep_only_connected = TRUE but no intermediate1 was connected to source, so all intermediates are kept!')
+  ## filter intermediate1_gn if keep_only_connected is TRUE
+  if (keep_only_connected) {
+    connected_intermediate1 <- unique(c(all_paths_layer1_df$ENTITYA, all_paths_layer1_df$ENTITYB))
+    removed <- setdiff(intermediate1_gn, connected_intermediate1)
+
+    if (length(removed) > 0) {
+      warning("These intermediate1 nodes were removed as they were not connected in the first layer: ",
+              paste(removed, collapse = " | "))
+    } else {
+      warning("No intermediate1 nodes were connected in the first layer; all are retained.")
     }
-
+    intermediate1_gn <- intersect(intermediate1_gn, connected_intermediate1)
   }
 
-  message(paste0('Second layer: ', max_length_2, ' length paths from intermediates1 nodes to intermediates'))
+  ## create second layer
+  message(paste0("Second layer: Finding paths up to ", max_length_2,
+                 " steps from intermediate1 to intermediate2."))
+
   intermediates <- c(intermediate1_gn, intermediate2_gn)
-  all_paths_layer2_df <- get_all_shortest_path_custom(intermediate1_gn,
-                                                      intermediates,
-                                                      PKN_table, max_length_2)
+  all_paths_layer2_df <-
+    get_all_shortest_path_custom(intermediate1_gn,
+                                 intermediates,
+                                 PKN_table,
+                                 max_length_2)
 
-  if(keep_only_connected == TRUE){
-    removed2 <- intermediates[!intermediates %in% unique(c(all_paths_layer2_df$ENTITYA, all_paths_layer2_df$ENTITYB))]
 
-    if(sum(removed2 == intermediates) != length(intermediates)){
-      intermediates <- intermediates[intermediates %in% unique(c(all_paths_layer2_df$ENTITYA, all_paths_layer2_df$ENTITYB))]
-      warning('These proteins were removed from intermediates because not linked to intermediate1 nodes ',  paste0(removed2, collapse = ' | '))
-    }else{
-      warning('You selected keep_only_connected = TRUE but no intermediates was connected to kins, so all intermediates are kept!')
+  if (keep_only_connected) {
+    connected_intermediate2 <- unique(c(all_paths_layer2_df$ENTITYA, all_paths_layer2_df$ENTITYB))
+    removed2 <- setdiff(intermediates, connected_intermediate2)
+
+    if (length(removed2) > 0) {
+      warning("These intermediate2 nodes were removed as they were not connected in the second layer: ",
+              paste(removed2, collapse = " | "))
+    } else {
+      warning("No intermediate2 nodes were connected in the second layer; all are retained.")
     }
-
+    intermediates <- intersect(intermediates, connected_intermediate2)
   }
 
-  # third layer
-  if(both_intermediates == TRUE){
-    message(paste0('Third layer: ', max_length_3, ' length paths from intermediates nodes to targets'))
-    all_paths_layer3_df <- get_all_shortest_path_custom(intermediates,
-                                                        targets_gn, PKN_table, max_length_3)
+  ## create third layer
+  if (both_intermediates) {
+    message(paste0("Third layer: Finding paths up to ", max_length_3,
+                   " steps from all intermediate nodes to targets."))
 
-  }else if(both_intermediates == FALSE){
-    message(paste0('Third layer: ', max_length_3, ' length paths from intermediates2 nodes to targets'))
-    intermediate2_gn <- intermediate2_gn[intermediate2_gn %in% intermediates]
-    all_paths_layer3_df <- get_all_shortest_path_custom(intermediate2_gn, targets_gn, PKN_table, max_length_3)
-  }else{
-    error('Please provide a boolean value for both_intermediates parameter')
+    all_paths_layer3_df <- get_all_shortest_path_custom(
+      intermediates, targets_gn, PKN_table, max_length_3
+    )
+  } else {
+    message(paste0("Third layer: Finding paths up to ", max_length_3,
+                   " steps from intermediate2 nodes to targets."))
+
+    intermediate2_gn <- intersect(intermediate2_gn, intermediates)
+    all_paths_layer3_df <- get_all_shortest_path_custom(
+      intermediate2_gn, targets_gn, PKN_table, max_length_3
+    )
   }
 
-  all_paths_df <- dplyr::bind_rows(all_paths_layer1_df, all_paths_layer2_df, all_paths_layer3_df) %>%
+  ## combine all paths and ensure uniqueness
+  all_paths_df <- dplyr::bind_rows(all_paths_layer1_df,
+                                   all_paths_layer2_df,
+                                   all_paths_layer3_df) %>%
     dplyr::distinct()
-  network <- create_graph_from_paths(all_paths_df, PKN_table, connect_all = connect_all)
 
-  # set node attributes
+  network <- create_graph_from_paths(all_paths_df,
+                                     PKN_table,
+                                     connect_all = connect_all)
+
+  ## set node attributes
   igraph::V(network)$mf_naive <- 'unknown'
   igraph::V(network)[name %in% starts_gn]$mf_naive <- 'start'
-  igraph::V(network)[name %in% intermediate1_gn]$mf_naive <- 'intermediate1'
-  igraph::V(network)[name %in% intermediate2_gn]$mf_naive <- 'intermediate2'
+  igraph::V(network)[name %in% intermediate1_gn]$mf_naive <-
+    'intermediate1'
+  igraph::V(network)[name %in% intermediate2_gn]$mf_naive <-
+    'intermediate2'
   igraph::V(network)[name %in% targets_gn]$mf_naive <- 'target'
 
-  # save files
-  if(files){
+  ## save files if required
+  if (files) {
     saveRDS(network, rds_path)
     igraphToSif(network, outfile = sif_path, edgeLabel = 'INTERACTION')
   }
 
-
   return(network)
 }
 
-#' prepare_carnival_input
+#' Prepare Carnival Input for Signaling Network Optimization
 #'
-#' @param naive_network naive network connecting inferred proteins
-#' @param prediction_output inferred proteins from experimental data
-#' @param recept_list list of receptors with their desired activity or NULL if you don't have any
-#' @param organism string, 'human' or 'mouse'
+#' Creates a protein activity table to be used as input for signaling network optimization.
+#' This function:
+#' \enumerate{
+#'   \item Optionally adds a set of user-defined perturbed proteins (receptors) with specified activity.
+#'   \item Removes predicted proteins that are not connected in the naive network.
+#' }
 #'
-#' @return inferred protein filtered for presence in naive network
+#' @param naive_network An \code{igraph} object representing the naive network connecting inferred proteins.
+#' @param prediction_output A data frame of inferred proteins obtained from experimental data.
+#' @param recept_list A named list of receptors with their desired activity values. If \code{NULL}, no receptors are added.
+#'   The names of the list elements should be the gene symbols.
+#' @param organism Character string specifying the organism; either \code{"human"} or \code{"mouse"}.
+#'
+#' @return A data frame of inferred proteins containing the following columns:
+#'   \item{UNIPROT}{Protein Uniprot ID.}
+#'   \item{gene_name}{Gene Symbol of the protein.}
+#'   \item{mf}{Molecular function (e.g., transcription factor (\code{tf}), kinase (\code{kin}),
+#'     phosphatase (\code{phos}), or other phosphorylated proteins (\code{other}).}
+#'   \item{final_score}{Activity score for the protein.}
+#'   \item{method}{Method(s) used for the computation of \code{final_score}.}
+#'
+#' @details
+#' The function first filters the \code{prediction_output} to retain only those proteins that
+#' are present in the naive network. If a receptor list is provided, it converts the list into a
+#' data frame, adds the corresponding Uniprot IDs using \code{convert_gene_name_in_uniprotid()},
+#' and removes any predicted proteins whose gene symbols conflict with the user-specified receptors.
+#' Finally, the receptor data and the filtered predictions are combined and returned.
+#'
 #' @export
 #'
 #' @examples
-prepare_carnival_input <- function(naive_network, prediction_output, recept_list, organism){
+#'   # Load example data
+#'   data(naive_network)
+#'   data(toy_activities)
+#'
+#'   # Define a receptor list with a desired activity value
+#'   recept_list <- list(Flt3 = -1)
+#'
+#'   # Prepare the carnival input for the human organism
+#'   carnival_input <- prepare_carnival_input(naive_network, toy_activities, recept_list, organism = "human")
+prepare_carnival_input <- function(naive_network,
+                                   prediction_output,
+                                   recept_list = NULL,
+                                   organism) {
 
-
-  # naive_network <- three_layer_naive
-  # prediction_output <- activity_proteo_combined_filtered
-  # recept_list <- receptor_list1
-  # organism = 'human'
-
-  # naive_network <- one_layer_toy
-  # prediction_output <- toy_prot_activity_df
-  # recept_list <- list('FLT3' = -1)
-
-  # filter prediction
+  ## filter prediction output: keep only proteins present in the naive network
   prediction_output_filt <- prediction_output %>%
     dplyr::filter(gene_name %in% igraph::V(naive_network)$name) %>%
     dplyr::arrange(gene_name)
 
-  if(!is.null(recept_list)){
-    # create receptor list
-    recept_df <- tibble::tibble(gene_name = names(recept_list),
-                                mf = 'rec',
-                                method = 'user',
-                                final_score = unlist(recept_list))
+  if (!is.null(recept_list)) {
+    ## transform receptor list into a data frame
+    recept_df <- tibble::tibble(
+      gene_name = names(recept_list),
+      mf = 'rec',
+      method = 'user',
+      final_score = unlist(recept_list)
+    )
 
-    # Remove from predicted nodes constrains specified by the user
+    ## add Uniprot IDs using the conversion function and relocate the 'UNIPROT' column
+    recept_df <-
+      convert_gene_name_in_uniprotid(recept_df, organism) %>%
+      dplyr::relocate('UNIPROT')
+
+    ## remove predicted nodes that are specified in the receptor list
     prediction_output_filt <- prediction_output_filt %>%
       dplyr::filter(!gene_name %in% recept_df$gene_name)
 
-    recept_df <- convert_gene_name_in_uniprotid(recept_df, organism) %>%
-      dplyr::relocate('UNIPROT')
-
-    # unify elements
-    prediction_output_filt_rec <- dplyr::bind_rows(recept_df, prediction_output_filt)
-
+    ## combine receptor data with filtered prediction output
+    prediction_output_filt_rec <- dplyr::bind_rows(recept_df,
+                                                   prediction_output_filt)
     return(prediction_output_filt_rec)
-
   }
-  # create receptors tibble
-  # recept_list <- list('Flt3' = 1)
-  # prediction_output <- toy_prot_activity_df
-  # naive_network <- one_layer_toy
-
   return(prediction_output_filt)
 }
-
-

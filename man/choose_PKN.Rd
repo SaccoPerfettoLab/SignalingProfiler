@@ -2,7 +2,7 @@
 % Please edit documentation in R/preprocess_PKN.R
 \name{choose_PKN}
 \alias{choose_PKN}
-\title{choose_PKN}
+\title{Select a Prior Knowledge Network (PKN)}
 \usage{
 choose_PKN(
   organism,
@@ -13,19 +13,45 @@ choose_PKN(
 )
 }
 \arguments{
-\item{organism}{string, 'mouse' or 'human'}
+\item{organism}{Character. The organism for which to retrieve the PKN.
+. Must be either `"human"` or `"mouse"`.}
 
-\item{with_atlas}{Boolean value, default TRUE, if FALSE you exclude the relations in the PKN integrated with kinome atlas data}
+\item{with_atlas}{Logical. If `TRUE`, integrates inferred kinase-substrate
+interactions from the Ser/Thr and Tyr Kinome Atlas (PMIDs: 36631611, 38720073).
+Applicable only to human PKNs. Default: `FALSE`.}
 
-\item{direct}{Boolean value, default FALSE, if TRUE you choose only direct interactions between entities}
+\item{direct}{Logical. If `TRUE`, retains only direct interactions among biological entities;
+otherwise, includes indirect interactions. Default `TRUE`.}
 
-\item{custom}{Boolean value, default FALSE, if TRUE you can provide the path for your custom PKN}
+\item{custom}{Logical. If `TRUE`, the user must provide a path to a custom
+PKN file via the `custom_path` parameter. Default: `FALSE`.}
 
-\item{custom_path}{string, specify the path of the custom PKN in tab separated format}
+\item{custom_path}{Character. The file path of the custom PKN, expected
+in tab-separated format. Must be provided if `custom = TRUE`. Default: `NULL`.}
 }
 \value{
-PKN_table, table of PKN
+A `data.frame` containing the selected Prior Knowledge Network (PKN).
+  The columns may vary based on the chosen dataset but typically include
+  source and target nodes, interaction types, and supporting evidence.
 }
 \description{
-choose_PKN
+Retrieves a predefined or custom Prior Knowledge Network (PKN)
+based on user-defined parameters. The PKN is a structured dataset
+representing known interactions among signaling molecules.
+}
+\examples{
+# Retrieve the human PKN without kinase-substrate interactions and with direct interactions
+human_pkn <- choose_PKN(organism = "human", with_atlas = FALSE, direct = TRUE)
+
+# Retrieve the mouse PKN with indirect interactions
+mouse_pkn <- choose_PKN(organism = "mouse", direct = FALSE)
+
+\dontrun{
+# Load a custom PKN from a file
+custom_pkn <- choose_PKN(organism = "human", custom = TRUE, custom_path = "your_pkn.tsv")
+}
+}
+\seealso{
+[SignalingProfiler::PKN_human_dir],
+  [SignalingProfiler::PKN_mouse_dir]
 }

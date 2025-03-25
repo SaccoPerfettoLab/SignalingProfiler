@@ -400,7 +400,7 @@ psp_parsing <- function(reg_site_path,
     dplyr::filter(!is.na(sign) & (sign == 1 | sign == -1))
 
   if(only_activatory){
-    kin2res_mapped <- kin2res_mapped %>% filter(grepl('activity', kin2res_mapped$ON_FUNCTION))
+    kin2res_mapped <- kin2res_mapped %>% dplyr::filter(grepl('activity', kin2res_mapped$ON_FUNCTION))
   }
   # Assign SIGNOR-like database fields
   kin2res_mapped_SIGNOR <- kin2res_mapped %>%

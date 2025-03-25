@@ -2,7 +2,7 @@
 % Please edit documentation in R/carnival_analysis.R
 \name{check_CARNIVAL_inputs}
 \alias{check_CARNIVAL_inputs}
-\title{check_CARNIVAL_inputs}
+\title{Validate CARNIVAL Input Data}
 \usage{
 check_CARNIVAL_inputs(
   source_df,
@@ -13,19 +13,46 @@ check_CARNIVAL_inputs(
 )
 }
 \arguments{
-\item{source_df}{tibble with source nodes discretized among 1 and -1}
+\item{source_df}{A tibble containing source nodes (perturbations) with discretized values of 1 and -1.
+Can be `NULL` if running an inverse CARNIVAL analysis.}
 
-\item{target_df}{tibble with target nodes in a continuous range of activity}
+\item{target_df}{A tibble containing target nodes (e.g., transcription factors, kinases)
+with continuous activity scores.}
 
-\item{naive_network}{tibble with naive network in SIF format}
+\item{naive_network}{A tibble representing the naive network in SIF format, containing
+three columns: `source`, `interaction`, and `target`.}
 
-\item{proteins_df}{all inferred proteins df}
+\item{proteins_df}{A tibble of inferred proteins with associated metadata, including
+molecular function (*mf*) and method of protein inference (*method*).}
 
-\item{organism}{string, organism you are usinggit}
+\item{organism}{A string specifying the organism being analyzed.
+Valid options are `"mouse"` or `"human"`.}
 }
 \value{
-TRUE if everything is correct
+Returns `TRUE` if all input data passes validation.
+Otherwise, stops execution with an error message.
 }
 \description{
-check_CARNIVAL_inputs
+This function verifies the integrity of input data provided to CARNIVAL,
+ensuring that all required elements are correctly formatted and present.
+It checks the source nodes, target nodes, naive network structure,
+inferred protein data, and organism type.
+}
+\examples{
+# Example dataset of perturbations (source nodes)
+data('toy_carnival_input')
+source_df <- toy_carnival_input \%>\% dplyr::filter(mf == 'rec')
+
+# Example dataset of targets (continuous values)
+target_df <- toy_carnival_input \%>\% dplyr::filter(mf \%in\% c('kin', 'phos', 'other'))
+
+# Example naive network in SIF format
+naive_network <- data.frame(source = c('MTOR', 'AMPK'), interaction = c(1, -1), target = c('ATM', 'CDK2'))
+
+# Example inferred protein dataset
+proteins_df <- toy_prot_activity_df
+
+# Run validation
+check_CARNIVAL_inputs(source_df, target_df, naive_network, proteins_df, organism = "human")
+
 }

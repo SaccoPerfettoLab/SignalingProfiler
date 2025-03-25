@@ -2,7 +2,7 @@
 % Please edit documentation in R/naive_network_construction.R
 \name{choose_database_for_building}
 \alias{choose_database_for_building}
-\title{choose_database_for_building}
+\title{Get Prior Knowledge Network in multiple formats}
 \usage{
 choose_database_for_building(
   organism,
@@ -13,15 +13,37 @@ choose_database_for_building(
 )
 }
 \arguments{
-\item{organism}{'human' or 'mouse''}
+\item{organism}{Character string, either `"human"` or `"mouse"`, specifying the organism.}
 
-\item{with_atlas}{Boolean value, default FALSE, if TRUE uses atlas}
+\item{with_atlas}{Logical, whether to integrate inferred kinase-substrate
+interactions from the Ser/Thr and Tyr Kinome Atlas (PMIDs: 36631611, 38720073); default: `FALSE`.}
 
-\item{format}{'igraph', 'table'}
+\item{direct}{Logical, whether to retain only direct interactions among biological entities; default `TRUE`.}
+
+\item{custom}{Logical, whether the user wants to provide a custom PKN.
+If `TRUE`, the function will stop with an error message; default `FALSE`.}
+
+\item{format}{Character string, format of the output; choose between `"igraph"` or `"table"`.}
 }
 \value{
-built-in database as igraph object or tibble
+The prior knowledge network in the specified format:
+  - `"igraph"` → An `igraph` object.
+  - `"table"` → A `data.frame`.
 }
 \description{
-choose_database_for_building
+Returns the built-in Prior Knowledge Network (PKN) from SIGNOR and PhosphoSitePlus
+in different formats, with optional kinase-substrate predicted interactions
+from Kinome Atlases (PMIDs: 36631611, 38720073).
+}
+\details{
+The function selects the appropriate dataset based on user-defined parameters.
+If `custom = TRUE`, the function stops since custom PKNs must be handled separately.
+For `"mouse"`, kinase-substrate interactions (`with_atlas = TRUE`) are not supported.
+}
+\examples{
+# Retrieve human PKN in table format with direct interactions
+choose_database_for_building(organism='human',with_atlas=F,direct=T,custom=F,format='table')
+
+# Retrieve mouse PKN as an igraph object (without kinase-substrate interactions)
+PKN_mouse <- choose_database_for_building(organism = "mouse", format = "igraph")
 }

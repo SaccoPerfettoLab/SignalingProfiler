@@ -2,7 +2,7 @@
 % Please edit documentation in R/naive_network_construction.R
 \name{one_layer_naive_network}
 \alias{one_layer_naive_network}
-\title{one_layer_naive_network}
+\title{Generate a One-Layer Naive Network}
 \usage{
 one_layer_naive_network(
   starts_gn,
@@ -12,29 +12,44 @@ one_layer_naive_network(
   files = TRUE,
   rds_path = "one_layer_naive.RDS",
   sif_path = "one_layer_naive.sif",
-  connect_all = FALSE
+  connect_all = TRUE
 )
 }
 \arguments{
-\item{starts_gn}{gene names of starting nodes (e.g. receptors)}
+\item{starts_gn}{Character vector, Gene Symbols of starting nodes (e.g., receptors).}
 
-\item{targets_gn}{gene names of target nodes (e.g. transcription factors)}
+\item{targets_gn}{Character vector, Gene Symbols of target nodes (e.g., transcription factors).}
 
-\item{PKN_table}{tibble of all causal interactions}
+\item{PKN_table}{Data frame, Prior Knowledge Network of causal (signed and oriented) interactions.}
 
-\item{max_length}{integer, 1 to 4 for max_length connecting start to end}
+\item{max_length}{Integer, maximum path length between start and end nodes (1 to 4).}
 
-\item{files}{Boolean, if true will save naive network files}
+\item{files}{Logical, whether to save the naive network as RDS and SIF files. Default is `TRUE`.}
 
-\item{rds_path}{path of network rds file}
+\item{rds_path}{Character, path to save the naive network as an RDS file. Default: `"one_layer_naive.RDS"`.}
 
-\item{sif_path}{path of network sif file}
+\item{sif_path}{Character, path to save the naive network in SIF format. Default: `"one_layer_naive.sif"`.}
 
-\item{connect_all}{if TRUE connect intermediate nodes}
+\item{connect_all}{Logical, whether to connect intermediate nodes of independent shortest paths.
+Default is `TRUE`.}
 }
 \value{
-naive network
+An `igraph` object representing the naive network.
 }
 \description{
-one_layer_naive_network
+Constructs a one-layer naive network by identifying paths up to `max_length`
+between starting (`starts_gn`) and target (`targets_gn`) nodes in a
+Prior Knowledge Network (`PKN_table`).
+The `connect_all = TRUE` parameter ensures that intermediate nodes in independent
+shortest paths are connected by one-step interactions.
+}
+\details{
+The function:
+- Identifies all shortest paths (up to `max_length`) between `starts_gn` and `targets_gn`.
+- Creates an `igraph` object representing the naive network.
+- Optionally saves the network as an RDS file (`rds_path`) and in SIF format (`sif_path`).
+}
+\examples{
+PKN = choose_database_for_building(organism='mouse',with_atlas=F,direct=T,custom=F,format='table')
+one_layer_naive_network(starts_gn=c('Flt3'), targets_gn=c('Mapk1', 'Mapk3','Stat5a'),PKN_table=PKN,max_length=4)
 }

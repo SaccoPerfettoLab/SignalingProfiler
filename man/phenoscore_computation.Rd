@@ -2,7 +2,7 @@
 % Please edit documentation in R/phenoscore.R
 \name{phenoscore_computation}
 \alias{phenoscore_computation}
-\title{phenoscore_computation}
+\title{Compute Phenoscore for a Given Protein Dataset}
 \usage{
 phenoscore_computation(
   proteins_df,
@@ -21,35 +21,78 @@ phenoscore_computation(
 )
 }
 \arguments{
-\item{proteins_df}{dataframe containing up-reg or down-reg proteins}
+\item{proteins_df}{A dataframe containing differentially expressed proteins
+(upregulated or downregulated) with associated activity scores.}
 
-\item{desired_phenotypes}{vector of interesting phenotypes}
+\item{desired_phenotypes}{A vector of phenotype names to investigate.
+If `NULL`, all available phenotypes are used.}
 
-\item{sp_graph}{graph of signaling profiler output}
+\item{sp_graph}{An `igraph` object representing the SignalingProfiler
+signaling network.}
 
-\item{pheno_distances_table}{table of ProxPath phenotypes distances}
+\item{pheno_distances_table}{A dataframe containing protein-phenotype distances.
+If `NULL`, the full distance table is used.}
 
-\item{path_length}{default 4 (1 to 4 allowed)}
+\item{path_length}{An integer (2 to 4) specifying the maximum signaling path
+length considered for phenotype association. Default is `4`.}
 
-\item{stat}{'mean' or 'median'}
+\item{stat}{A character string, either `"mean"` or `"median"`, indicating
+how the phenoscore should be calculated. Default is `"mean"`.}
 
-\item{zscore_threshold}{default -1.96}
+\item{zscore_threshold}{A numeric threshold for filtering significant
+pathways based on the computed z-score. Default is `-1.96`.}
 
-\item{n_random}{number of randomization, 1000}
+\item{n_random}{Number of randomization iterations for statistical
+testing. Default is `1000`.}
 
-\item{pvalue_threshold}{default 0.05}
+\item{pvalue_threshold}{A numeric value specifying the significance threshold
+for filtering pathways. Default is `0.05`.}
 
-\item{remove_cascade}{Boolean value, TRUE or FALSE}
+\item{remove_cascade}{Logical, whether to consider only model proteins
+independently regulating the phenotype. Default is `TRUE`.}
 
-\item{node_idx}{boolean}
+\item{node_idx}{Logical, whether to weight the contribution of
+each protein on the phenotype based on the number of regulatory paths
+(redundancy) to the phenotype. Default is `FALSE`.}
 
-\item{use_carnival_activity}{Boolean, TRUE or FALSE}
+\item{use_carnival_activity}{Logical, whether to use CARNIVAL activity
+scores instead of final scores. Default is `FALSE`.}
 
-\item{create_pheno_network}{Boolean, TRUE or FALSE to add phenotypes to the model}
+\item{create_pheno_network}{Logical, whether to integrate phenotypes
+in the SignalingProfiler model. Default is `TRUE`.}
 }
 \value{
-a list of a plot and result table
+A list containing:
+  \item{barplot}{A ggplot2 object representing phenotype modulation scores.}
+  \item{table_regulators}{A dataframe summarizing the proteic regulators of each phenotypes.}
+  \item{table_phenotypes}{A dataframe containing the computed Phenoscore values.}
+  \item{sp_object_phenotypes}{(Optional) A list with phenotype network objects if `create_pheno_network = TRUE`.}
 }
 \description{
-phenoscore_computation
+This function computes the activity modulation of cellular phenotypes (*Phenoscore*)
+by analyzing the interaction between proteins and phenotypes in SIGNOR and
+the protein activity modulation in a SignalingProfiler generated network.
+For each phenotype, it calculates enrichment scores, statistical significance,
+and optionally visualizes the results.
+}
+\details{
+This function performs the following steps:
+- Checks input data validity and processes gene names.
+- Identifies significant paths from proteins to phenotypes through `script.py` in SIGNOR database.
+- Identifies significantly close protein to user-selected phenotypes via `z-test`.
+- Computes Phenotypes enrichment scores based on randomization and statistical tests via `t-test`.
+- Filters results based on user-defined thresholds.
+- (Optionally) It integrates phenotypes within the network.
+}
+\examples{
+# Example dataset
+data('prot_toy_df')
+data('phospho_toy_df')
+data('toy_opt_network')
+desired_phenotypes <- c("APOPTOSIS", "PROLIFERATION")
+
+results <- phenoscore_computation(proteins_df = toy_opt_network$nodes_df,
+                                  desired_phenotypes = c('APOPTOSIS', 'PROLIFERATION'),
+                                  sp_graph = toy_opt_network,
+                                  create_pheno_network = TRUE)
 }

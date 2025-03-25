@@ -2,18 +2,35 @@
 % Please edit documentation in R/carnival_analysis.R
 \name{keep_only_present_perturbation}
 \alias{keep_only_present_perturbation}
-\title{keep_only_present_perturbation}
+\title{Filter Source Nodes Present in the Naive Network}
 \usage{
 keep_only_present_perturbation(source_df, naive_network)
 }
 \arguments{
-\item{source_df}{dataframe with receptors}
+\item{source_df}{A dataframe containing receptor nodes with a column `gene_name`.}
 
-\item{naive_network}{dataframe with naive network interactions}
+\item{naive_network}{A dataframe representing the naive network, containing `source` and `target` columns.}
 }
 \value{
-dataframe with receptors present in the naive network
+A dataframe containing only the receptors that are present in the naive network.
 }
 \description{
-keep_only_present_perturbation
+This function filters the source dataframe (`source_df`) to keep only
+the receptors (source nodes) that are present in the naive network.
+}
+\examples{
+# Example naive network
+naive_network <- data.frame(source = c('MTOR', 'MTOR'), interaction = c(1, -1), target = c('ATM', 'CDK2'))
+
+# Example source dataframe
+data('toy_carnival_input')
+source_df <- toy_carnival_input \%>\% dplyr::filter(mf == 'rec')
+
+# Filter source nodes present in naive network
+filtered_source_df <- keep_only_present_perturbation(source_df, naive_network)
+print(filtered_source_df)
+
+}
+\seealso{
+[one_layer_naive_network()] [two_layer_naive_network()] [three_layer_naive_network()]
 }

@@ -11,9 +11,7 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{
 #' result <- query_uniprot_proteins(ids=c("P12345", "Q9Y6X1", "A0A0B4J2D5"))
-#' }
 #'
 query_uniprot_proteins <- function(id_input, batch_size = 400) {
   ## Keep only ID input that are UNIPROT IDs
@@ -89,7 +87,6 @@ query_uniprot_proteins <- function(id_input, batch_size = 400) {
 #' @export
 #'
 #' @examples
-#' \dontrun{
 #' # Query metadata including isoforms
 #' ids <- c("P12345", "Q9Y6X1-2", "A0A0B4J2D5")
 #' result <- query_uniprot(ids)
@@ -98,7 +95,6 @@ query_uniprot_proteins <- function(id_input, batch_size = 400) {
 #' # Query only proteins (without isoforms)
 #' result_proteins <- query_uniprot(c("P12345", "Q9Y6X1"), batch_size = 200)
 #' print(result_proteins)
-#' }
 #'
 query_uniprot <- function(id_input, batch_size = 400) {
   ## Filter valid UniProt IDs
