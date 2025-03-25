@@ -29,6 +29,6 @@ install_sp_py <- function(envname = "r-signalingprofiler",
     reticulate::virtualenv_remove(envname)
   }
 
-  reticulate::py_install("requests", envname = envname, ...)
-  reticulate::py_install("pandas", envname = envname, ...)
+  reticulate::py_install("requests", envname = envname)
+  reticulate::py_install("pandas", envname = envname)
 }
