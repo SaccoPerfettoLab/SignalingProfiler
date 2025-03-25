@@ -54,11 +54,7 @@ create_viper_format <- function(omic_data, analysis, significance){
     # Separate analytes according to collapsed UNIPROT
     omic_data <- omic_data %>%
       tidyr::separate_rows(UNIPROT, sep = ';') %>%
-      dplyr::mutate(ID = paste0(omic_data$UNIPROT,
-                                '-',
-                                omic_data$aminoacid,
-                                '-',
-                                omic_data$position))
+      dplyr::mutate(ID = paste0(UNIPROT, '-', aminoacid, '-', position))
 
     VIPER_format <- omic_data %>%
       dplyr::select(ID,
