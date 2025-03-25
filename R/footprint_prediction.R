@@ -154,16 +154,16 @@ run_viper <- function(viper_format, analysis, organism, reg_minsize,
       analysis,
       "tfea" = {
         if (organism == "human") {
-          if (collectri) data("tfea_db_human_collectri") else data("tfea_db_human")
+          if (collectri) get(data("tfea_db_human_collectri")) else get(data("tfea_db_human"))
         } else {
-          data("tfea_db_mouse")
+          get(data("tfea_db_mouse"))
         }
       },
       "ksea" = {
         if (organism == "human") {
-          if (integrated_regulons) data("ksea_db_human_atlas") else data("ksea_db_human")
+          if (integrated_regulons) get(data("ksea_db_human_atlas")) else get(data("ksea_db_human"))
         } else {
-          data("ksea_db_mouse")
+          get(data("ksea_db_mouse"))
         }
       }
     )
@@ -272,14 +272,14 @@ run_hypergeometric_test <- function(omic_data, viper_output,
     df_regulons <- switch(
       analysis,
       "tfea" = if (organism == "human") {
-        if (collectri) data("tfea_db_human_collectri") else data("tfea_db_human")
+        if (collectri) get(data("tfea_db_human_collectri")) else get(data("tfea_db_human"))
       } else {
-        data("tfea_db_mouse")
+        get(data("tfea_db_mouse"))
       },
       "ksea" = if (organism == "human") {
-        if (integrated_regulons) data("ksea_db_human_atlas") else data("ksea_db_human")
+        if (integrated_regulons) get(data("ksea_db_human_atlas")) else get(data("ksea_db_human"))
       } else {
-        data("ksea_db_mouse")
+        get(data("ksea_db_mouse"))
       }
     )
   }
@@ -300,7 +300,7 @@ run_hypergeometric_test <- function(omic_data, viper_output,
   pr_joined <- viper_output %>%
     dplyr::left_join(an_in_reg, by = c("gene_name" = "tf")) %>%
     dplyr::left_join(an_in_reg_sign, by = c("gene_name" = "tf")) %>%
-    dplyr::mutate(Measured = replace_na(Measured, 0), Significant = replace_na(Significant, 0))
+    dplyr::mutate(Measured = tidyr::replace_na(Measured, 0), Significant = tidyr::replace_na(Significant, 0))
 
   # Compute hypergeometric p-values for each gene_name
   pr_joined$pWeight <- purrr::map_dbl(pr_joined$gene_name, function(protein) {
@@ -361,7 +361,7 @@ weight_viper_score <- function(ea_output) {
     dplyr::mutate(
       raw_weight = -log(pWeight),  # Log-transform hypergeometric p-values
       weight = raw_weight / max(raw_weight, na.rm = TRUE),  # Normalize weights
-      weightedNES = if_else(pWeight < 0.05, NES * weight * 4, NES)  # Scale NES for significant proteins
+      weightedNES = dplyr::if_else(pWeight < 0.05, NES * weight * 4, NES)  # Scale NES for significant proteins
     ) %>%
     dplyr::arrange(gene_name)
   return(ea_output)

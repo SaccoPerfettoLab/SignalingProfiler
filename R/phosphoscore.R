@@ -192,8 +192,8 @@ phosphoscore_computation_aapos <- function(phosphoproteomic_data,
     if (is.null(custom_path)) stop("Please provide a path to the regulatory phosphosites table")
     readr::read_tsv(custom_path, show_col_types = FALSE)
   } else {
-    if (activatory) get(paste0("SignalingProfiler::good_phos_df_", organism, "_act_aapos"))
-    else get(paste0("SignalingProfiler::good_phos_df_", organism, "_all_aapos"))
+    if (activatory) get(data(paste0("good_phos_df_", organism, "_act_aapos")))
+    else get(data(paste0("good_phos_df_", organism, "_all_aapos")))
   }
 
   # Filter experimental data
@@ -429,7 +429,7 @@ run_blast <- function(path_experimental_fasta_file, all = FALSE,
 generate_hybrid_db <- function(mh_alignment, activatory) {
 
   # Select the regulatory phosphosite database
-  reg_phos_db <- if (activatory) SignalingProfiler::good_phos_df_human_act else SignalingProfiler::good_phos_df_human_all
+  reg_phos_db <- if (activatory) get(data("good_phos_df_human_act")) else get(data("good_phos_df_human_all"))
 
   hybrid_db <- mh_alignment %>%
     dplyr::inner_join(reg_phos_db, by = c("s_ID" = "PHOSPHO_KEY_GN_SEQ")) %>%
@@ -503,8 +503,8 @@ map_experimental_on_regulatory_phosphosites <- function(phosphoproteomic_data,
     reg_phos_db <- readr::read_tsv(custom_path, show_col_types = FALSE)
   } else {
     reg_phos_db <- switch(organism,
-                          "human" = if (activatory) SignalingProfiler::good_phos_df_human_act else SignalingProfiler::good_phos_df_human_all,
-                          "mouse" = if (activatory) SignalingProfiler::good_phos_df_mouse_act else SignalingProfiler::good_phos_df_mouse_all,
+                          "human" = if (activatory) get(data('good_phos_df_human_act')) else  get(data('good_phos_df_human_all')),
+                          "mouse" = if (activatory) get(data('good_phos_df_mouse_act')) else get(data('good_phos_df_mouse_all')),
                           "hybrid" = {
                             message("Generating hybrid regulatory phosphosite database...")
                             if (file.exists(path_fasta)) file.remove(path_fasta)
