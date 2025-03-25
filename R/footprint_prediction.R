@@ -154,16 +154,16 @@ run_viper <- function(viper_format, analysis, organism, reg_minsize,
       analysis,
       "tfea" = {
         if (organism == "human") {
-          if (collectri) SignalingProfiler::tfea_db_human_collectri else SignalingProfiler::tfea_db_human
+          if (collectri) data("tfea_db_human_collectri") else data("tfea_db_human")
         } else {
-          SignalingProfiler::tfea_db_mouse
+          data("tfea_db_mouse")
         }
       },
       "ksea" = {
         if (organism == "human") {
-          if (integrated_regulons) SignalingProfiler::ksea_db_human_atlas else SignalingProfiler::ksea_db_human
+          if (integrated_regulons) data("ksea_db_human_atlas") else data("ksea_db_human")
         } else {
-          SignalingProfiler::ksea_db_mouse
+          data("ksea_db_mouse")
         }
       }
     )
@@ -272,14 +272,14 @@ run_hypergeometric_test <- function(omic_data, viper_output,
     df_regulons <- switch(
       analysis,
       "tfea" = if (organism == "human") {
-        if (collectri) SignalingProfiler::tfea_db_human_collectri else SignalingProfiler::tfea_db_human
+        if (collectri) data("tfea_db_human_collectri") else data("tfea_db_human")
       } else {
-        SignalingProfiler::tfea_db_mouse
+        data("tfea_db_mouse")
       },
       "ksea" = if (organism == "human") {
-        if (integrated_regulons) SignalingProfiler::ksea_db_human_atlas else SignalingProfiler::ksea_db_human
+        if (integrated_regulons) data("ksea_db_human_atlas") else data("ksea_db_human")
       } else {
-        SignalingProfiler::ksea_db_mouse
+        data("ksea_db_mouse")
       }
     )
   }
