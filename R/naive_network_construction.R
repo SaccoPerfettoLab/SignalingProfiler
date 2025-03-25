@@ -56,11 +56,13 @@ choose_database_for_building <- function(organism,
   atlas_suffix <- ifelse(with_atlas, "_atlas", "")
   direct_suffix <- ifelse(direct, "_dir", "_ind")
 
-  dataset_name <- paste0("SignalingProfiler::",
-                         ifelse(format == "igraph", "db_", "PKN_"),
+  dataset_name <- paste0(ifelse(format == "igraph", "db_", "PKN_"),
                          dataset_prefix, atlas_suffix, direct_suffix)
 
-  return(eval(parse(text = dataset_name)))
+  e <- new.env()
+  data(list = dataset_name, package = "SignalingProfiler", envir = e)
+
+  return(e[[dataset_name]])
 }
 
 #' Generate a One-Layer Naive Network
