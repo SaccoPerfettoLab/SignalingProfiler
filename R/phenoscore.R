@@ -132,7 +132,7 @@ phenoscore_computation <- function(proteins_df,
   # Use full phenotype distances table if none is provided
   if (is.null(pheno_distances_table)) {
     message('No custom pheno_distance_table provided. Using full dataset without path filtering.')
-    pheno_distances_table <- SignalingProfiler::phenoscore_distances_table
+    pheno_distances_table <- get(data('phenoscore_distances_table'))
   }
 
   # Clean phenotype distance table by replacing non-alphanumeric characters
@@ -193,7 +193,7 @@ phenoscore_computation <- function(proteins_df,
   # Perform randomization for statistical significance
   random_distributions <- tibble::tibble()
   for (i in seq_len(n_random)) {
-    random_sample <- sample(SignalingProfiler::background_phenoscore, size = nrow(proteins_df))
+    random_sample <- sample(get(data('background_phenoscore')), size = nrow(proteins_df))
     randomized <- path_data %>%
       dplyr::filter(QueryNode %in% random_sample) %>%
       dplyr::count(EndPathways, Effect, name = "hits") %>%

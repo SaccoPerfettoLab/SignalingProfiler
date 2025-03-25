@@ -43,7 +43,7 @@ molecular_function_annotation <-
       inferred_proteins_dataset <-
         dplyr::left_join(
           inferred_proteins_dataset,
-          SignalingProfiler::gomf_human %>% dplyr::select(gene_name, mf),
+          get(data('gomf_human')) %>% dplyr::select(gene_name, mf),
           by = c('gene_name')
         )
 
@@ -51,7 +51,7 @@ molecular_function_annotation <-
       inferred_proteins_dataset <-
         dplyr::left_join(
           inferred_proteins_dataset,
-          SignalingProfiler::gomf_mouse %>% dplyr::select(gene_name, mf),
+          get(data('gomf_mouse')) %>% dplyr::select(gene_name, mf),
           by = c('gene_name')
         )
 
