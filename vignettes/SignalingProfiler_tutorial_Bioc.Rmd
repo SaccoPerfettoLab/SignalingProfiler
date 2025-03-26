@@ -72,15 +72,15 @@ SignalingProfiler requires processed tables derived from your multi-omics data. 
 
 Your transcriptomics and proteomics tables should contain the following columns:
 
--   [**gene_name**]{style="color:orange"} and [**Uniprot ID**]{style="color:orange"} for proteomics; SignalingProfiler is structured having the gene_name as key;
+-   [**gene_name**]{style="color:#1a81c2"} and [**Uniprot ID**]{style="color:#1a81c2"} for proteomics; SignalingProfiler is structured having the gene_name as key;
 
--   [**difference**]{style="color:orange"}: representing the fold-change in gene expression among two conditions; e.g. the difference between treated and control sample;
+-   [**difference**]{style="color:#1a81c2"}: representing the fold-change in gene expression among two conditions; e.g. the difference between treated and control sample;
 
 The next columns regards parameters linked to the statistical test performed among your conditions:
 
--   [**logpval**]{style="color:orange"}: the -Log(p-value) associated to your fold-change;
+-   [**logpval**]{style="color:#1a81c2"}: the -Log(p-value) associated to your fold-change;
 
--   [**significant**]{style="color:orange"}: a column containing a '+' if the gene is significantly modulated, NA otherwise;
+-   [**significant**]{style="color:#1a81c2"}: a column containing a '+' if the gene is significantly modulated, NA otherwise;
 
 ::: {#Table1}
 Transcriptomics data example
@@ -110,17 +110,17 @@ Before using Signaling Profiler, you have to accurately process you phosphoprote
 
 Your phosphoproteomics table should contain:
 
--   [**UniProt ID**]{style="color:orange"} and [**gene_name**]{style="color:orange"}: reporting the UNIPROT ID and the gene name respectively; again, choose just one gene name.
+-   [**UniProt ID**]{style="color:#1a81c2"} and [**gene_name**]{style="color:#1a81c2"}: reporting the UNIPROT ID and the gene name respectively; again, choose just one gene name.
 
--   [**aminoacid**]{style="color:orange"} and [**position**]{style="color:orange"}: reporting the phosphosite with the single letter notation and the position in the protein sequence;
+-   [**aminoacid**]{style="color:#1a81c2"} and [**position**]{style="color:#1a81c2"}: reporting the phosphosite with the single letter notation and the position in the protein sequence;
 
--   [**sequence window**]{style="color:orange"}: the phosphopeptide centered on the modified residue; it should be at least a 15-mer, compatible with SIGNOR and PsP database notation;
+-   [**sequence window**]{style="color:#1a81c2"}: the phosphopeptide centered on the modified residue; it should be at least a 15-mer, compatible with SIGNOR and PsP database notation;
 
--   [**difference**]{style="color:orange"}: representing the fold-change in gene expression among two conditions; e.g. the difference between treated and control sample;
+-   [**difference**]{style="color:#1a81c2"}: representing the fold-change in gene expression among two conditions; e.g. the difference between treated and control sample;
 
--   [**logpval**]{style="color:orange"}: the -Log(p-value) associated to the statistical test assessing the significance of your comparisons;
+-   [**logpval**]{style="color:#1a81c2"}: the -Log(p-value) associated to the statistical test assessing the significance of your comparisons;
 
--   [**significant**]{style="color:orange"}: a column containing a '+' if the gene is significantly modulated, NA otherwise;
+-   [**significant**]{style="color:#1a81c2"}: a column containing a '+' if the gene is significantly modulated, NA otherwise;
 
 ::: {#Table3}
 Phosphoproteomics data example
@@ -141,13 +141,13 @@ The output of SignalingProfiler is a list composed of different elements `toy_sp
 
 -   **Table of the proteins (nodes)** included in the network with attributes `toy_sp_output$nodes_df`
 
-    -   Protein identifiers: [**UniProt ID**]{style="color:orange"} and [**gene name**]{style="color:orange"};
+    -   Protein identifiers: [**UniProt ID**]{style="color:#1a81c2"} and [**gene name**]{style="color:#1a81c2"};
 
     -   Two different activity scores:
 
-        -   [**final_score**]{style="color:orange"}: it is the activity derived from experimental data;
-        -   [**carnival_activity**]{style="color:orange"}: it is the activity computed by CARNIVAL algorithm ranging between -100 and +100; usually it has the *same sign* as the **final_score**, but sometimes CARNIVAL changes the node activity because the neighbour proteins suggest the opposite activity sign;
-        -   [**discordant**]{style="color:orange"}: it is TRUE if **final_score** and **carnival_activity** have opposite sign;
+        -   [**final_score**]{style="color:#1a81c2"}: it is the activity derived from experimental data;
+        -   [**carnival_activity**]{style="color:#1a81c2"}: it is the activity computed by CARNIVAL algorithm ranging between -100 and +100; usually it has the *same sign* as the **final_score**, but sometimes CARNIVAL changes the node activity because the neighbour proteins suggest the opposite activity sign;
+        -   [**discordant**]{style="color:#1a81c2"}: it is TRUE if **final_score** and **carnival_activity** have opposite sign;
 
     -   Molecular function annotation (**mf**);
 
@@ -158,21 +158,21 @@ DT::datatable(toy_sp_output$nodes_df, options = list(pageLength = 3))
 
 -   **Table of edges** included in the network with biologically relevant attributes `toy_sp_output$edges_df`
 
-    -   Uniprot IDs of the nodes connected ([**source**]{style="color:orange"} and [**target**]{style="color:orange"});
+    -   Uniprot IDs of the nodes connected ([**source**]{style="color:#1a81c2"} and [**target**]{style="color:#1a81c2"});
 
-    -   [**sign**]{style="color:orange"} reporting if the interaction is activatory (1) or inhibitory (-1);
+    -   [**sign**]{style="color:#1a81c2"} reporting if the interaction is activatory (1) or inhibitory (-1);
 
-    -   [**carnival_weight**]{style="color:orange"}: since CARNIVAL may return more than one solustion, this attribute reports the frequency of the edge in the different solutions returned (e.g. 100 means that the edge is present in all the solutions!);
+    -   [**carnival_weight**]{style="color:#1a81c2"}: since CARNIVAL may return more than one solustion, this attribute reports the frequency of the edge in the different solutions returned (e.g. 100 means that the edge is present in all the solutions!);
 
     -   annotation from phosphoproteomics data:
 
-        -   [**aminoacid**]{style="color:orange"}: reports the phosphosites in SIGNOR and PsP matching that interaction; if the phosphosite has a \* it means that it is *significantly modulated among your two conditions*;
+        -   [**aminoacid**]{style="color:#1a81c2"}: reports the phosphosites in SIGNOR and PsP matching that interaction; if the phosphosite has a \* it means that it is *significantly modulated among your two conditions*;
 
-        -   [**FC**]{style="color:orange"}: reports the fold-change of phosphorylation among your two conditions of the phosphosite matched on the interaction;
+        -   [**FC**]{style="color:#1a81c2"}: reports the fold-change of phosphorylation among your two conditions of the phosphosite matched on the interaction;
 
-        -   [**is quantified**]{style="color:orange"} is TRUE if you quantified the phosphosite matching that edge in your phosphoproteomic data set;
+        -   [**is quantified**]{style="color:#1a81c2"} is TRUE if you quantified the phosphosite matching that edge in your phosphoproteomic data set;
 
-        -   [**is significant**]{style="color:orange"} is TRUE if the quantified phosphosite matching that edge in your phosphoproteomic data set is significantly modulated;
+        -   [**is significant**]{style="color:#1a81c2"} is TRUE if the quantified phosphosite matching that edge in your phosphoproteomic data set is significantly modulated;
 
 ```{r}
 
@@ -203,13 +203,11 @@ The set of regulated analytes of a TF/KIN/PHOS is called *regulon*.
 
 ### Regulons sources
 
-::: {style="background-color: #f9f9f9; border-left: 5px solid #3c763d; padding: 1em; margin: 1em 0 1em 2em;"}
 **SignalingProfiler *built-in* regulons**
 
 -   **TFs-genes regulons** (`tfea_db_human`, `tfea_db_human_collectri`) are retrieved from DoRothEA R Package (confidence: A) and from SIGNOR or from Collectri, a new comprehensive resource.
 
 -   **KIN/PHOS-phosphosites regulons** (`ksea_db_human`) are derived from:OmniPath and SIGNOR; given the recent publication of the [Serine-Threonine-Tyrosine Kinome Atlas](https://www.nature.com/articles/s41586-022-05575-3) we integrated high confidence regulons in the `ksea_db` derived from this work. If you want to extend your data with the atlas, set `integrated_regulons = TRUE`.
-:::
 
 
 ::: {style="background-color: #f9f9f9; border-left: 5px solid #3c763d; padding: 1em; margin: 1em 0 1em 2em;"}
@@ -286,10 +284,12 @@ PhosphoScore computation exploits:
 
 -   the *regulatory role* of phosphosites (activating or inhibiting) annotated in SIGNOR and PsP databases;
 
-::: {style="background-color: #f9f9f9; border-left: 5px solid #3c763d; padding: 1em; margin: 1em 0 1em 2em;"}
 ### Regulatory phosphosites sources
+The information about how phosphosites regulate the protein they are on is retrieved from SIGNOR and PsP databases (`good_phos_df_human_act`, `good_phos_df_human_act_aapos`). 
+The key for identifying the phosphosite can be either *Gene-Peptide* or *Gene-AAPos*.
 
-The information about how phosphosites regulate the protein they are on is retrieved from SIGNOR and PsP databases (`good_phos_df_human_act`, `good_phos_df_human_act_aapos`). SignalingProfiler updates its regulons (regulatory networks) twice a year. If the user want to use updated information it can create its own information about regulatory phosphosites. Importantly, if you want to include PsP information you have to manually download from PsP database the Regulatory_sites and Kinase_Substrates file.
+::: {style="background-color: #f9f9f9; border-left: 5px solid #3c763d; padding: 1em; margin: 1em 0 1em 2em;"}
+SignalingProfiler updates its regulons (regulatory networks) twice a year. If the user want to use updated information it can create its own information about regulatory phosphosites. Importantly, if you want to include PsP information you have to manually download from PsP database the Regulatory_sites and Kinase_Substrates file.
 
 ```{r eval = FALSE}
 
@@ -414,10 +414,7 @@ In this step, SignalingProfiler connects the proteins of Step1 to user-specified
 
 To connect the proteins, SignalingProfiler uses the prior information about molecular interactions stored in SIGNOR and PhosphoSitePlus databases. Briefly, every PKN interaction is binary, directed (has a regulator and a target of the regulation), and signed (representing either an up- or a down-regulation).
 
-::: {style="background-color: #f9f9f9; border-left: 5px solid #3c763d; padding: 1em; margin: 1em 0 1em 2em;"}
-**Built-in objects** 
-The information is stored in different built-in objects that can contain all interactions `PKN_human_ind` or only direct interactions (`PKN_human_dir`).
-:::
+The information is stored in different **built-in objects** that can contain only direct interactions (`PKN_human_dir`) or the addition of indirect transcriptional regulations (`PKN_human_ind`). 
 
 ::: {style="background-color: #f9f9f9; border-left: 5px solid #3c763d; padding: 1em; margin: 1em 0 1em 2em;"}
 **Custom PKN** 
