@@ -126,7 +126,7 @@ Your transcriptomics and proteomics tables should contain the following columns:
 
 The next columns regards parameters linked to the statistical test performed among your conditions:
 
--   **logpval**: the p-value associated to your fold-change;
+-   **logpval**: the -Log(p-value) associated to your fold-change;
 
 -   **significant**: a column containing a '+' if the gene is significantly modulated, NA otherwise;
 
