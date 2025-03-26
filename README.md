@@ -1,8 +1,8 @@
-# Signaling Profiler <img src="./img/signaling_profiler_new.png" align="right" width="150" height="120"/>
+# SignalingProfiler <img src="./img/signaling_profiler_new.png" align="right" width="150" height="120"/>
 
 ## Overview
 
-Signaling Profiler is a R based pipeline that integrates transcriptomics, proteomics and phosphoproteomics data among a case and a control to build a signaling network, connecting:
+SignalingProfiler is a R based pipeline that integrates transcriptomics, proteomics and phosphoproteomics data among a case and a control to build a signaling network, connecting:
 
 -   cellular receptor(s);
 -   kinases and phosphatases;
@@ -28,7 +28,7 @@ to exploit the new features.
 
 ## Prerequisites
 
-Signaling Profiler is dependent on Saez lab algorithm CARNIVAL for performing the signalling pathway optimization. You can find all the instruction for installation in Saez lab repository [CARNIVAL](https://saezlab.github.io/CARNIVAL/).
+SignalingProfiler is dependent on Saez lab algorithm CARNIVAL for performing the signalling pathway optimization. You can find all the instruction for installation in Saez lab repository [CARNIVAL](https://saezlab.github.io/CARNIVAL/).
 
 ## Tutorial
 
