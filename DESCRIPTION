@@ -7,7 +7,7 @@ Description: SignalingProfiler integrates transcriptomics, proteomics,
   networks connecting perturbed proteins to cellular functions (phenotypes).
   It provides methods to infer proteins' and phenotypes activities from omics 
   dataand connect them in a sign-coherent network.
-Version: 2.1.4
+Version: 1.0.0
 Authors@R: c(
     person(given = "Veronica", 
            family = "Venafra",
@@ -26,7 +26,7 @@ Authors@R: c(
            comment = c(ORCID = "0000-0003-4392-8725")))
 URL: https://github.com/SaccoPerfettoLab/SignalingProfiler
 Bugs: https://github.com/SaccoPerfettoLab/SignalingProfiler/issues
-Depends: R (== 4.4.0)
+Depends: R (>= 4.4.0)
 License: GPL-3
 Encoding: UTF-8
 LazyData: false

@@ -351,7 +351,7 @@ toy_prot_activity_df
 
 To obtain this table:
 
--    get the transcription factor from the `combined_tf` object;
+-   get the transcription factor from the `combined_tf` object;
 
 -   get the kinases and phosphatases from the `combined_kin_phos`
     object;

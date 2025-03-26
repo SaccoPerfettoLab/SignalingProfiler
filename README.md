@@ -32,11 +32,11 @@ Signaling Profiler is dependent on Saez lab algorithm CARNIVAL for performing th
 
 ## Tutorial
 
-The latest tutorial of *SignalingProfiler* 2.0 is available [here](https://html-preview.github.io/?url=https://github.com/SaccoPerfettoLab/SignalingProfiler/blob/main/SignalingProfiler-2.0-tutorial/SignalingProfiler-2.0-tutorial.html).
+The latest tutorial of *SignalingProfiler* is available [here](https://html-preview.github.io/?url=https://github.com/SaccoPerfettoLab/SignalingProfiler/blob/main/vignettes/SignalingProfiler_tutorial_Bioc.html).
 
-Another tutorial for human is available [here](https://html-preview.github.io/?url=https://github.com/SaccoPerfettoLab/SignalingProfiler/blob/main/vignettes/SP_vignette_human.html)
+Old tutorials for human are available [here](https://html-preview.github.io/?url=https://github.com/SaccoPerfettoLab/SignalingProfiler/blob/main/old_vignettes/SP_vignette_human.html) and [here](https://html-preview.github.io/?url=https://github.com/SaccoPerfettoLab/SignalingProfiler/blob/main/SignalingProfiler-2.0-tutorial/SignalingProfiler-2.0-tutorial.html).
 
-You can find an example of SignalingProfiler analysis for mouse [here](https://html-preview.github.io/?url=https://github.com/SaccoPerfettoLab/SignalingProfiler/blob/main/vignettes/SignalingProfiler_vignette.html). 
+You can find an example of SignalingProfiler analysis for mouse [here](https://html-preview.github.io/?url=https://github.com/SaccoPerfettoLab/SignalingProfiler/blob/main/old_vignettes/SignalingProfiler_vignette.html). 
 
 ## Citation
 If you use SignalingProfiler in your research please cite the [latest publication](https://www.nature.com/articles/s41540-024-00417-6) and the [first publication](https://www.nature.com/articles/s41375-022-01785-w).

@@ -103,8 +103,8 @@ get_signor_regulons <- function(organism, analysis){
 #' psp_db <- psp_parsing(reg_site_path = './Regulatory_sites',
 #'                       kin_sub_path = './Kinase_Substrate_Dataset',
 #'                       organism = 'human',
-#'                       with_atlas = F,
-#'                       local = F)
+#'                       with_atlas = FALSE,
+#'                       local = FALSE)
 #' }
 #'
 get_psp_regulons <- function(reg_site_path,
@@ -116,7 +116,7 @@ get_psp_regulons <- function(reg_site_path,
                         kin_sub_path = kin_sub_path,
                         organism = organism,
                         with_atlas = with_atlas,
-                        local = F)
+                        local = FALSE)
 
   psp_ksea <- psp_db %>%
     dplyr::select(ENTITYA, IDB, RESIDUE, SEQUENCE, mor = INTERACTION) %>%
