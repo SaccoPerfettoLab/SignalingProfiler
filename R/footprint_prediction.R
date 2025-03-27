@@ -117,7 +117,7 @@ create_matrix_from_VIPER_format <- function(viper_format) {
 #'
 #' @examples
 #' # Run Transcription Factor Enrichment Analysis
-#' viper_format <- create_viper_format(omic_data = tr_toy_df, analysis = 'tfea', significant = F)
+#' viper_format <- create_viper_format(omic_data = tr_toy_df, analysis = 'tfea', significance = FALSE)
 #' results <- run_viper(viper_format = viper_format,
 #'                      analysis = "tfea",
 #'                      organism = "human",
@@ -216,16 +216,16 @@ run_viper <- function(viper_format, analysis, organism, reg_minsize,
 #'
 #' @examples
 #' data('tr_toy_df')
-#' viper_format <- create_viper_format(omic_data = tr_toy_df, analysis = 'tfea', significant = F)
+#' viper_format <- create_viper_format(omic_data = tr_toy_df, analysis = 'tfea', significance = FALSE)
 #' viper_output <- run_viper(viper_format = viper_format,
 #'                      analysis = "tfea",
 #'                      organism = "human",
 #'                      reg_minsize = 10,
 #'                      integrated_regulons = FALSE)
-#' ea_output <- run_hypergeometric_test(tr_toy_df,
-#'                                      viper_output,
-#'                                       "tfea",
-#'                                       "human")
+#' ea_output <- run_hypergeometric_test(omic_data = tr_toy_df,
+#'                                      viper_output = viper_output$sign,
+#'                                      analysis = "tfea",
+#'                                      organism = "human")
 #'
 #' @export
 #'
@@ -235,7 +235,6 @@ run_hypergeometric_test <- function(omic_data, viper_output,
                                     collectri = FALSE,
                                     custom = FALSE,
                                     custom_path = NULL) {
-
   # Validate inputs
   analysis <- match.arg(analysis, c("tfea", "ksea"))
   organism <- match.arg(organism, c("human", "mouse"))
@@ -333,14 +332,14 @@ run_hypergeometric_test <- function(omic_data, viper_output,
 #' @examples
 #'
 #' data('tr_toy_df')
-#' viper_format <- create_viper_format(omic_data = tr_toy_df, analysis = 'tfea', significant = F)
+#' viper_format <- create_viper_format(omic_data = tr_toy_df, analysis = 'tfea', significance = FALSE)
 #' viper_output <- run_viper(viper_format = viper_format,
 #'                      analysis = "tfea",
 #'                      organism = "human",
 #'                      reg_minsize = 10,
 #'                      integrated_regulons = FALSE)
 #' ea_output <- run_hypergeometric_test(tr_toy_df,
-#'                                      viper_output,
+#'                                      viper_output$sign,
 #'                                      "tfea",
 #'                                      "human")
 #' weighted_results <- weight_viper_score(ea_output=ea_output)
@@ -412,7 +411,7 @@ filter_VIPER_output <- function(inferred_proteins_mf, analysis) {
 #' @param omic_data A dataframe of measured transcript (for `"tfea"`) or phosphosites (for `"ksea"`).
 #' @param analysis A string specifying the type of analysis (`"tfea"` or `"ksea"`).
 #' @param organism Character string, either `"human"` or `"mouse"`, specifying the organism.
-#'#' @param reg_minsize Integer, minimum regulon size for VIPER.
+#' @param reg_minsize Integer, minimum regulon size for VIPER.
 #' @param exp_sign  Logical value indicating whether to filter for significant analytes.
 #'   If `TRUE`, only significant analytes (where `significant == '+'`) are included.
 #' @param integrated_regulons Logical, indicating whether to use regulons
@@ -449,8 +448,8 @@ filter_VIPER_output <- function(inferred_proteins_mf, analysis) {
 #' tfea_df <- run_footprint_based_analysis(omic_data = tr_toy_df,
 #'                                         analysis = "tfea",
 #'                                         organism = "human",
-#'                                         regminsize = 10,
-#'                                         hypergeometric_corr = TRUE,
+#'                                         reg_minsize = 10,
+#'                                         hypergeom_corr = TRUE,
 #'                                         collectri = FALSE,
 #'                                         GO_annotation = TRUE)
 #' # Kinase Enrichment Analysis Example
@@ -458,8 +457,8 @@ filter_VIPER_output <- function(inferred_proteins_mf, analysis) {
 #' ksea_df <- run_footprint_based_analysis(omic_data = phospho_toy_df,
 #'                                         analysis = "ksea",
 #'                                         organism = "human",
-#'                                         regminsize = 5,
-#'                                         hypergeometric_corr = TRUE,
+#'                                         reg_minsize = 5,
+#'                                         hypergeom_corr = TRUE,
 #'                                         integrated_regulons = TRUE,
 #'                                         GO_annotation = TRUE)
 #'
@@ -469,7 +468,7 @@ run_footprint_based_analysis <- function(omic_data,
                                          analysis,
                                          organism,
                                          reg_minsize,
-                                         exp_sign,
+                                         exp_sign = FALSE,
                                          integrated_regulons = FALSE,
                                          collectri = FALSE,
                                          hypergeom_corr = TRUE,

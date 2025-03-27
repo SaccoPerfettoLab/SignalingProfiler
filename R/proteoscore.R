@@ -21,7 +21,7 @@
 #' @examples
 #' data('prot_toy_df')
 #' # Compute ProteoScore for human proteomic data
-#' proteo_score <- activity_from_proteomics(prot_df = proteomics_data,
+#' proteo_score <- activity_from_proteomics(prot_df = prot_toy_df,
 #'                                          organism = "human")
 #'
 activity_from_proteomics <- function(prot_df, organism){

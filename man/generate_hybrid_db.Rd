@@ -24,7 +24,7 @@ alignment_data <- data.frame(
   q_ID = c("TP53-S15-mouse", "MYC-T22-mouse"),
   s_ID = c("TP53-S15-human", "MYC-T22-human"),
   UNIPROT = c("P04637", "P01106"),
-  ACTIVATION = c(1, -1)
+  ACTIVATION = c('1', '-1')
 )
 
 # Generate hybrid phosphosite database

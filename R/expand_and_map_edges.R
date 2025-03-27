@@ -52,13 +52,14 @@
 #'
 #' @examples
 #' # Load an optimized CARNIVAL network
-#' data('toy_carnival_output')
+#' data('toy_opt_network')
+#' toy_opt_network$edges_df <- toy_opt_network$edges_df[, c('source', 'target', 'sign', 'carnival_weight')]
 #'
 #' # Load phosphoproteomics dataset
 #' data('phospho_toy_df')
 #'
 #' expand_and_map_edges(
-#'   optimized_object = toy_carnival_output,
+#'   optimized_object = toy_opt_network,
 #'   organism = "human",
 #'   phospho_df = phospho_toy_df,
 #'   files = TRUE,

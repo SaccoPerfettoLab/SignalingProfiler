@@ -29,8 +29,8 @@ Kinase_Substrate_Dataset and Regulatory_sites.
 psp_db <- psp_parsing(reg_site_path = './Regulatory_sites',
                       kin_sub_path = './Kinase_Substrate_Dataset',
                       organism = 'human',
-                      with_atlas = F,
-                      local = F)
+                      with_atlas = FALSE,
+                      local = FALSE)
 }
 
 }

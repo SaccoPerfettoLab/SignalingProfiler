@@ -18,15 +18,10 @@ A `data.frame` containing UniProt metadata for both standard proteins and isofor
 Queries UniProt for metadata of given UniProt IDs, processing isoforms separately.
 }
 \examples{
-# Query metadata including isoforms
-ids <- c("P12345", "Q9Y6X1-2", "A0A0B4J2D5")
+# Toy Query
+ids <- c("P12345", "Q9Y6X1", "A0A0B4J2D5")
 result <- query_uniprot(ids)
 print(result)
-
-# Query only proteins (without isoforms)
-result_proteins <- query_uniprot(c("P12345", "Q9Y6X1"), batch_size = 200)
-print(result_proteins)
-
 }
 \seealso{
 [query_uniprot_proteins]

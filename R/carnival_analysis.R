@@ -11,11 +11,6 @@
 #' @param access_idx An integer index referring to the column containing activity values.
 #'
 #' @return A list of ranked proteins with their scores.
-#'
-#' @examples
-#' data <- data.frame(TF = c("TP53", "MYC", "STAT3"), score = c(2.1, -1.5, 3.2))
-#' tf_list <- generateTFList(df = data, top = 2, access_idx = 2)
-#'
 generateTFList <- function (df = df, top = 'all', access_idx = 1){
   if (top == "all")  top <- nrow(df)
 
@@ -23,7 +18,7 @@ generateTFList <- function (df = df, top = 'all', access_idx = 1){
     warning("Number of to TF's inserted exceeds the number of actual TF's in the\n            data frame. All the TF's will be considered.")
     top <- nrow(df)
   }
-  ctrl <- intersect(x = access_idx, y = 1:ncol(df))
+  ctrl <- intersect(x = access_idx, y = seq_len(ncol(df)))
   if (length(ctrl) == 0) {
     stop("The indeces you inserted do not correspond to \n              the number of columns/samples")
   }
@@ -134,7 +129,8 @@ create_discretized_initiators_for_carnival <- function(proteins_df) {
 #'          \item `"cbc"` - Uses the CBC (Coin-or branch and cut) solver.
 #'           \item `"gurobi"` - Uses Gurobi as the solver.
 #'        }
-#'
+#' @param gurobi_path A string specifying the 'gurobi' solver path. To use only if gurobi is chosen.
+#' 
 #' @return A named list containing the default CARNIVAL parameters for the
 #'         specified solver.
 #'
@@ -206,7 +202,12 @@ default_CARNIVAL_options <- function(solver = NULL, gurobi_path = NULL) {
 #'
 #' @examples
 #' # Example dataset of perturbations (source nodes)
-#' data('toy_carnival_input')
+#' toy_carnival_input <- data.frame(UNIPROT = c('P42345', 'SIGNOR-C15', 'P31749', 'P15336'),
+#'           gene_name = c('MTOR', 'AMPK', 'AKT1', 'ATF2'),
+#'           mf = c('rec', 'rec', 'kin', 'tf'),
+#'           method = c('user', 'user', 'VIPER', 'VIPER'),
+#'           final_score = c(-1, 1, -2.64, 4.48))
+#'           
 #' source_df <- toy_carnival_input %>% dplyr::filter(mf == 'rec')
 #'
 #' # Example dataset of targets (continuous values)
@@ -216,11 +217,12 @@ default_CARNIVAL_options <- function(solver = NULL, gurobi_path = NULL) {
 #' naive_network <- data.frame(source = c('MTOR', 'AMPK'), interaction = c(1, -1), target = c('ATM', 'CDK2'))
 #'
 #' # Example inferred protein dataset
+#' data(toy_prot_activity_df)
 #' proteins_df <- toy_prot_activity_df
 #'
 #' # Run validation
 #' check_CARNIVAL_inputs(source_df, target_df, naive_network, proteins_df, organism = "human")
-#'
+#' @export
 check_CARNIVAL_inputs <- function(source_df, target_df,
                                   naive_network, proteins_df,
                                   organism){
@@ -273,7 +275,11 @@ check_CARNIVAL_inputs <- function(source_df, target_df,
 #' naive_network <- data.frame(source = c('MTOR', 'MTOR'), interaction = c(1, -1), target = c('ATM', 'CDK2'))
 #'
 #' # Example source dataframe
-#' data('toy_carnival_input')
+#' toy_carnival_input <- data.frame(UNIPROT = c('P42345', 'SIGNOR-C15', 'P31749', 'P15336'),
+#'           gene_name = c('MTOR', 'AMPK', 'AKT1', 'ATF2'),
+#'           mf = c('rec', 'rec', 'kin', 'tf'),
+#'           method = c('user', 'user', 'VIPER', 'VIPER'),
+#'           final_score = c(-1, 1, -2.64, 4.48))
 #' source_df <- toy_carnival_input %>% dplyr::filter(mf == 'rec')
 #'
 #' # Filter source nodes present in naive network
@@ -332,8 +338,12 @@ keep_only_present_perturbation <- function(source_df, naive_network) {
 #'
 #' @examples
 #' \dontrun{
-#' data('toy_carnival_input')
-#' # Add metformin example!!
+#' toy_carnival_input <- data.frame(UNIPROT = c('P42345', 'SIGNOR-C15', 'P31749', 'P15336'),
+#'           gene_name = c('MTOR', 'AMPK', 'AKT1', 'ATF2'),
+#'           mf = c('rec', 'rec', 'kin', 'tf'),
+#'           method = c('user', 'user', 'VIPER', 'VIPER'),
+#'           final_score = c(-1, 1, -2.64, 4.48))
+
 #' # Example dataset of perturbations (source nodes)
 #' receptors_df <- toy_carnival_input %>% dplyr::filter(mf == 'rec')
 #'
@@ -342,9 +352,9 @@ keep_only_present_perturbation <- function(source_df, naive_network) {
 #' dplyr::filter(mf %in% c('kin', 'phos', 'other'))
 #'
 #' # Example naive network in SIF format
-#' data(toy_naive_network)
-#' toy_naive_network_sif <- igraph::as_data_frame(toy_naive_network, what = 'edges') %>%
-#' dplyr::select(source = from, interaction = INTERACTION, target = to)
+#' toy_naive_network_sif <- data.frame(from = c("MTOR", "AKT1", "AMPK"), 
+#'                                     interaction = c('-1', '1', '1'), 
+#'                                     to = c("AKT1", "ATF2", "MTOR"))
 #'
 #' # Example inferred protein dataset
 #' data(toy_prot_activity_df)

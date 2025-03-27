@@ -16,16 +16,15 @@
 #' @export
 #'
 #' @examples
-#'
 #' inferred_proteins <- data.frame(
 #'   gene_name = c("TP53", "EGFR", "MYC"),
 #'   mf = c("tf", "kin", "rec")
 #' )
 #' # Control coverage in human PKN with direct interactions
-#' coverage_of_inferred_proteins_in_db(inferred_proteins, organism = "human", with_atlas = F, direct = T)
+#' coverage_of_inferred_proteins_in_db(inferred_proteins, organism = "human", with_atlas = FALSE, direct = TRUE)
 #'
 #' # Control coverage in human PKN with indirect interactions
-#' coverage_of_inferred_proteins_in_db(inferred_proteins, organism = "human", with_atlas = F, direct = F)
+#' coverage_of_inferred_proteins_in_db(inferred_proteins, organism = "human", with_atlas = FALSE, direct = FALSE)
 #'
 coverage_of_inferred_proteins_in_db <- function(prediction_output,
                                                 organism,
@@ -36,7 +35,7 @@ coverage_of_inferred_proteins_in_db <- function(prediction_output,
                                                 report = FALSE) {
 
   # Validate organism argument
-  organism <- match.arg(c('human', 'mouse'))
+  organism <- match.arg(organism, c('human', 'mouse'))
 
   # Select the appropriate database
   pkn <- choose_database_for_building(organism, with_atlas, direct, custom, format = "igraph")

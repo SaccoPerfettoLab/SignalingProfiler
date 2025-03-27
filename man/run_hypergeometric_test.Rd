@@ -46,15 +46,15 @@ significantly modulated analytes (transcripts or phosphosites) in the regulon.
 }
 \examples{
 data('tr_toy_df')
-viper_format <- create_viper_format(omic_data = tr_toy_df, analysis = 'tfea', significant = F)
+viper_format <- create_viper_format(omic_data = tr_toy_df, analysis = 'tfea', significance = FALSE)
 viper_output <- run_viper(viper_format = viper_format,
                      analysis = "tfea",
                      organism = "human",
                      reg_minsize = 10,
                      integrated_regulons = FALSE)
-ea_output <- run_hypergeometric_test(tr_toy_df,
-                                     viper_output,
-                                      "tfea",
-                                      "human")
+ea_output <- run_hypergeometric_test(omic_data = tr_toy_df,
+                                     viper_output = viper_output$sign,
+                                     analysis = "tfea",
+                                     organism = "human")
 
 }

@@ -23,8 +23,3 @@ compliant with R CARNIVAL analysis. Optionally, it extracts
 the top-ranked proteins (TFs).
 Function re-used from Saez-lab (https://saezlab.github.io/).
 }
-\examples{
-data <- data.frame(TF = c("TP53", "MYC", "STAT3"), score = c(2.1, -1.5, 3.2))
-tf_list <- generateTFList(df = data, top = 2, access_idx = 2)
-
-}

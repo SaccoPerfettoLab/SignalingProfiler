@@ -37,29 +37,3 @@ This function expands the existing signaling network by:
 The resulting network allows for the analysis of how protein regulators
 influence phenotypic pathways.
 }
-\examples{
-library(igraph)
-library(dplyr)
-
-# Example phenotype regulator data
-phenotype_regulators <- data.frame(
-  EndPathways = c("Apoptosis", "Cell Growth"),
-  Effect = c("up-regulates", "down-regulates"),
-  regulators = c("P53;AKT1", "MAPK1")
-)
-
-# Example phenoscore dataframe
-phenoscore_df <- data.frame(
-  EndPathways = c("Apoptosis", "Cell Growth"),
-  phenoscore = c(2.5, -1.8)
-)
-
-# Example signaling network
-example_graph <- graph_from_edgelist(
-  matrix(c("P53", "AKT1", "AKT1", "MAPK1"), ncol = 2, byrow = TRUE),
-  directed = TRUE
-)
-
-# Generate phenotype-augmented network
-sp_object <- link_phenotypes_to_network(phenotype_regulators, phenoscore_df, example_graph)
-}

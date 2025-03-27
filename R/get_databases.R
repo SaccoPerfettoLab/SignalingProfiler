@@ -29,9 +29,9 @@ signor_parsing <- function(organism, direct = FALSE, file_path = NULL, only_acti
 
   # Validate organism input
   if(organism == 'human'){
-    taxID = 9606
+    taxID <- 9606
   } else if (organism == 'mouse') {
-    taxID = 10090
+    taxID <- 10090
   } else {
     stop ('Please provide a valid organism between human and mouse')
   }
@@ -457,30 +457,25 @@ psp_parsing <- function(reg_site_path,
 #'
 #' @details
 #' The function:
-#' - **Retrieves interactions** from OmniPath using `OmnipathR::import_omnipath_interactions()`.
+#' - **Retrieves interactions** from OmniPath using `OmnipathR::omnipath_interactions()`.
 #' - **Filters and formats interactions** into a SIGNOR-like structure.
 #' - **Handles molecular complexes**, mapping them using SIGNOR internal data.
 #' - **Resolves complex interactions** into individual protein-protein relationships.
 #'
 #' If `file_path` is provided, the resulting table is saved as a `.tsv` file.
 #'
-#' @seealso [OmnipathR::import_omnipath_interactions]
+#' @seealso [OmnipathR::omnipath_interactions]
 #'
 #' @export
 #'
 #' @examples
 #' # Retrieve and process OmniPath interactions
-#' omni_data <- omnipath_parsing(resources = c("SignaLink", "DOROTHEA"))
-#'
-#' # Save parsed results to a specific file path
-#' omnipath_parsing(
-#'   resources = c("SignaLink", "DOROTHEA"),
-#'   file_path = "./output/")
-#'
+#' omni_data <- omnipath_parsing(resources = c("SIGNOR", "SignaLink3"))
+#' 
 omnipath_parsing <- function(resources, file_path = NULL){
 
   # Retrieve OmniPath interactions
-  interactions <- OmnipathR::import_omnipath_interactions(resources=resources)
+  interactions <- OmnipathR::omnipath_interactions(resources=resources)
 
   # Map interactions to SIGNOR format
   omni_interactions <- interactions %>%
@@ -496,7 +491,9 @@ omnipath_parsing <- function(resources, file_path = NULL){
 
 
   # Map OmniPath interactions to SIGNOR internal database
-  omni2signor <- dplyr::left_join(omni_interactions_clean, get(data('PKN_human_atlas_ind')),
+  omni2signor <- dplyr::left_join(omni_interactions_clean %>% 
+                                    dplyr::mutate_at('INTERACTION', as.character), 
+                                  get(data('PKN_human_atlas_ind')),
                                   by = c('IDA', 'IDB', 'ENTITYA', 'ENTITYB', 'INTERACTION'))
 
   # Identify and process interactions involving Protein Complexes
@@ -521,12 +518,13 @@ omnipath_parsing <- function(resources, file_path = NULL){
 
   complex_table1 <- complex_table %>%
     dplyr::mutate(ID_omni2 = unlist(split_and_sort(ID_omni1)))
-
+  
   omni_to_signor <- dplyr::inner_join(complex_table1,
                                       query_signor,
                                       by = c('ID_omni2' = 'COMPONENTS2')) %>%
     dplyr::select(ID_omni, gn_omni, SIG_ID, COMPLEX_NAME)
 
+  data('PKN_proteins_human')
   dictionary_sp_omni_signor_dic <- dplyr::inner_join(PKN_proteins_human,
                                                      omni_to_signor,
                                                      by = c('ID' = 'SIG_ID'))
@@ -559,11 +557,12 @@ omnipath_parsing <- function(resources, file_path = NULL){
     dplyr::mutate(IDB = dplyr::coalesce(target, ID),
                   ENTITYB = dplyr::coalesce(target_genesymbol, ENTITY)) %>%
     dplyr::select(IDA, ENTITYA, INTERACTION, IDB, ENTITYB) %>%
-    distinct()
+    dplyr::distinct()
 
   # Remove OmniPath complex notation
   no_complex_notation <- entityab_fixed %>%
-    dplyr::filter(!(grepl('COMPLEX', IDA ) | grepl('COMPLEX', IDB )))
+    dplyr::filter(!(grepl('COMPLEX', IDA ) | grepl('COMPLEX', IDB ))) %>%
+    dplyr::mutate_at('INTERACTION', as.character)
 
   # Unite interactions of complexes and proteins
   no_complex <- omni2signor %>% dplyr::filter(!(grepl('COMPLEX', IDA ) | grepl('COMPLEX', IDB )))

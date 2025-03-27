@@ -37,15 +37,9 @@
 #'
 #' @examples
 #' \dontrun{
-#' --> fix after data types
 #' # Load an expanded CARNIVAL network with phosphoproteomics integration
-#' expanded_network <- readRDS("expanded_carnival_network.rds")
-#'
-#' # Format for Cytoscape visualization
-#' cytoscape_ready_network <- format_for_visualization(expanded_network)
-#'
-#' # Save to file for Cytoscape import
-#' igraph::write_graph(cytoscape_ready_network$igraph_network, file = "cytoscape_network.graphml", format = "graphml")
+#' data('toy_opt_network')
+#' cytoscape_ready_network <- format_for_visualization(toy_opt_network)
 #' }
 #'
 format_for_visualization <- function(sp_object) {

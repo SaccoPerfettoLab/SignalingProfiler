@@ -44,7 +44,4 @@ and supports functional interpretation in multiomics workflows.
 data(phenoscore_distances_table)
 head(phenoscore_distances_table)
 }
-\seealso{
-\code{\link{signalingprofiler}}, \code{\link{reticulate}}, \code{\link{readr::read_tsv}}
-}
 \keyword{datasets}

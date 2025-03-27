@@ -61,8 +61,11 @@ interactions and inferred protein activity scores.
 }
 \examples{
 \dontrun{
-data('toy_carnival_input')
-# Add metformin example!!
+toy_carnival_input <- data.frame(UNIPROT = c('P42345', 'SIGNOR-C15', 'P31749', 'P15336'),
+          gene_name = c('MTOR', 'AMPK', 'AKT1', 'ATF2'),
+          mf = c('rec', 'rec', 'kin', 'tf'),
+          method = c('user', 'user', 'VIPER', 'VIPER'),
+          final_score = c(-1, 1, -2.64, 4.48))
 # Example dataset of perturbations (source nodes)
 receptors_df <- toy_carnival_input \%>\% dplyr::filter(mf == 'rec')
 
@@ -71,9 +74,9 @@ target_df <- toy_carnival_input \%>\%
 dplyr::filter(mf \%in\% c('kin', 'phos', 'other'))
 
 # Example naive network in SIF format
-data(toy_naive_network)
-toy_naive_network_sif <- igraph::as_data_frame(toy_naive_network, what = 'edges') \%>\%
-dplyr::select(source = from, interaction = INTERACTION, target = to)
+toy_naive_network_sif <- data.frame(from = c("MTOR", "AKT1", "AMPK"), 
+                                    interaction = c('-1', '1', '1'), 
+                                    to = c("AKT1", "ATF2", "MTOR"))
 
 # Example inferred protein dataset
 data(toy_prot_activity_df)

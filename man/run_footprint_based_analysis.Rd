@@ -9,7 +9,7 @@ run_footprint_based_analysis(
   analysis,
   organism,
   reg_minsize,
-  exp_sign,
+  exp_sign = FALSE,
   integrated_regulons = FALSE,
   collectri = FALSE,
   hypergeom_corr = TRUE,
@@ -25,8 +25,9 @@ run_footprint_based_analysis(
 
 \item{analysis}{A string specifying the type of analysis (`"tfea"` or `"ksea"`).}
 
-\item{organism}{Character string, either `"human"` or `"mouse"`, specifying the organism.
-#' @param reg_minsize Integer, minimum regulon size for VIPER.}
+\item{organism}{Character string, either `"human"` or `"mouse"`, specifying the organism.}
+
+\item{reg_minsize}{Integer, minimum regulon size for VIPER.}
 
 \item{exp_sign}{Logical value indicating whether to filter for significant analytes.
 If `TRUE`, only significant analytes (where `significant == '+'`) are included.}
@@ -88,8 +89,8 @@ data('tr_toy_df')
 tfea_df <- run_footprint_based_analysis(omic_data = tr_toy_df,
                                         analysis = "tfea",
                                         organism = "human",
-                                        regminsize = 10,
-                                        hypergeometric_corr = TRUE,
+                                        reg_minsize = 10,
+                                        hypergeom_corr = TRUE,
                                         collectri = FALSE,
                                         GO_annotation = TRUE)
 # Kinase Enrichment Analysis Example
@@ -97,8 +98,8 @@ data('phospho_toy_df')
 ksea_df <- run_footprint_based_analysis(omic_data = phospho_toy_df,
                                         analysis = "ksea",
                                         organism = "human",
-                                        regminsize = 5,
-                                        hypergeometric_corr = TRUE,
+                                        reg_minsize = 5,
+                                        hypergeom_corr = TRUE,
                                         integrated_regulons = TRUE,
                                         GO_annotation = TRUE)
 

@@ -52,6 +52,5 @@ custom_pkn <- choose_PKN(organism = "human", custom = TRUE, custom_path = "your_
 }
 }
 \seealso{
-[SignalingProfiler::PKN_human_dir],
-  [SignalingProfiler::PKN_mouse_dir]
+[PKN_human_dir], [PKN_mouse_dir]
 }

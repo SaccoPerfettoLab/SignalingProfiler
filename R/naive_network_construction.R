@@ -25,7 +25,7 @@
 #'
 #' @examples
 #' # Retrieve human PKN in table format with direct interactions
-#' choose_database_for_building(organism='human',with_atlas=F,direct=T,custom=F,format='table')
+#' choose_database_for_building(organism='human',with_atlas=FALSE,direct=TRUE,custom=FALSE,format='table')
 #'
 #' # Retrieve mouse PKN as an igraph object (without kinase-substrate interactions)
 #' PKN_mouse <- choose_database_for_building(organism = "mouse", format = "igraph")
@@ -94,7 +94,7 @@ choose_database_for_building <- function(organism,
 #' @export
 #'
 #' @examples
-#' PKN = choose_database_for_building(organism='mouse',with_atlas=F,direct=T,custom=F,format='table')
+#' PKN = choose_database_for_building(organism='mouse',with_atlas=FALSE,direct=TRUE,custom=FALSE,format='table')
 #' one_layer_naive_network(starts_gn=c('Flt3'), targets_gn=c('Mapk1', 'Mapk3','Stat5a'),PKN_table=PKN,max_length=4)
 one_layer_naive_network <- function(starts_gn,
                                     targets_gn,
@@ -418,15 +418,21 @@ three_layer_naive_network <- function(starts_gn,
 #' @export
 #'
 #' @examples
-#'   # Load example data
-#'   data(naive_network)
-#'   data(toy_activities)
+#' # Load example data
+#' data('toy_prot_activity_df')
 #'
-#'   # Define a receptor list with a desired activity value
-#'   recept_list <- list(Flt3 = -1)
+#' # Define a receptor list with a desired activity value
+#' receptor_list <- list('MTOR' = -1, 'AMPK' = 1)
+#' 
+#' # Create a toy igraph object as naive network
+#' naive_network <- data.frame(source = c('MTOR', 'AMPK'), target = c('ATF2', 'MYCN'), sign = c(1, -1))
+#' two_layers_toy <- graph_from_data_frame(naive_network)
+#' 
+#' carnival_input_toy <- prepare_carnival_input(two_layers_toy, 
+#'                                             toy_prot_activity_df, 
+#'                                              receptor_list, 
+#'                                              organism = 'human')
 #'
-#'   # Prepare the carnival input for the human organism
-#'   carnival_input <- prepare_carnival_input(naive_network, toy_activities, recept_list, organism = "human")
 prepare_carnival_input <- function(naive_network,
                                    prediction_output,
                                    recept_list = NULL,

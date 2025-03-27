@@ -373,7 +373,7 @@ run_blast <- function(path_experimental_fasta_file, all = FALSE,
     " -out map2.out -outfmt 7 -evalue 0.05"
   )
 
-  system(blastp_cmd)
+  system2(blastp_cmd)
   message("BLASTp finished.")
 
   mapped <- readr::read_tsv("map2.out",
@@ -398,7 +398,7 @@ run_blast <- function(path_experimental_fasta_file, all = FALSE,
   tocheck <- mapped_exact %>% dplyr::filter(qProt != sProt & mismatch == 0)
   sure <- mapped_exact %>% dplyr::filter(qProt == sProt)
 
-  system("rm ./map2.out")
+  system2("rm ./map2.out")
 
   return(if (all) list(mapped = sure, tocheck = tocheck) else list(mapped = sure))
 }
@@ -420,7 +420,7 @@ run_blast <- function(path_experimental_fasta_file, all = FALSE,
 #'   q_ID = c("TP53-S15-mouse", "MYC-T22-mouse"),
 #'   s_ID = c("TP53-S15-human", "MYC-T22-human"),
 #'   UNIPROT = c("P04637", "P01106"),
-#'   ACTIVATION = c(1, -1)
+#'   ACTIVATION = c('1', '-1')
 #' )
 #'
 #' # Generate hybrid phosphosite database
@@ -430,11 +430,13 @@ run_blast <- function(path_experimental_fasta_file, all = FALSE,
 #' @export
 generate_hybrid_db <- function(mh_alignment, activatory) {
 
+  mh_alignment$UNIPROT <- NULL
+  mh_alignment$ACTIVATION <- as.character(mh_alignment$ACTIVATION)
   # Select the regulatory phosphosite database
   reg_phos_db <- if (activatory) get(data("good_phos_df_human_act")) else get(data("good_phos_df_human_all"))
 
   hybrid_db <- mh_alignment %>%
-    dplyr::inner_join(reg_phos_db, by = c("s_ID" = "PHOSPHO_KEY_GN_SEQ")) %>%
+    dplyr::inner_join(reg_phos_db, by = c("s_ID" = "PHOSPHO_KEY_GN_SEQ", 'ACTIVATION')) %>%
     dplyr::transmute(
       PHOSPHO_KEY_GN_SEQ = q_ID,
       PHOSPHO_KEY_GN_SEQ_human = s_ID,

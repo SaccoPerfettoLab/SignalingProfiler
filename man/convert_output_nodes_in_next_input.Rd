@@ -26,10 +26,9 @@ result (`run_carnival_and_create_graph()` output) to be used as input
 for subsequent analyses with CARNIVAL.
 }
 \examples{
-# Example CARNIVAL output (simplified)
-carnival_result <- data(toy_opt_result)
-
+# Example CARNIVAL output
+data('toy_opt_network')
 # Convert nodes into the next input format
-formatted_nodes <- convert_output_nodes_in_next_input(carnival_result)
+formatted_nodes <- convert_output_nodes_in_next_input(toy_opt_network)
 print(formatted_nodes)
 }

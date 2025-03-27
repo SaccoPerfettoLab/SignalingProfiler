@@ -19,6 +19,7 @@
 #' @export
 #'
 #' @examples
+#' data('PKN_human_atlas_dir')
 #' find_all_paths(v_start = 'FLT3',
 #'                v_end = 'TFEB',
 #'                max_length = 4,
@@ -136,7 +137,7 @@ find_all_paths <- function(v_start, v_end, PKN_table, max_length) {
             if (i == max_length) {
               return(NULL)
             } else{
-              i = i + 1
+              i <- i + 1
 
               entitya_4 <-
                 entitya[entitya %in% unique(interactors_3)]
@@ -224,6 +225,7 @@ find_all_paths <- function(v_start, v_end, PKN_table, max_length) {
 #' @export
 #'
 #' @examples
+#' data('PKN_human_atlas_dir')
 #' get_all_shortest_path_custom(
 #'   start_nodes_gn = c("FLT3", "KRAS"),
 #'   target_nodes_gn = c("STAT5A", "TFEB"),
@@ -266,15 +268,6 @@ get_all_shortest_path_custom <-
 #'
 #' @return An `igraph` object representing the network with all paths.
 #'
-#' @examples
-#' all_paths_df <- get_all_shortest_path_custom(start_nodes_gn=c('FLT3','KRAS'),
-#'                              target_nodes_gn=c('STAT5A', 'TFEB'),
-#'                              PKN_table=PKN_human_atlas_dir,
-#'                              max_length=4)
-#'
-#' create_graph_from_paths(all_paths_df=all_paths_df,
-#'                        PKN_table=PKN_human_atlas_dir,
-#'                        connect_all=TRUE)
 #'
 create_graph_from_paths <-
   function(all_paths_df, PKN_table, connect_all = TRUE) {
@@ -342,9 +335,6 @@ create_graph_from_paths <-
 #' @param PKN_table Data frame, Prior Knowledge Network of causal (signed and oriented) interactions.
 #'
 #' @return An `igraph` object representing the Prior Knowledge Network.
-#'
-#' @examples
-#' pkn_table_as_graph(PKN_table=PKN_human_atlas_dir)
 #'
 pkn_table_as_graph <- function(PKN_table) {
   nodes_df <-

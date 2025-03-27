@@ -29,6 +29,7 @@ Applies `find_all_paths` iteratively to find all paths between
 multiple starting (`start_nodes_gn`) and target (`target_nodes_gn`) nodes.
 }
 \examples{
+data('PKN_human_atlas_dir')
 get_all_shortest_path_custom(
   start_nodes_gn = c("FLT3", "KRAS"),
   target_nodes_gn = c("STAT5A", "TFEB"),

@@ -42,7 +42,7 @@ For `"mouse"`, kinase-substrate interactions (`with_atlas = TRUE`) are not suppo
 }
 \examples{
 # Retrieve human PKN in table format with direct interactions
-choose_database_for_building(organism='human',with_atlas=F,direct=T,custom=F,format='table')
+choose_database_for_building(organism='human',with_atlas=FALSE,direct=TRUE,custom=FALSE,format='table')
 
 # Retrieve mouse PKN as an igraph object (without kinase-substrate interactions)
 PKN_mouse <- choose_database_for_building(organism = "mouse", format = "igraph")

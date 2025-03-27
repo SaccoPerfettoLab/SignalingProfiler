@@ -44,18 +44,20 @@ NULL
 #'
 igraphToSif <- function(inGraph, outfile="output.sif", edgeLabel="label") {
 
-  if(file.exists(outfile)){file.remove(outfile)}
-
-  file_conn <- file(outfile, open="wt")
+  if (file.exists(outfile)) {
+    file.remove(outfile)
+  }
 
   edges <- igraph::as_edgelist(inGraph)
   attributes <- igraph::edge_attr(inGraph, edgeLabel)
 
-  for (i in 1:nrow(edges)) {
-    edge <- edges[i,]
+  lines <- character(nrow(edges))
+
+  for (i in seq_len(nrow(edges))) {
+    edge <- edges[i, ]
     attribute <- attributes[i]
-    cat(paste0(edge[1], '\t', attribute, '\t', edge[2],  '\n'), file = file_conn)
+    lines[i] <- paste(edge[1], attribute, edge[2], sep = "\t")
   }
 
-  close(file_conn)
+  writeLines(lines, con = outfile)
 }

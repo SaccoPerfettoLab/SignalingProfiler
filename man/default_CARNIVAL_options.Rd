@@ -15,6 +15,8 @@ Valid options are:
   \item `"cbc"` - Uses the CBC (Coin-or branch and cut) solver.
    \item `"gurobi"` - Uses Gurobi as the solver.
 }}
+
+\item{gurobi_path}{A string specifying the 'gurobi' solver path. To use only if gurobi is chosen.}
 }
 \value{
 A named list containing the default CARNIVAL parameters for the

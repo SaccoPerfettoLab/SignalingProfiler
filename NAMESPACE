@@ -2,6 +2,7 @@
 
 export("%>%")
 export(activity_from_proteomics)
+export(check_CARNIVAL_inputs)
 export(choose_PKN)
 export(choose_database_for_building)
 export(combine_activityscore_proteoscore)

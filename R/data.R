@@ -403,8 +403,6 @@ NULL
 #' @source
 #' Paths computed using the SIGNOR database (\url{https://signor.uniroma2.it}) and the ProxPath algorithm implemented in Python.
 #'
-#' @seealso \code{\link{signalingprofiler}}, \code{\link{reticulate}}, \code{\link{readr::read_tsv}}
-#'
 #' @examples
 #' data(phenoscore_distances_table)
 #' head(phenoscore_distances_table)
@@ -456,7 +454,7 @@ NULL
 #' }
 #'
 #' @examples
-#' DT::datatable(tr_toy_df, options = list(pageLength = 3))
+#' data('tr_toy_df')
 "tr_toy_df"
 
 #' Proteomics toy dataset
@@ -475,7 +473,7 @@ NULL
 #' }
 #'
 #' @examples
-#' DT::datatable(prot_toy_df, options = list(pageLength = 3))
+#' data('prot_toy_df')
 "prot_toy_df"
 
 #' Phosphoproteomics toy dataset
@@ -497,7 +495,7 @@ NULL
 #' }
 #'
 #' @examples
-#' DT::datatable(phospho_toy_df, options = list(pageLength = 3))
+#' data('phospho_toy_df')
 "phospho_toy_df"
 
 # ---------------------------------------------------------------------- #
@@ -576,7 +574,6 @@ NULL
 #'
 #' @examples
 #' data(toy_opt_network)
-#' igraph::plot(toy_opt_network$igraph_network)
 #' head(toy_opt_network$nodes_df)
 #' head(toy_opt_network$edges_df)
 "toy_opt_network"
@@ -606,7 +603,6 @@ NULL
 #' @examples
 #' data(toy_phenoscore_output)
 #' names(toy_phenoscore_output)
-#' toy_phenoscore_output$barplot
 "toy_phenoscore_output"
 
 #' Toy Signaling Network Output from PhenoScore Analysis
@@ -662,7 +658,6 @@ NULL
 #'
 #' @examples
 #' data(toy_sp_output)
-#' igraph::plot(toy_sp_output$igraph_network)
 #' head(toy_sp_output$nodes_df)
 #' head(toy_sp_output$edges_df)
 "toy_sp_output"

@@ -19,6 +19,7 @@ A `data.frame` containing UniProt metadata, including accession ID, protein name
 Queries the UniProt REST API to retrieve protein metadata for a given set of UniProt IDs.
 }
 \examples{
-result <- query_uniprot_proteins(ids=c("P12345", "Q9Y6X1", "A0A0B4J2D5"))
+result <- query_uniprot_proteins(id_input=c("P12345", "Q9Y6X1", "A0A0B4J2D5"))
+print(result)
 
 }

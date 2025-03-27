@@ -293,6 +293,8 @@ create_tfea_regulons <- function(resources, organism){
 #'                  Allowed values are `"SIGNOR"`, `"PsP"`, `"Omnipath"` and `"Atlas"` (to integrate Kinome-Atlas).
 #'                  Default is `c("SIGNOR", "Omnipath")`.
 #' @param organism Character string, either `"human"` or `"mouse"`, specifying the organism.
+#' @param reg_site_path Character. Path to the PhosphoSitePlus "Regulatory_sites" file.
+#' @param kin_sub_path Character. Path to the PhosphoSitePlus  "Kinases_Substrate_Dataset" file.
 #' @param omni_resources A character vector specifying the OmniPath sources to use.
 #'                       Default sources include `"PhosphoSite"`, `"SIGNOR"`, `"HPRD"`, `"DEPOD"`, and others.
 #'                       For a complete list, refer to the OmniPath documentation.
