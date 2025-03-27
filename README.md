@@ -32,7 +32,7 @@ SignalingProfiler is dependent on Saez lab algorithm CARNIVAL for performing the
 
 ## Tutorial
 
-The latest tutorial of *SignalingProfiler* is available [here](https://html-preview.github.io/?url=https://github.com/SaccoPerfettoLab/SignalingProfiler/blob/main/vignettes/SignalingProfiler_tutorial_Bioc.html).
+The latest tutorial of *SignalingProfiler* is available [here](https://html-preview.github.io/?url=https://github.com/SaccoPerfettoLab/SignalingProfiler/blob/dev/vignettes/SignalingProfiler_tutorial_Bioc.html).
 
 Old tutorials for human are available [here](https://html-preview.github.io/?url=https://github.com/SaccoPerfettoLab/SignalingProfiler/blob/dev/old_vignettes/SP_vignette_human.html) and [here](https://html-preview.github.io/?url=https://github.com/SaccoPerfettoLab/SignalingProfiler/blob/dev/SignalingProfiler-2.0-tutorial/SignalingProfiler-2.0-tutorial.html).
 
