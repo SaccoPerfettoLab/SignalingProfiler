@@ -1,4 +1,4 @@
-# SignalingProfiler <img src="./img/signaling_profiler_new.png" align="right" width="150" height="120"/>
+# SignalingProfiler <img src="./man/img/signaling_profiler_new.png" align="right" width="150" height="120"/>
 
 ## Overview
 
@@ -11,7 +11,7 @@ SignalingProfiler is a R based pipeline that integrates transcriptomics, proteom
 
 This network provides mechanistics hypoteses about the remodeling of the signal due to your case.
 
-# <img src="./img/SP_workflow_README.png" align="center"/>
+# <img src="./man/img/SP_workflow_README.png" align="center"/>
 
 ## Installation
 
