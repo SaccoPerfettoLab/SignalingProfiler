@@ -19,7 +19,3 @@ This function splits a string by underscores (`_`), sorts the elements
 alphabetically, removes duplicates, and then concatenates them back
 using an underscore separator.
 }
-\examples{
-split_and_sort("B_A_C_A") # Returns "A_B_C"
-split_and_sort(c("X_Y_Z", "C_A_B")) # Returns c("X_Y_Z", "A_B_C")
-}

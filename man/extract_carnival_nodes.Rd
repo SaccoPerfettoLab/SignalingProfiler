@@ -21,11 +21,7 @@ and formats it into a tibble with relevant attributes.
 }
 \examples{
 library(igraph)
+data('toy_opt_network')
+extract_carnival_nodes(toy_opt_network$igraph_network)
 
-g <- graph_from_data_frame(
-  data.frame(from = c("A", "B"), to = c("C", "D")),
-  directed = TRUE
-)
-
-extract_carnival_nodes(g)
 }

@@ -22,11 +22,11 @@
 #' @export
 #'
 #' @examples
-#' data('toy_prot_df')
-#' data('toy_phospho_df')
+#' data('prot_toy_df')
+#' data('phospho_toy_df')
 #'
-#' signor_network <- phenoscore_network_preprocessing(proteomics_data = toy_prot_df,
-#'                                                    phospho_data = toy_phos_df)
+#' signor_network <- phenoscore_network_preprocessing(proteomics = prot_toy_df,
+#'                                                    phospho = phospho_toy_df)
 phenoscore_network_preprocessing <- function(proteomics, phospho,
                                              local = FALSE){
 

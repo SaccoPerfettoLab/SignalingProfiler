@@ -28,6 +28,7 @@ a starting node (`v_start`) and a target node (`v_end`) in a tabular
 Prior Knowledge Network (`PKN_table`).
 }
 \examples{
+data('PKN_human_atlas_dir')
 find_all_paths(v_start = 'FLT3',
                v_end = 'TFEB',
                max_length = 4,

@@ -44,7 +44,7 @@ This function runs the VIPER analysis for transcription factor or kinase activit
 }
 \examples{
 # Run Transcription Factor Enrichment Analysis
-viper_format <- create_viper_format(omic_data = tr_toy_df, analysis = 'tfea', significant = F)
+viper_format <- create_viper_format(omic_data = tr_toy_df, analysis = 'tfea', significance = FALSE)
 results <- run_viper(viper_format = viper_format,
                      analysis = "tfea",
                      organism = "human",

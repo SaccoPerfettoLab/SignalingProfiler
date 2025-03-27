@@ -22,6 +22,6 @@ from MCF7 cell lines upon metformin treatment (metformin vs control) (PMID: 2713
 This dataset is structured to be compatible with SignalingProfiler.
 }
 \examples{
-DT::datatable(tr_toy_df, options = list(pageLength = 3))
+data('tr_toy_df')
 }
 \keyword{datasets}

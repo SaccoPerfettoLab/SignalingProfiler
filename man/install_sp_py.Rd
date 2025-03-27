@@ -30,6 +30,8 @@ are installed in the specified virtual environment. If `new_env` is `TRUE`,
 the function first removes any existing virtual environment with the same name before proceeding.
 }
 \examples{
+\donttest{
 install_sp_py()
 install_sp_py(envname = "custom-env", new_env = FALSE)
+}
 }

@@ -19,11 +19,10 @@
 #' @export
 #'
 #' @examples
-#' # Example CARNIVAL output (simplified)
-#' carnival_result <- data(toy_opt_result)
-#'
+#' # Example CARNIVAL output
+#' data('toy_opt_network')
 #' # Convert nodes into the next input format
-#' formatted_nodes <- convert_output_nodes_in_next_input(carnival_result)
+#' formatted_nodes <- convert_output_nodes_in_next_input(toy_opt_network)
 #' print(formatted_nodes)
 convert_output_nodes_in_next_input <- function(carnival_result){
   if (!"nodes_df" %in% names(carnival_result)) {
@@ -62,19 +61,11 @@ convert_output_nodes_in_next_input <- function(carnival_result){
 #'
 #' @examples
 #' # Example CARNIVAL outputs (simplified)
-#' graph_1 <- igraph::graph_from_data_frame(
-#'   data.frame(source = c("A", "B"), target = c("C", "D")),
-#'   directed = TRUE
-#' )
-#'
-#' graph_2 <- igraph::graph_from_data_frame(
-#'   data.frame(source = c("E", "F"), target = c("C", "G")),
-#'   directed = TRUE
-#' )
+#' graph_1 <- toy_opt_network$igraph_network
+#' graph_2 <-  toy_opt_network$igraph_network
 #'
 #' proteins_df <- tibble::tibble(
 #'   gene_name = c("A", "B", "C", "D", "E", "F", "G"),
-#'   carnival_activity = c(1.2, -0.5, 0.8, -0.7, 1.0, -1.2, 0.5),
 #'   UNIPROT = c("P12345", "P67890", "Q12345", "Q67890", "R12345", "R67890", "S12345"),
 #'   mf = c("tf", "kin", "tf", "kin", "tf", "kin", "tf"),
 #'   final_score = c(1.1, -0.4, 0.9, -0.6, 0.8, -1.0, 0.3),
@@ -83,7 +74,6 @@ convert_output_nodes_in_next_input <- function(carnival_result){
 #'
 #' # Merge graphs
 #' merged_network <- union_of_graphs(graph_1, graph_2, proteins_df, files = FALSE)
-#' print(merged_network)
 union_of_graphs <- function(graph_1,
                             graph_2,
                             proteins_df,

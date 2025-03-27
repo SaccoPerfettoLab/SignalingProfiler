@@ -31,27 +31,34 @@ License: GPL-3
 Encoding: UTF-8
 LazyData: false
 RoxygenNote: 7.3.2
-VignetteBuilder: knitr
-Imports: 
+BugReports: https://github.com/SaccoPerfettoLab/SignalingProfiler/issues
+VignetteBuilder: knitr, rmarkdown, BiocStyle
+Imports:
     CARNIVAL,
     cosmosR,
     decoupleR,
     dorothea,
     dplyr,
+    forcats,
+    ggplot2,
+    httr,
     igraph,
     lpSolve,
     magrittr,
+    OmnipathR,
     plyr,
+    purrr,
     readr,
     reticulate,
     RVenn,
     stringr,
     tibble,
-    UniprotR,
+    tidyr,
     viper
 SystemRequirements: python3, blastp, ILP solver (cplex, gurobi)
 Suggests: 
     knitr,
-    rmarkdown
-biocViews: NetworkInference, GeneExpression, Proteomics, Epigenetics, Transcriptomics, Transcription, GeneRegulation, Annotation
+    rmarkdown,
+    BiocStyle
+biocViews: NetworkInference, GeneExpression, Proteomics, Epigenetics, Transcriptomics, Transcription, GeneRegulation, Annotation, DifferentialExpression, Network
 

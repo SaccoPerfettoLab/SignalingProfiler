@@ -20,14 +20,3 @@ An `igraph` object representing the network with all paths.
 Converts a data frame of interactions (`all_paths_df`) into an `igraph` object,
 optionally adding direct one-step connections between intermediate nodes.
 }
-\examples{
-all_paths_df <- get_all_shortest_path_custom(start_nodes_gn=c('FLT3','KRAS'),
-                             target_nodes_gn=c('STAT5A', 'TFEB'),
-                             PKN_table=PKN_human_atlas_dir,
-                             max_length=4)
-
-create_graph_from_paths(all_paths_df=all_paths_df,
-                       PKN_table=PKN_human_atlas_dir,
-                       connect_all=TRUE)
-
-}

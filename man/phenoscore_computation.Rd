@@ -93,6 +93,6 @@ desired_phenotypes <- c("APOPTOSIS", "PROLIFERATION")
 
 results <- phenoscore_computation(proteins_df = toy_opt_network$nodes_df,
                                   desired_phenotypes = c('APOPTOSIS', 'PROLIFERATION'),
-                                  sp_graph = toy_opt_network,
+                                  sp_graph = toy_opt_network$igraph_network,
                                   create_pheno_network = TRUE)
 }

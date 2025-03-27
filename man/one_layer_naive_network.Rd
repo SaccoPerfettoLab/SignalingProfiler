@@ -50,6 +50,6 @@ The function:
 - Optionally saves the network as an RDS file (`rds_path`) and in SIF format (`sif_path`).
 }
 \examples{
-PKN = choose_database_for_building(organism='mouse',with_atlas=F,direct=T,custom=F,format='table')
+PKN = choose_database_for_building(organism='mouse',with_atlas=FALSE,direct=TRUE,custom=FALSE,format='table')
 one_layer_naive_network(starts_gn=c('Flt3'), targets_gn=c('Mapk1', 'Mapk3','Stat5a'),PKN_table=PKN,max_length=4)
 }

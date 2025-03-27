@@ -22,6 +22,10 @@ Default is `c("SIGNOR", "Omnipath")`.}
 
 \item{organism}{Character string, either `"human"` or `"mouse"`, specifying the organism.}
 
+\item{reg_site_path}{Character. Path to the PhosphoSitePlus "Regulatory_sites" file.}
+
+\item{kin_sub_path}{Character. Path to the PhosphoSitePlus  "Kinases_Substrate_Dataset" file.}
+
 \item{omni_resources}{A character vector specifying the OmniPath sources to use.
 Default sources include `"PhosphoSite"`, `"SIGNOR"`, `"HPRD"`, `"DEPOD"`, and others.
 For a complete list, refer to the OmniPath documentation.}

@@ -21,7 +21,7 @@ them into a Prior Knowledge Network (PKN).
 }
 \details{
 The function:
-- **Retrieves interactions** from OmniPath using `OmnipathR::import_omnipath_interactions()`.
+- **Retrieves interactions** from OmniPath using `OmnipathR::omnipath_interactions()`.
 - **Filters and formats interactions** into a SIGNOR-like structure.
 - **Handles molecular complexes**, mapping them using SIGNOR internal data.
 - **Resolves complex interactions** into individual protein-protein relationships.
@@ -30,14 +30,9 @@ If `file_path` is provided, the resulting table is saved as a `.tsv` file.
 }
 \examples{
 # Retrieve and process OmniPath interactions
-omni_data <- omnipath_parsing(resources = c("SignaLink", "DOROTHEA"))
-
-# Save parsed results to a specific file path
-omnipath_parsing(
-  resources = c("SignaLink", "DOROTHEA"),
-  file_path = "./output/")
+omni_data <- omnipath_parsing(resources = c("SIGNOR", "SignaLink3"))
 
 }
 \seealso{
-[OmnipathR::import_omnipath_interactions]
+[OmnipathR::omnipath_interactions]
 }

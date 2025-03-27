@@ -9,10 +9,6 @@
 #'
 #' @return A character vector where each element is sorted and unique,
 #'   joined by underscores (`_`).
-#'
-#' @examples
-#' split_and_sort("B_A_C_A") # Returns "A_B_C"
-#' split_and_sort(c("X_Y_Z", "C_A_B")) # Returns c("X_Y_Z", "A_B_C")
 split_and_sort <- function(x) {
   x <- strsplit(x, "_")
   lapply(x, function(y) paste(sort(unique(y)), collapse = "_"))
@@ -34,13 +30,9 @@ split_and_sort <- function(x) {
 #'
 #' @examples
 #' library(igraph)
-#'
-#' g <- graph_from_data_frame(
-#'   data.frame(from = c("A", "B"), to = c("C", "D")),
-#'   directed = TRUE
-#' )
-#'
-#' extract_carnival_nodes(g)
+#' data('toy_opt_network')
+#' extract_carnival_nodes(toy_opt_network$igraph_network)
+#' 
 extract_carnival_nodes <- function(graph) {
   igraph::as_data_frame(graph, what = "vertices") %>%
     tibble::as_tibble() %>%
@@ -62,13 +54,8 @@ extract_carnival_nodes <- function(graph) {
 #'
 #' @examples
 #' library(igraph)
-#'
-#' g <- graph_from_data_frame(
-#'   data.frame(from = c("A", "B"), to = c("C", "D")),
-#'   directed = TRUE
-#' )
-#'
-#' extract_carnival_edges(g)
+#' data('toy_opt_network')
+#' extract_carnival_edges(toy_opt_network$igraph_network)
 extract_carnival_edges <- function(graph) {
   igraph::as_data_frame(graph, what = "edges") %>%
     tibble::as_tibble()

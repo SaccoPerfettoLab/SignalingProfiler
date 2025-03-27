@@ -62,6 +62,7 @@ If `direct = TRUE`, only direct interactions (or indirect stimulus/phenotype rel
 If `file_path` is provided, the function saves the output as an `.rds` file.
 }
 \examples{
+\dontrun{
 # Create a human PKN integrating SIGNOR and PsP
 pkn_data <- create_PKN(database = c("SIGNOR", "PsP", "SerThr_Atlas"))
 
@@ -76,7 +77,7 @@ pkn_mouse <- create_PKN(
 create_PKN(
   database = c("SIGNOR", "Omnipath", "PsP"),
   file_path = "output/pkn_network.rds")
-
+}
 }
 \seealso{
 [signor_parsing], [omnipath_parsing], [psp_parsing]

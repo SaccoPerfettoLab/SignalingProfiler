@@ -16,7 +16,3 @@ An `igraph` object representing the Prior Knowledge Network.
 Transforms a tabular Prior Knowledge Network (`PKN_table`) into an
 `igraph` object, creating nodes and edges with SIGNOR-compliant attributes
 }
-\examples{
-pkn_table_as_graph(PKN_table=PKN_human_atlas_dir)
-
-}

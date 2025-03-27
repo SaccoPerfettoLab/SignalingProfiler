@@ -19,11 +19,6 @@ and returns it as a tibble.
 }
 \examples{
 library(igraph)
-
-g <- graph_from_data_frame(
-  data.frame(from = c("A", "B"), to = c("C", "D")),
-  directed = TRUE
-)
-
-extract_carnival_edges(g)
+data('toy_opt_network')
+extract_carnival_edges(toy_opt_network$igraph_network)
 }

@@ -20,8 +20,10 @@
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' install_sp_py()
 #' install_sp_py(envname = "custom-env", new_env = FALSE)
+#' }
 install_sp_py <- function(envname = "r-signalingprofiler",
                           new_env = identical(envname, "r-signalingprofiler")) {
 

@@ -59,7 +59,6 @@ intermediate nodes, and phenotypic endpoints, and serves as a reference for inte
 }
 \examples{
 data(toy_sp_output)
-igraph::plot(toy_sp_output$igraph_network)
 head(toy_sp_output$nodes_df)
 head(toy_sp_output$edges_df)
 }

@@ -58,7 +58,6 @@ interpret this proteic network use it as input for #' \code{phenoscore_computati
 }
 \examples{
 data(toy_opt_network)
-igraph::plot(toy_opt_network$igraph_network)
 head(toy_opt_network$nodes_df)
 head(toy_opt_network$edges_df)
 }

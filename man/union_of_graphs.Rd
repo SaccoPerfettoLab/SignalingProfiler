@@ -40,19 +40,11 @@ and computes the union of the networks while resolving duplicate nodes and edges
 }
 \examples{
 # Example CARNIVAL outputs (simplified)
-graph_1 <- igraph::graph_from_data_frame(
-  data.frame(source = c("A", "B"), target = c("C", "D")),
-  directed = TRUE
-)
-
-graph_2 <- igraph::graph_from_data_frame(
-  data.frame(source = c("E", "F"), target = c("C", "G")),
-  directed = TRUE
-)
+graph_1 <- toy_opt_network$igraph_network
+graph_2 <-  toy_opt_network$igraph_network
 
 proteins_df <- tibble::tibble(
   gene_name = c("A", "B", "C", "D", "E", "F", "G"),
-  carnival_activity = c(1.2, -0.5, 0.8, -0.7, 1.0, -1.2, 0.5),
   UNIPROT = c("P12345", "P67890", "Q12345", "Q67890", "R12345", "R67890", "S12345"),
   mf = c("tf", "kin", "tf", "kin", "tf", "kin", "tf"),
   final_score = c(1.1, -0.4, 0.9, -0.6, 0.8, -1.0, 0.3),
@@ -61,5 +53,4 @@ proteins_df <- tibble::tibble(
 
 # Merge graphs
 merged_network <- union_of_graphs(graph_1, graph_2, proteins_df, files = FALSE)
-print(merged_network)
 }

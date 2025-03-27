@@ -23,7 +23,11 @@ the receptors (source nodes) that are present in the naive network.
 naive_network <- data.frame(source = c('MTOR', 'MTOR'), interaction = c(1, -1), target = c('ATM', 'CDK2'))
 
 # Example source dataframe
-data('toy_carnival_input')
+toy_carnival_input <- data.frame(UNIPROT = c('P42345', 'SIGNOR-C15', 'P31749', 'P15336'),
+          gene_name = c('MTOR', 'AMPK', 'AKT1', 'ATF2'),
+          mf = c('rec', 'rec', 'kin', 'tf'),
+          method = c('user', 'user', 'VIPER', 'VIPER'),
+          final_score = c(-1, 1, -2.64, 4.48))
 source_df <- toy_carnival_input \%>\% dplyr::filter(mf == 'rec')
 
 # Filter source nodes present in naive network

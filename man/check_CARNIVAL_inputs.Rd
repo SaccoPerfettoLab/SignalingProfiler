@@ -40,7 +40,12 @@ inferred protein data, and organism type.
 }
 \examples{
 # Example dataset of perturbations (source nodes)
-data('toy_carnival_input')
+toy_carnival_input <- data.frame(UNIPROT = c('P42345', 'SIGNOR-C15', 'P31749', 'P15336'),
+          gene_name = c('MTOR', 'AMPK', 'AKT1', 'ATF2'),
+          mf = c('rec', 'rec', 'kin', 'tf'),
+          method = c('user', 'user', 'VIPER', 'VIPER'),
+          final_score = c(-1, 1, -2.64, 4.48))
+          
 source_df <- toy_carnival_input \%>\% dplyr::filter(mf == 'rec')
 
 # Example dataset of targets (continuous values)
@@ -50,9 +55,9 @@ target_df <- toy_carnival_input \%>\% dplyr::filter(mf \%in\% c('kin', 'phos', '
 naive_network <- data.frame(source = c('MTOR', 'AMPK'), interaction = c(1, -1), target = c('ATM', 'CDK2'))
 
 # Example inferred protein dataset
+data(toy_prot_activity_df)
 proteins_df <- toy_prot_activity_df
 
 # Run validation
 check_CARNIVAL_inputs(source_df, target_df, naive_network, proteins_df, organism = "human")
-
 }

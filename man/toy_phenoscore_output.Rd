@@ -30,7 +30,6 @@ This object illustrates the structure and content of the typical output generate
 \examples{
 data(toy_phenoscore_output)
 names(toy_phenoscore_output)
-toy_phenoscore_output$barplot
 }
 \seealso{
 \code{\link{phenoscore_computation}}, \code{\link{toy_sp_output}}

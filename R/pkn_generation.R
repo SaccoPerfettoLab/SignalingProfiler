@@ -45,6 +45,7 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Create a human PKN integrating SIGNOR and PsP
 #' pkn_data <- create_PKN(database = c("SIGNOR", "PsP", "SerThr_Atlas"))
 #'
@@ -59,7 +60,8 @@
 #' create_PKN(
 #'   database = c("SIGNOR", "Omnipath", "PsP"),
 #'   file_path = "output/pkn_network.rds")
-#'
+#' }
+
 create_PKN <- function(database = c("SIGNOR", "Omnipath", "PsP", "SerThr_Atlas"),
                        organism = "human",
                        direct = FALSE,

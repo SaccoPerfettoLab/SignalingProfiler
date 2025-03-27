@@ -60,7 +60,7 @@
 #'
 #' results <- phenoscore_computation(proteins_df = toy_opt_network$nodes_df,
 #'                                   desired_phenotypes = c('APOPTOSIS', 'PROLIFERATION'),
-#'                                   sp_graph = toy_opt_network,
+#'                                   sp_graph = toy_opt_network$igraph_network,
 #'                                   create_pheno_network = TRUE)
 phenoscore_computation <- function(proteins_df,
                                    desired_phenotypes = NULL,
@@ -75,7 +75,7 @@ phenoscore_computation <- function(proteins_df,
                                    node_idx = FALSE,
                                    use_carnival_activity = FALSE,
                                    create_pheno_network = TRUE){
-
+  
   # Determine organism type based on gene naming convention
   if (sum(proteins_df$gene_name == stringr::str_to_title(proteins_df$gene_name)) == nrow(proteins_df)) {
     organism_type <- 'mouse'
@@ -118,6 +118,12 @@ phenoscore_computation <- function(proteins_df,
       dplyr::filter(!is.na(final_score))
   }
 
+  # Use full phenotype distances table if none is provided
+  if (is.null(pheno_distances_table)) {
+    message('No custom pheno_distance_table provided. Using full dataset without path filtering.')
+    pheno_distances_table <- get(data('phenoscore_distances_table'))
+  }
+  
   # If desired_phenotypes is NULL, use all available phenotypes
   if (is.null(desired_phenotypes)) {
     message('No desired_phenotypes specified. Using all available phenotypes.')
@@ -128,12 +134,6 @@ phenoscore_computation <- function(proteins_df,
   # BUILD PATHS TABLE OF SIGNIFICANTLY CLOSE PROTEINS TO PHENOTYPES #
   ##############################################################################
   message('Building significant paths to phenotypes table')
-
-  # Use full phenotype distances table if none is provided
-  if (is.null(pheno_distances_table)) {
-    message('No custom pheno_distance_table provided. Using full dataset without path filtering.')
-    pheno_distances_table <- get(data('phenoscore_distances_table'))
-  }
 
   # Clean phenotype distance table by replacing non-alphanumeric characters
   pheno_distances_table <- pheno_distances_table %>%
@@ -154,7 +154,7 @@ phenoscore_computation <- function(proteins_df,
   path_summary <- filtered_paths %>%
     dplyr::filter(Effect != "-") %>%
     dplyr::group_by(EndPathways, Effect) %>%
-    dplyr::summarise(n = n(),
+    dplyr::summarise(n = dplyr::n(),
                      mean = mean(Path_Score),
                      median = median(Path_Score),
                      sd = sd(Path_Score),
