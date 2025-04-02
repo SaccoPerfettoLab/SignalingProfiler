@@ -39,8 +39,6 @@ An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) w
 
 An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 27850 rows and 3 columns.
 
-An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 3408648 rows and 3 columns.
-
 An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 22317 rows and 3 columns.
 }
 \source{
@@ -61,8 +59,6 @@ tfea_db_mouse
 tfea_db_mouse_collectri
 
 ksea_db_human
-
-ksea_db_human_atlas
 
 ksea_db_mouse
 }
