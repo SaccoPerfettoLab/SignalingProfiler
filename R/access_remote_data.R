@@ -29,7 +29,7 @@ access_remote_file <- function(file, dir){
   response <- httr::GET(file_path)
   
   if (httr::status_code(response) == 200) {
-    return(readr::read_tsv(httr::content(response, "text"),show_col_types = F))
+    return(readr::read_tsv(httr::content(response, "text"),show_col_types = FALSE))
   } else {
     stop(paste("Unable to download from PerfettoLabServer:", file))
   }
