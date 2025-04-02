@@ -36,7 +36,7 @@ link_phenotypes_to_network <- function(phenotype_regulators, phenoscore_df, sp_g
 
   # Create a phenotype table in SignalingProfiler compliant format
 
-  pheno_nodes <- tidyr::tibble(gene_name = stringr::str_replace_all(str_to_upper(phenoscore_df$EndPathways), "[^[:alnum:]]", '_'),
+  pheno_nodes <- tidyr::tibble(gene_name = stringr::str_replace_all(stringr::str_to_upper(phenoscore_df$EndPathways), "[^[:alnum:]]", '_'),
                                carnival_activity = NA,
                                final_score = phenoscore_df$phenoscore,
                                method = 'phenoscore',

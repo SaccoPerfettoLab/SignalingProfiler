@@ -53,6 +53,7 @@
 #'
 #' @examples
 #' # Example dataset
+#' library(ggplot2)
 #' data('prot_toy_df')
 #' data('phospho_toy_df')
 #' data('toy_opt_network')
@@ -359,12 +360,12 @@ phenoscore_computation <- function(proteins_df,
     ggplot2::ylab("phenotype modulation") +
     ggplot2::xlab("") +
     ggplot2::theme_bw()+
-    theme(legend.title = element_blank(),
+    ggplot2::theme(legend.title = element_blank(),
           legend.position = 'none',
-          plot.title=element_text(hjust = 0.5),
-          panel.grid.minor = element_blank(),
-          axis.text.y = element_text( size = 14, face = 'bold'),
-          axis.text.x=element_text(size=10, angle=0, vjust=0.5, hjust=0.5))+
+          plot.title= ggplot2::element_text(hjust = 0.5),
+          panel.grid.minor = ggplot2::element_blank(),
+          axis.text.y = ggplot2::element_text( size = 14, face = 'bold'),
+          axis.text.x= ggplot2::element_text(size=10, angle=0, vjust=0.5, hjust=0.5))+
     ggplot2::coord_flip()
 
   if(organism_type == 'mouse'){
