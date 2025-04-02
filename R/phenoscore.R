@@ -188,7 +188,7 @@ phenoscore_computation <- function(proteins_df,
   # Count the number of activating/inhibiting paths on each phenotype
   enrichment_results <- path_data %>%
     dplyr::group_by(EndPathways, Effect) %>%
-    dplyr::summarise(total_paths = n(), .groups = "drop")
+    dplyr::summarise(total_paths = dplyr::n(), .groups = "drop")
 
   # Perform randomization for statistical significance
   random_distributions <- tibble::tibble()
