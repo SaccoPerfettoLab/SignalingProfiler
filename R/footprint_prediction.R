@@ -272,7 +272,7 @@ run_hypergeometric_test <- function(omic_data, viper_output,
         get(data("tfea_db_mouse"))
       },
       "ksea" = if (organism == "human") {
-        if (integrated_regulons) get(data("ksea_db_human_atlas")) else get(data("ksea_db_human"))
+        if (integrated_regulons) access_remote_file(file = 'ksea_db_human_atlas.tsv', dir = 'PKN') else get(data("ksea_db_human"))
       } else {
         get(data("ksea_db_mouse"))
       }

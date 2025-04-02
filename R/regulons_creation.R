@@ -358,15 +358,9 @@ create_ksea_regulons <- function(resources = c('SIGNOR', 'PsP', 'Omnipath'),
       warning('Atlas was not integrated because organism is mouse!')
     }else {
       message('Integrating Serine/Threonine and Tyrosine Kinome Atlas')
-
-      # Define path for package resources, in this case take it from server
-      path_file <- ifelse(local == TRUE,
-                          './data-raw/yaffe_integration/',
-                          paste0(.libPaths()[1], '/SignalingProfiler/'))
-
-      # Load Kinome Atlas dataset
-      regulons_list[[length(regulons_list)+1]] <- readr::read_tsv(paste0(path_file, 'yaffe_regulons_ksea_STY.tsv'),
-                                                                  show_col_types = FALSE)
+      
+      # Access Kinome Atlas dataset on PerfettoLab Server
+      regulons_list[[length(regulons_list)+1]] <- access_remote_file(file =  'atlas_ksea_regulons_STY.tsv', dir = 'PKN')
     }
   }
 

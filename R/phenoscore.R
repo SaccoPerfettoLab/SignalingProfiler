@@ -121,7 +121,7 @@ phenoscore_computation <- function(proteins_df,
   # Use full phenotype distances table if none is provided
   if (is.null(pheno_distances_table)) {
     message('No custom pheno_distance_table provided. Using full dataset without path filtering.')
-    pheno_distances_table <- get(data('phenoscore_distances_table'))
+    pheno_distances_table <- access_remote_file(file = 'phenoscore_distances_table.tsv', dir = 'PKN')
   }
   
   # If desired_phenotypes is NULL, use all available phenotypes

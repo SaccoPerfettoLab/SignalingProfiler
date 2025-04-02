@@ -202,8 +202,8 @@ integrate_atlas_in_pkn <- function(reg_site_path,
                          paste0(.libPaths()[1], '/SignalingProfiler/'))
 
   # Load Kinome Atlas dataset
-  kinome_atlas_regulons <- readr::read_tsv(paste0(path_package, 'extdata/SerThrAtlas_PsP_regulons_filtered_99.tsv'),
-                                           show_col_types = FALSE)
+  kinome_atlas_regulons <- access_remote_file(file = 'SerThrAtlas_PsP_regulons_filtered_99.tsv', dir = 'PKN')
+                                          
   kinome_atlas_regulons$target <- NULL
   colnames(kinome_atlas_regulons) <- c('KIN_ACC_ID', 'KINASE', 'kin_percentile', 'SUB_ACC_ID',
                                        'SUB_GENE', 'sub_promiscuity_index',
