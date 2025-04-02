@@ -58,7 +58,7 @@ link_phenotypes_to_network <- function(phenotype_regulators, phenoscore_df, sp_g
   node_df_pheno <- dplyr::bind_rows(nodes_df, pheno_nodes) %>%
     dplyr::distinct()
 
-  pheno_edges <- phenotype_regulators %>% dplyr::mutate(target = stringr::str_replace_all(str_to_upper(target), "[^[:alnum:]]", '_'))
+  pheno_edges <- phenotype_regulators %>% dplyr::mutate(target = stringr::str_replace_all(stringr::str_to_upper(target), "[^[:alnum:]]", '_'))
   pheno_edges <- tidyr::tibble(target = pheno_edges$target,
                                sign = as.character(pheno_edges$sign),
                                source = pheno_edges$source,
