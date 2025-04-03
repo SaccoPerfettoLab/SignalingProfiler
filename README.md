@@ -15,7 +15,7 @@ This network provides mechanistics hypoteses about the remodeling of the signal 
 
 ## Installation
 
-To install Signaling Profiler execute the following command in R.
+To install SignalingProfiler execute the following command in R.
 
 R \>= 4.1 is required
 
