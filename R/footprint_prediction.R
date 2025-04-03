@@ -117,6 +117,7 @@ create_matrix_from_VIPER_format <- function(viper_format) {
 #'
 #' @examples
 #' # Run Transcription Factor Enrichment Analysis
+#' data('tr_toy_df')
 #' viper_format <- create_viper_format(omic_data = tr_toy_df, analysis = 'tfea', significance = FALSE)
 #' results <- run_viper(viper_format = viper_format,
 #'                      analysis = "tfea",

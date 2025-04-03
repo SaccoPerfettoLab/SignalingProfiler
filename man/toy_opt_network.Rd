@@ -57,7 +57,7 @@ signaling flow withing the cells modelled through causal signaling paths. To fun
 interpret this proteic network use it as input for #' \code{phenoscore_computation()}.
 }
 \examples{
-data(toy_opt_network)
+data('toy_opt_network')
 head(toy_opt_network$nodes_df)
 head(toy_opt_network$edges_df)
 }

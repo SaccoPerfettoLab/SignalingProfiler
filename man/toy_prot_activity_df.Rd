@@ -25,6 +25,7 @@ from transcriptomics, proteomics, and phosphoproteomics datasets
 of MCF7 cell lines upon metformin treatment (PMID:  27135362).
 }
 \examples{
+data('toy_prot_activity_df')
 head(toy_prot_activity_df)
 }
 \keyword{datasets}

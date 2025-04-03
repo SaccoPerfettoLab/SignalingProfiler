@@ -40,6 +40,7 @@ and computes the union of the networks while resolving duplicate nodes and edges
 }
 \examples{
 # Example CARNIVAL outputs (simplified)
+data('toy_opt_network')
 graph_1 <- toy_opt_network$igraph_network
 graph_2 <-  toy_opt_network$igraph_network
 

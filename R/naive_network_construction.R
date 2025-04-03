@@ -419,6 +419,7 @@ three_layer_naive_network <- function(starts_gn,
 #'
 #' @examples
 #' # Load example data
+#' library(igraph)
 #' data('toy_prot_activity_df')
 #'
 #' # Define a receptor list with a desired activity value
@@ -426,7 +427,7 @@ three_layer_naive_network <- function(starts_gn,
 #' 
 #' # Create a toy igraph object as naive network
 #' naive_network <- data.frame(source = c('MTOR', 'AMPK'), target = c('ATF2', 'MYCN'), sign = c(1, -1))
-#' two_layers_toy <- graph_from_data_frame(naive_network)
+#' two_layers_toy <- igraph::graph_from_data_frame(naive_network)
 #' 
 #' carnival_input_toy <- prepare_carnival_input(two_layers_toy, 
 #'                                             toy_prot_activity_df, 

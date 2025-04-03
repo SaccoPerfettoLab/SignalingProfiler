@@ -23,6 +23,7 @@
 #' data('tr_toy_df')
 #' data('prot_toy_df')
 #' data('phospho_toy_df')
+#' data('PKN_human_atlas_dir')
 #' omics_list <- list(tr_toy_df, prot_toy_df, phospho_toy_df)
 #' filtered_PKN <- preprocess_PKN(omics_data = omics_list, PKN_table = PKN_human_atlas_dir)
 #'

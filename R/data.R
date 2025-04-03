@@ -396,8 +396,6 @@ NULL
 #' This summary allows users to explore the coverage of phenotype annotations in the dataset,
 #' and can guide selection of phenotypes for enrichment or proximity scoring analyses.
 #'
-#' @seealso \code{\link{phenoscore_distances_table}}
-#'
 #' @examples
 #' data(proxpath_phenotypes)
 #' head(proxpath_phenotypes)
@@ -487,6 +485,7 @@ NULL
 #'   \item{`UNIPROT`}{The UniProt ID of the inferred protein.}
 #' }
 #' @examples
+#' data('toy_prot_activity_df')
 #' head(toy_prot_activity_df)
 "toy_prot_activity_df"
 
@@ -541,7 +540,7 @@ NULL
 #' @seealso \code{\link{run_carnival_and_create_graph}}, \code{\link{two_layer_naive_network}}
 #'
 #' @examples
-#' data(toy_opt_network)
+#' data('toy_opt_network')
 #' head(toy_opt_network$nodes_df)
 #' head(toy_opt_network$edges_df)
 "toy_opt_network"
@@ -569,7 +568,7 @@ NULL
 #' @seealso \code{\link{phenoscore_computation}}, \code{\link{toy_sp_output}}
 #'
 #' @examples
-#' data(toy_phenoscore_output)
+#' data('toy_phenoscore_output')
 #' names(toy_phenoscore_output)
 "toy_phenoscore_output"
 
@@ -625,7 +624,7 @@ NULL
 #' @seealso \code{\link{toy_phenoscore_output}}, \code{\link{phenoscore_computation}}
 #'
 #' @examples
-#' data(toy_sp_output)
+#' data('toy_sp_output')
 #' head(toy_sp_output$nodes_df)
 #' head(toy_sp_output$edges_df)
 "toy_sp_output"

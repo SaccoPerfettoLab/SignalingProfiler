@@ -40,7 +40,4 @@ and can guide selection of phenotypes for enrichment or proximity scoring analys
 data(proxpath_phenotypes)
 head(proxpath_phenotypes)
 }
-\seealso{
-\code{\link{phenoscore_distances_table}}
-}
 \keyword{datasets}

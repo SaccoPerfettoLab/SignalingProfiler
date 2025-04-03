@@ -58,7 +58,7 @@ intermediate nodes, and phenotypic endpoints, and serves as a reference for inte
 \code{phenoscore_computation()}
 }
 \examples{
-data(toy_sp_output)
+data('toy_sp_output')
 head(toy_sp_output$nodes_df)
 head(toy_sp_output$edges_df)
 }

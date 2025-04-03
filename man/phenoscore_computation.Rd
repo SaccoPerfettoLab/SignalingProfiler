@@ -86,6 +86,7 @@ This function performs the following steps:
 }
 \examples{
 # Example dataset
+library(ggplot2)
 data('prot_toy_df')
 data('phospho_toy_df')
 data('toy_opt_network')
