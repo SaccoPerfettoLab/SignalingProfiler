@@ -373,7 +373,7 @@ run_blast <- function(path_experimental_fasta_file, all = FALSE,
     " -out map2.out -outfmt 7 -evalue 0.05"
   )
 
-  system2(blastp_cmd)
+  system(blastp_cmd)
   message("BLASTp finished.")
 
   mapped <- readr::read_tsv("map2.out",
