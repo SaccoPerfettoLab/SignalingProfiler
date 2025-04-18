@@ -366,14 +366,18 @@ run_blast <- function(path_experimental_fasta_file, all = FALSE,
   path_package <- if (local) "./" else paste0(.libPaths()[1], "/SignalingProfiler/")
   reference_db <- paste0(path_package, "extdata/human_phosphosites_db.fasta")
 
-  blastp_cmd <- paste0(
-    if (!is.null(blastp_path)) paste0("\"", blastp_path, "\" ") else "blastp ",
-    "-query ", path_experimental_fasta_file,
-    " -subject ", reference_db,
-    " -out map2.out -outfmt 7 -evalue 0.05"
+  command <- if (!is.null(blastp_path)) blastp_path else "blastp"
+  
+  args <- c(
+    "-query", path_experimental_fasta_file,
+    "-subject", reference_db,
+    "-out", "map2.out",
+    "-outfmt", "7",
+    "-evalue", "0.05"
   )
-
-  system2(blastp_cmd)
+  
+  system2(command = command, args = args)
+  
   message("BLASTp finished.")
 
   mapped <- readr::read_tsv("map2.out",
