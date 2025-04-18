@@ -402,7 +402,7 @@ run_blast <- function(path_experimental_fasta_file, all = FALSE,
   tocheck <- mapped_exact %>% dplyr::filter(qProt != sProt & mismatch == 0)
   sure <- mapped_exact %>% dplyr::filter(qProt == sProt)
 
-  system2("rm ./map2.out")
+  system("rm ./map2.out")
 
   return(if (all) list(mapped = sure, tocheck = tocheck) else list(mapped = sure))
 }
@@ -433,21 +433,20 @@ run_blast <- function(path_experimental_fasta_file, all = FALSE,
 #'
 #' @export
 generate_hybrid_db <- function(mh_alignment, activatory) {
-
-  mh_alignment$UNIPROT <- NULL
-  mh_alignment$ACTIVATION <- as.character(mh_alignment$ACTIVATION)
+  
   # Select the regulatory phosphosite database
   reg_phos_db <- if (activatory) get(data("good_phos_df_human_act")) else get(data("good_phos_df_human_all"))
 
   hybrid_db <- mh_alignment %>%
-    dplyr::inner_join(reg_phos_db, by = c("s_ID" = "PHOSPHO_KEY_GN_SEQ", 'ACTIVATION')) %>%
+    dplyr::inner_join(reg_phos_db, by = c("s_ID" = "PHOSPHO_KEY_GN_SEQ")) %>%
     dplyr::transmute(
       PHOSPHO_KEY_GN_SEQ = q_ID,
       PHOSPHO_KEY_GN_SEQ_human = s_ID,
       UNIPROT,
       ACTIVATION
     ) %>%
-    dplyr::mutate(PHOSPHO_KEY_GN_SEQ = stringr::str_replace(PHOSPHO_KEY_GN_SEQ, "-[T,Y,S]-\\d+-mouse", "")) %>%
+    # Keep only GN-Sequence key
+    dplyr::mutate(PHOSPHO_KEY_GN_SEQ = stringr::str_remove(PHOSPHO_KEY_GN_SEQ, "-[T,Y,S]-\\d+-mouse")) %>%
     dplyr::distinct()
 
   return(hybrid_db)
@@ -498,7 +497,7 @@ map_experimental_on_regulatory_phosphosites <- function(phosphoproteomic_data,
                                                         local = FALSE,
                                                         custom = FALSE,
                                                         custom_path = NULL) {
-
+  
   message("** Mapping Experimental Phosphosites to Regulatory Phosphosites **")
 
   # Validate organism input
