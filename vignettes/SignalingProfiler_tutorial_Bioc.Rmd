@@ -53,16 +53,25 @@ At the end of the pipeline, you can extract [**functional circuits**](#functiona
 # Installation
 
 ```{r eval = FALSE, echo = TRUE}
-
 devtools::install_github('https://github.com/SaccoPerfettoLab/SignalingProfiler/')
 
 ```
 
-## Prerequisites: ILP Solver
+## Prerequisites:
+
+### ILP Solver
 
 The most important prerequisites for SignalingProfiler is the **ILP solver** required by CARNIVAL algorithm to optimize your model against experimental data. An exhaustive guide about installation can be found in *Prerequisites* section of CARNIVAL GitHub page [here](https://saezlab.github.io/CARNIVAL/).
 
 > If you want to create networks with SignalingProfiler install the ILP solver
+
+### Python configuration
+
+To run the last step of SignalingProfiler is required to properly configure the reticulate environment. To do so, run the following command the **first** time you import SignalingProfiler.
+
+```{r eval = FALSE}
+install_sp_py()
+```
 
 # SignalingProfiler input
 
@@ -87,7 +96,6 @@ Transcriptomics data example
 :::
 
 ```{r}
-
 data("tr_toy_df")
 DT::datatable(tr_toy_df, options = list(pageLength = 3))
 
@@ -209,7 +217,6 @@ The set of regulated analytes of a TF/KIN/PHOS is called *regulon*.
 
 -   **KIN/PHOS-phosphosites regulons** (`ksea_db_human`) are derived from:OmniPath and SIGNOR; given the recent publication of the [Serine-Threonine-Tyrosine Kinome Atlas](https://www.nature.com/articles/s41586-022-05575-3) we integrated high confidence regulons in the `ksea_db` derived from this work. If you want to extend your data with the atlas, set `integrated_regulons = TRUE`.
 
-
 ::: {style="background-color: #f9f9f9; border-left: 5px solid #3c763d; padding: 1em; margin: 1em 0 1em 2em;"}
 **Create you own TFEA/KSEA custom regulons**
 
@@ -285,8 +292,8 @@ PhosphoScore computation exploits:
 -   the *regulatory role* of phosphosites (activating or inhibiting) annotated in SIGNOR and PsP databases;
 
 ### Regulatory phosphosites sources
-The information about how phosphosites regulate the protein they are on is retrieved from SIGNOR and PsP databases (`good_phos_df_human_act`, `good_phos_df_human_act_aapos`). 
-The key for identifying the phosphosite can be either *Gene-Peptide* or *Gene-AAPos*.
+
+The information about how phosphosites regulate the protein they are on is retrieved from SIGNOR and PsP databases (`good_phos_df_human_act`, `good_phos_df_human_act_aapos`). The key for identifying the phosphosite can be either *Gene-Peptide* or *Gene-AAPos*.
 
 ::: {style="background-color: #f9f9f9; border-left: 5px solid #3c763d; padding: 1em; margin: 1em 0 1em 2em;"}
 SignalingProfiler updates its regulons (regulatory networks) twice a year. If the user want to use updated information it can create its own information about regulatory phosphosites. Importantly, if you want to include PsP information you have to manually download from PsP database the Regulatory_sites and Kinase_Substrates file.
@@ -414,11 +421,10 @@ In this step, SignalingProfiler connects the proteins of Step1 to user-specified
 
 To connect the proteins, SignalingProfiler uses the prior information about molecular interactions stored in SIGNOR and PhosphoSitePlus databases. Briefly, every PKN interaction is binary, directed (has a regulator and a target of the regulation), and signed (representing either an up- or a down-regulation).
 
-The information is stored in different **built-in objects** that can contain only direct interactions (`PKN_human_dir`) or the addition of indirect transcriptional regulations (`PKN_human_ind`). 
+The information is stored in different **built-in objects** that can contain only direct interactions (`PKN_human_dir`) or the addition of indirect transcriptional regulations (`PKN_human_ind`).
 
 ::: {style="background-color: #f9f9f9; border-left: 5px solid #3c763d; padding: 1em; margin: 1em 0 1em 2em;"}
-**Custom PKN** 
-SignalingProfiler updates its prior knowledge network twice a year. We offer the user an interface to Omnipath and SIGNOR to assemble an updated PKN in SignalingProfiler compliant format. Remember, if you want to include PsP you have to provide its manually downloaded files!
+**Custom PKN** SignalingProfiler updates its prior knowledge network twice a year. We offer the user an interface to Omnipath and SIGNOR to assemble an updated PKN in SignalingProfiler compliant format. Remember, if you want to include PsP you have to provide its manually downloaded files!
 
 ```{r eval = FALSE}
 
@@ -441,7 +447,6 @@ SignalingProfiler allow you to use built-in PKNs for **mouse** and **human** or 
 ::: {style="background-color: #f9f9f9; border-left: 5px solid #3c763d; padding: 1em; margin: 1em 0 1em 2em;"}
 For **human** you can choose between a PKN containing the interactions from only databases, or a PKN containing interactions also derived from the [kinome atlas](https://www.nature.com/articles/s41586-022-05575-3), specifying the `with_atlas = TRUE`. In our benchmarking it resulted in a network with an artificial number of hubs, but it could be still useful if you are interested in not known phosphorylation events!
 :::
-
 
 ```{r eval = TRUE}
 
@@ -664,9 +669,9 @@ toy_opt_network <- expand_and_map_edges(
 
 ```
 
-## Example of Step 2 result 
-In the `toy_opt_network` dataset, we report an example of the Step 2 result.
-Here, it is reported the set of edges validated with phosphoproteomics data.
+## Example of Step 2 result
+
+In the `toy_opt_network` dataset, we report an example of the Step 2 result. Here, it is reported the set of edges validated with phosphoproteomics data.
 
 ```{r eval=TRUE}
 
@@ -678,7 +683,7 @@ DT::datatable(toy_opt_network$edges_df %>%
 
 ```
 
-> At the end of Step 2, SignalingProfiler outputs a sign-coherent network connecting inferred proteins from Step 1 with causal interactions from SIGNOR. 
+> At the end of Step 2, SignalingProfiler outputs a sign-coherent network connecting inferred proteins from Step 1 with causal interactions from SIGNOR.
 
 ------------------------------------------------------------------------
 
@@ -700,8 +705,7 @@ Here there are the steps of the algorithm:
 
 2.  **Remove randomly regulated phenotypes:** given your protein list (`protein_df`), we sample a random protein list with the same number of proteins and compute the number of activating and inhibitory paths over the phenotype of interest from both lists. If the random list produces the same number of paths of your input list over a phenotype of interest, the phenotype is discarded, because it is regulated at random (key parameters are:`n_random`, `pvalue_threshold`).
 
-3.  **PhenoScore computation:** we compute the average of the activity of proteins regulating the same phenotype, with three considerations: (i) if two independent regulators are connected in the network (`sp_graph`), consider the most downstream (`remove_cascade = TRUE`); (ii) we weight proteins according to their number of paths over the phenotype (since they are more resilient, `node_idx = TRUE`); (iii) the activity considered can be both experimentally derived or derived from CARNIVAL algorithm (`use_carnival_activity = TRUE`).
-:::
+3.  **PhenoScore computation:** we compute the average of the activity of proteins regulating the same phenotype, with three considerations: (i) if two independent regulators are connected in the network (`sp_graph`), consider the most downstream (`remove_cascade = TRUE`); (ii) we weight proteins according to their number of paths over the phenotype (since they are more resilient, `node_idx = TRUE`); (iii) the activity considered can be both experimentally derived or derived from CARNIVAL algorithm (`use_carnival_activity = TRUE`). :::
 
 ## ProxPath preprocessing
 
@@ -718,8 +722,7 @@ pheno_distances_table <- phenoscore_network_preprocessing(proteomics = prot_toy_
 
 ### Choose phenotypes
 
-Check the available phenotypes from the `proxpath_phenotypes` table and create a vector of desired phenotypes.
-Alternatively, you can perform the analysis on all phenotypes.
+Check the available phenotypes from the `proxpath_phenotypes` table and create a vector of desired phenotypes. Alternatively, you can perform the analysis on all phenotypes.
 
 ```{r eval = TRUE}
 
@@ -760,8 +763,8 @@ toy_phenoscore_output<- phenoscore_computation(
 ```
 
 ## Example of Step 3 result
-The object returned by `phenoscore_computation` function contains a barplot
-to readily interpret the cellular functions modulated by your network.
+
+The object returned by `phenoscore_computation` function contains a barplot to readily interpret the cellular functions modulated by your network.
 
 ```{r fig.align='center', fig.width=5, fig.height=5}
 
@@ -805,9 +808,7 @@ DT::datatable(sub_table, options = list(pageLength = 3))
 
 # Cytoscape Visualization of SignalingProfiler network
 
-To clearly visualize the network, we suggest to *optimize the model* for the last time on the phenotypic activity.
-Then you can use a built-in Cytoscape style to render the network.
-*Note*: open Cytoscape in your computer before this step!
+To clearly visualize the network, we suggest to *optimize the model* for the last time on the phenotypic activity. Then you can use a built-in Cytoscape style to render the network. *Note*: open Cytoscape in your computer before this step!
 
 ```{r eval = FALSE}
 
@@ -829,6 +830,7 @@ opt1_graph <- format_for_visualization(opt1)
 ```
 
 ## Visualize the entire network
+
 ```{r eval=FALSE}
 
 # Visualization in Cytoscape
@@ -843,11 +845,11 @@ RCy3::setVisualStyle('SP_pheno_layout')
 
 > Examples of SignalingProfiler 2.0 resulting network in NDEX:
 >
-> -   [Metformin network](<https://www.ndexbio.org/viewer/networks/fa22e724-b54b-11ee-8a13-005056ae23aa>)
+> -   [Metformin network](https://www.ndexbio.org/viewer/networks/fa22e724-b54b-11ee-8a13-005056ae23aa)
 >
-> -   [EGF network](<https://www.ndexbio.org/viewer/networks/59ab8c7b-0611-11ef-9621-005056ae23aa>)
+> -   [EGF network](https://www.ndexbio.org/viewer/networks/59ab8c7b-0611-11ef-9621-005056ae23aa)
 >
-> -   [Flt3 inhibition network](<https://www.ndexbio.org/viewer/networks/bde743d2-0613-11ef-9621-005056ae23aa>)
+> -   [Flt3 inhibition network](https://www.ndexbio.org/viewer/networks/bde743d2-0613-11ef-9621-005056ae23aa)
 
 ## Visualize functional circuits {#functional-circuits}
 
@@ -877,14 +879,11 @@ RCy3::setVisualStyle('SP_pheno_layout')
 
 ```
 
-Here, we report a functional circuit from the Metformin use case, 
-where MCF7 cell line was treated with Metformin.
-![**Signaling Profiler Workflow**](../img/Circuit_example.png)
+Here, we report a functional circuit from the Metformin use case, where MCF7 cell line was treated with Metformin. ![Signaling Profiler Workflow](../img/Circuit_example.png)
 
 # Conclusion {.unnumbered}
 
-This is a tutorial for the usage of SignalingProfiler. 
-For any doubt please contact us at: [*veronica.venafra97\@gmail.it*](mailto:veronica.venafra97@gmail.it){.email}, [*livia.perfetto\@uniroma1.it*](mailto:livia.perfetto@uniroma1.it){.email}, [*francesca.sacco\@uniroma2.it*](mailto:francesca.sacco@uniroma2.it){.email}.
+This is a tutorial for the usage of SignalingProfiler. For any doubt please contact us at: [*veronica.venafra97\@gmail.it*](mailto:veronica.venafra97@gmail.it){.email}, [*livia.perfetto\@uniroma1.it*](mailto:livia.perfetto@uniroma1.it){.email}, [*francesca.sacco\@uniroma2.it*](mailto:francesca.sacco@uniroma2.it){.email}.
 
 # R session info {.unnumbered}
 
