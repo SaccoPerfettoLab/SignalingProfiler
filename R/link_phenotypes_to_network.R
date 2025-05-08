@@ -26,7 +26,7 @@
 #' The resulting network allows for the analysis of how protein regulators
 #' influence phenotypic pathways.
 link_phenotypes_to_network <- function(phenotype_regulators, phenoscore_df, sp_graph){
-
+  
   # Extract phenotypes regulators
   phenotype_regulators <- phenotype_regulators %>%
     dplyr::select(EndPathways, Effect, regulators) %>%
@@ -36,7 +36,7 @@ link_phenotypes_to_network <- function(phenotype_regulators, phenoscore_df, sp_g
 
   # Create a phenotype table in SignalingProfiler compliant format
 
-  pheno_nodes <- tidyr::tibble(gene_name = stringr::str_replace_all(stringr::str_to_upper(phenoscore_df$EndPathways), "[^[:alnum:]]", '_'),
+  pheno_nodes <- tidyr::tibble(gene_name = stringr::str_remove(stringr::str_replace_all(stringr::str_to_upper(phenoscore_df$EndPathways), "[^[:alnum:]]", '_'), '_$'),
                                carnival_activity = NA,
                                final_score = phenoscore_df$phenoscore,
                                method = 'phenoscore',
