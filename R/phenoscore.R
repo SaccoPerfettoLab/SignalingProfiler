@@ -377,7 +377,7 @@ phenoscore_computation <- function(proteins_df,
   if(create_pheno_network){
     # Link phenotypes in the SignalingProfiler network
     pheno_graph_object <- link_phenotypes_to_network(phenotype_regulators = prot_pheno_act %>% 
-                                                       dplyr::filter(EndPathways %in% phenoscore_df_filt$phenoscore),
+                                                       dplyr::filter(EndPathways %in% phenoscore_df_filt$EndPathways),
                                                      phenoscore_df = phenoscore_df_filt,
                                                      sp_graph = sp_graph)
 
