@@ -210,6 +210,7 @@ phenoscore_computation <- function(proteins_df,
     dplyr::group_by(EndPathways, Effect) %>%
     dplyr::summarise(mean_rand = mean(Frac_rand), sd_rand = sd(Frac_rand), .groups = "drop")
 
+  
   # Compare paths from input proteins against random distributions
   observed_results <- path_data %>%
     # Count #Paths from input proteins
@@ -375,7 +376,8 @@ phenoscore_computation <- function(proteins_df,
 
   if(create_pheno_network){
     # Link phenotypes in the SignalingProfiler network
-    pheno_graph_object <- link_phenotypes_to_network(phenotype_regulators = prot_pheno_act,
+    pheno_graph_object <- link_phenotypes_to_network(phenotype_regulators = prot_pheno_act %>% 
+                                                       dplyr::filter(EndPathways %in% phenoscore_df_filt$phenoscore),
                                                      phenoscore_df = phenoscore_df_filt,
                                                      sp_graph = sp_graph)
 

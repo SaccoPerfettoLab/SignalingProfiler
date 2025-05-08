@@ -59,9 +59,9 @@ link_phenotypes_to_network <- function(phenotype_regulators, phenoscore_df, sp_g
     dplyr::distinct()
 
   pheno_edges <- phenotype_regulators %>% dplyr::mutate(target = stringr::str_replace_all(stringr::str_to_upper(target), "[^[:alnum:]]", '_'))
-  pheno_edges <- tidyr::tibble(target = pheno_edges$target,
+  pheno_edges <- tidyr::tibble(target = stringr::str_remove(pheno_edges$target, '_$'),
                                sign = as.character(pheno_edges$sign),
-                               source = pheno_edges$source,
+                               source = stringr::str_remove(pheno_edges$source, '_$'),
                                carnival_weight = 100,
                                direct = 'FALSE',
                                aminoacid = '',
@@ -74,8 +74,6 @@ link_phenotypes_to_network <- function(phenotype_regulators, phenoscore_df, sp_g
   colnames(edges_df)[1:2] <- c('source', 'target')
   edges_df$sign <- as.character(edges_df$sign)
   edges_df_pheno <- dplyr::bind_rows(edges_df, pheno_edges)
-
-  setdiff(unique(c(pheno_edges$source, pheno_edges$target)), node_df_pheno$gene_name)
 
   # Create igraph object
   pheno_graph <- igraph::graph_from_data_frame(edges_df_pheno,
