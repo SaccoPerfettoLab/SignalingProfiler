@@ -53,7 +53,7 @@ optimize_pheno_network <- function(sp_object,
 
   # Transform edges into SIF format
   pheno_naive_df <- sp_object$sp_object_phenotypes$edges_df %>%
-    dplyr::select(source, target, interaction = sign)
+    dplyr::select(source, interaction = sign, target)
 
   # Run CARNIVAL optimization
   pheno_out <- run_carnival_and_create_graph(source_df = start_df,

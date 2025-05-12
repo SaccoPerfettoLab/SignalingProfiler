@@ -192,8 +192,10 @@ phenoscore_computation <- function(proteins_df,
     dplyr::summarise(total_paths = dplyr::n(), .groups = "drop")
 
   # Perform randomization for statistical significance
+  set.seed(123)
   random_distributions <- tibble::tibble()
   for (i in seq_len(n_random)) {
+    
     random_sample <- sample(get(data('background_phenoscore')), size = nrow(proteins_df))
     randomized <- path_data %>%
       dplyr::filter(QueryNode %in% random_sample) %>%

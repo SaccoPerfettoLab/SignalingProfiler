@@ -292,6 +292,8 @@ keep_only_present_perturbation <- function(source_df, naive_network) {
   if (!all(c("source", "target") %in% colnames(naive_network))) {
     stop("The naive_network dataframe must contain 'source' and 'target' columns.")
   }
+  
+  naive_network <- naive_network %>% dplyr::relocate(source, target, interaction)
 
   # Convert naive network to igraph object
   naive_graph <- igraph::graph_from_data_frame(naive_network, directed = TRUE)
