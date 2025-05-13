@@ -825,7 +825,7 @@ opt1 <- optimize_pheno_network(sp_object = toy_phenoscore_output$sp_object_pheno
                                path_sif = './pheno_opt1.sif',
                                path_rds = './pheno_opt1.rds')
 
-opt1_graph <- format_for_visualization(opt1)
+opt1_graph <- format_for_visualization(opt1$sp_object_phenotypes)
 
 ```
 
@@ -859,7 +859,7 @@ SignalingProfiler offers the possibily to extract functional circuits from a des
 
 opt1_list <- readRDS('./pheno_opt1.rds')
 
-opt1_list$sp_object_phenotypes <- format_for_visualization(opt1_list)
+opt1_list$sp_object_phenotypes <- format_for_visualization(opt1_list$sp_object_phenotypes)
 
 # Circuits on example phenotypes
 phenotypes <- c('PROLIFERATION', 'AUTOPHAGY')
