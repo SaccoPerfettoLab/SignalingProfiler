@@ -54,6 +54,7 @@ phosphoscore_computation <- function(phosphoproteomic_data,
                                      custom = FALSE,
                                      custom_path = NULL) {
 
+
   message("** RUNNING PHOSPHOSCORE ANALYSIS **")
 
   # Validate inputs
@@ -645,6 +646,12 @@ phospho_score_hybrid_computation <- function(phosphoproteomic_data,
     warning("No mapped mouse phosphosites on human, proceeding with mouse-only analysis.")
     return(phosphoscore_mouse)
   } else if (is.null(phosphoscore_mouse)) {
+    phosphoscore_hybrid$used_exp_data <- phosphoscore_hybrid$used_exp_data %>% 
+      dplyr::mutate(gene_name = stringr::str_to_title(gene_name),
+                    PHOSPHO_KEY_GN_SEQ = paste0(gene_name, '-', sequence_window_sub))
+    phosphoscore_hybrid$phosphoscore_df <- phosphoscore_hybrid$phosphoscore_df %>%
+      dplyr::mutate(gene_name = stringr::str_to_title(gene_name), 
+                    PHOSPHO_KEY_GN_SEQ = paste0(gene_name, '-', gsub('.*-', '', PHOSPHO_KEY_GN_SEQ)))
     warning("No mouse phosphosites found, proceeding with human-mapped phosphosites.")
     return(phosphoscore_hybrid)
   }
