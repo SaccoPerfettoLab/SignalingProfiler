@@ -212,7 +212,6 @@ phenoscore_computation <- function(proteins_df,
     dplyr::group_by(EndPathways, Effect) %>%
     dplyr::summarise(mean_rand = mean(Frac_rand), sd_rand = sd(Frac_rand), .groups = "drop")
 
-  
   # Compare paths from input proteins against random distributions
   observed_results <- path_data %>%
     # Count #Paths from input proteins
@@ -224,7 +223,16 @@ phenoscore_computation <- function(proteins_df,
            t_score = (Fraction - mean_rand) / (sd_rand + 1e-15),
            pvalue = pnorm(t_score, lower.tail = FALSE),
            pvalue_adj = p.adjust(pvalue, method = "BH"))
-
+  
+  # Count # of regulators of the phenotype from input proteins
+    pheno_regulators <- path_data %>%
+      dplyr::filter(QueryNode %in% proteins_df$gene_name) %>%
+      dplyr::distinct(QueryNode, EndPathways, Effect, .keep_all = T) %>% 
+      dplyr::count(EndPathways, Effect, name = 'regulators_n')
+  
+  observed_results <- dplyr::left_join(observed_results, pheno_regulators, by = c('EndPathways', 'Effect')) %>%
+    dplyr::relocate(regulators_n, .after = 'hits_INPUT')
+  
   # Filter by p-value threshold
   significant_results <- observed_results %>%
     dplyr::filter(pvalue_adj < pvalue_threshold, Effect != "-") %>%
@@ -255,7 +263,7 @@ phenoscore_computation <- function(proteins_df,
   path_data_enriched <- dplyr::inner_join(path_data,
                                           significant_results, by = c('EndPathways', 'Effect'))
 
-  # Retrieve paths invol
+  # Retrieve paths involved in user-protein list
   input_prot_paths <- path_data_enriched %>%
     dplyr::filter(QueryNode %in% proteins_df$gene_name)
 
@@ -334,9 +342,17 @@ phenoscore_computation <- function(proteins_df,
         dplyr::summarise(phenoscore = mean(final_score*Sign*Log10_p_value_plot))
     }
   }
+  
+  finite_max <- max(phenoscore_df$phenoscore[is.finite(phenoscore_df$phenoscore)], na.rm = TRUE)
+  finite_min <- min(phenoscore_df$phenoscore[is.finite(phenoscore_df$phenoscore)], na.rm = TRUE)
 
   phenoscore_df_filt <- phenoscore_df %>%
-    dplyr::filter(phenoscore != 0)
+    dplyr::filter(phenoscore != 0) %>%
+    dplyr::mutate(phenoscore = ifelse(!is.infinite(phenoscore), 
+                                      phenoscore, 
+                                      ifelse(sign(phenoscore) > 0, 
+                                             finite_max + 1,
+                                             finite_min - 1)))
 
   if(nrow(phenoscore_df_filt) != nrow(phenoscore_df)){
     message("Some phenotypes are missing because had just one regulator annotated
@@ -363,7 +379,7 @@ phenoscore_computation <- function(proteins_df,
     ggplot2::ylab("phenotype modulation") +
     ggplot2::xlab("") +
     ggplot2::theme_bw()+
-    ggplot2::theme(legend.title = element_blank(),
+    ggplot2::theme(legend.title = ggplot2::element_blank(),
           legend.position = 'none',
           plot.title= ggplot2::element_text(hjust = 0.5),
           panel.grid.minor = ggplot2::element_blank(),
