@@ -134,7 +134,7 @@ integrate_psp_without_kin <- function(organism,
 #'
 #' @export
 #'
-create_ksea_regulons <- function(resources = c('SIGNOR', 'PsP'),
+get_phosphoscore_info <- function(resources = c('SIGNOR', 'PsP'),
                                   organism,
                                   psp_reg_site_path = NULL,
                                   psp_kin_sub_path = NULL,
