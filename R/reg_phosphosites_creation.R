@@ -134,7 +134,7 @@ integrate_psp_without_kin <- function(organism,
 #'
 #' @export
 #'
-get_phosphoscore_info <- function(resources = c('SIGNOR', 'PsP'),
+create_ksea_regulons <- function(resources = c('SIGNOR', 'PsP'),
                                   organism,
                                   psp_reg_site_path = NULL,
                                   psp_kin_sub_path = NULL,
@@ -143,133 +143,123 @@ get_phosphoscore_info <- function(resources = c('SIGNOR', 'PsP'),
                                   local = FALSE){
 
   phosphoscore_list <- list()
-
-  if('SIGNOR' %in% resources){
-    message('Querying SIGNOR database')
-    SIGNOR <- signor_parsing(organism,
-                             direct = TRUE,
-                             only_activatory = only_activatory)$interactions
-    DBs <- SIGNOR %>%
-      dplyr::filter(!is.na(SEQUENCE)) %>%
-      dplyr::filter(INTERACTION != '0')
-
-    # Create the key for phosphosite unique identification
-    if(aa_pos){
-      DBs <- DBs %>%
-        dplyr::mutate(PHOSPHO_KEY_GN_SEQ = paste0(ENTITYB, '-', RESIDUE)) %>%
-        dplyr::rename('ENTITY' = 'ENTITYB') %>%
-        dplyr::mutate(ENTITY = stringr::str_to_upper(stringr::str_replace_all(ENTITY, "[^[:alnum:]]", '_')))
-    }else{
-      DBs <- DBs %>%
-        dplyr::mutate(PHOSPHO_KEY_GN_SEQ = paste0(ENTITYB, '-', SEQUENCE)) %>%
-        dplyr::rename('ENTITY' = 'ENTITYB') %>%
-        dplyr::mutate(ENTITY = stringr::str_to_upper(stringr::str_replace_all(ENTITY, "[^[:alnum:]]", '_')))
+  if ("SIGNOR" %in% resources) {
+    message("Querying SIGNOR database")
+    SIGNOR <- signor_parsing(organism, direct = TRUE, only_activatory = only_activatory)$interactions
+    DBs <- SIGNOR %>% dplyr::filter(!is.na(SEQUENCE)) %>% 
+      dplyr::filter(INTERACTION != "0")
+    if (aa_pos) {
+      DBs <- DBs %>% dplyr::mutate(PHOSPHO_KEY_GN_SEQ = paste0(ENTITYB, 
+                                                               "-", RESIDUE)) %>% dplyr::rename(ENTITY = "ENTITYB") %>% 
+        dplyr::mutate(ENTITY = stringr::str_to_upper(stringr::str_replace_all(ENTITY, 
+                                                                              "[^[:alnum:]]", "_")))
     }
-
-    phos_mech <- DBs %>%
-      dplyr::select(PHOSPHO_KEY_GN_SEQ, IDB, INTERACTION, MECHANISM) %>%
-      dplyr::filter(grepl('*phos*', DBs$MECHANISM)) %>%
-      dplyr::arrange(PHOSPHO_KEY_GN_SEQ) %>%
-      dplyr::filter(PHOSPHO_KEY_GN_SEQ != '') %>%
-      dplyr::distinct() %>%
-      dplyr::mutate_at('INTERACTION', as.character)
-
+    else {
+      DBs <- DBs %>% dplyr::mutate(PHOSPHO_KEY_GN_SEQ = paste0(ENTITYB, 
+                                                               "-", SEQUENCE)) %>% dplyr::rename(ENTITY = "ENTITYB") %>% 
+        dplyr::mutate(ENTITY = stringr::str_to_upper(stringr::str_replace_all(ENTITY, 
+                                                                              "[^[:alnum:]]", "_")))
+    }
+    phos_mech <- DBs %>% dplyr::select(PHOSPHO_KEY_GN_SEQ, 
+                                       IDB, INTERACTION, MECHANISM) %>% dplyr::filter(grepl("*phos*", 
+                                                                                            DBs$MECHANISM)) %>% dplyr::arrange(PHOSPHO_KEY_GN_SEQ) %>% 
+      dplyr::filter(PHOSPHO_KEY_GN_SEQ != "") %>% dplyr::distinct() %>% 
+      dplyr::mutate_at("INTERACTION", as.character)
+    phos_mech$resource <- 'SIGNOR' 
     phosphoscore_list[[length(phosphoscore_list) + 1]] <- phos_mech
   }
-
-  if('PsP' %in% resources){
-    if(is.null(psp_reg_site_path) | is.null(psp_kin_sub_path)){
-      stop('Please provide a valid path to Regulatory_Sites and
-           Kinases_Substrate_Dataset information of PhosphoSitePlus database')
+  if ("PsP" %in% resources) {
+    if (is.null(psp_reg_site_path) | is.null(psp_kin_sub_path)) {
+      stop("Please provide a valid path to Regulatory_Sites and\n           Kinases_Substrate_Dataset information of PhosphoSitePlus database")
     }
-    message('Reading PsP Regulatory_Site file')
-
-    psp_db <- psp_parsing(reg_site_path = psp_reg_site_path,
-                          kin_sub_path = psp_kin_sub_path,
-                          organism = organism,
-                          only_activatory = only_activatory,
-                          with_atlas = FALSE,
+    message("Reading PsP Regulatory_Site file")
+    psp_db <- psp_parsing(reg_site_path = psp_reg_site_path, 
+                          kin_sub_path = psp_kin_sub_path, organism = organism, 
+                          only_activatory = only_activatory, with_atlas = FALSE, 
                           local = local)
-
-
-    psp_db_phosphoscore <- psp_db %>%
-      dplyr::select(ENTITY = ENTITYB, IDB, INTERACTION, RESIDUE, SEQUENCE) %>%
-      dplyr::mutate(ENTITY = stringr::str_replace_all(ENTITY, "[^[:alnum:]]", '_')) %>%
-      dplyr::mutate(ENTITY = ifelse(ENTITY == 'BCR_ABL', 'BCR_ABL1', ENTITY))
-
-
-    psp_db_phospho_int <- integrate_psp_without_kin(organism = organism,
-                              reg_site_path = psp_reg_site_path,
-                              psp_db = psp_db,
-                              only_activatory = only_activatory,
-                              local = local)
-
-    psp_db_phosphoscore <- dplyr::bind_rows(psp_db_phospho_int,
+    psp_db_phosphoscore <- psp_db %>% dplyr::select(ENTITY = ENTITYB, 
+                                                    IDB, INTERACTION, RESIDUE, SEQUENCE) %>% dplyr::mutate(ENTITY = stringr::str_replace_all(ENTITY, 
+                                                                                                                                             "[^[:alnum:]]", "_")) %>% dplyr::mutate(ENTITY = ifelse(ENTITY == 
+                                                                                                                                                                                                       "BCR_ABL", "BCR_ABL1", ENTITY))
+    psp_db_phospho_int <- integrate_psp_without_kin(organism = organism, 
+                                                    reg_site_path = psp_reg_site_path, psp_db = psp_db, 
+                                                    only_activatory = only_activatory, local = local)
+    psp_db_phosphoscore <- dplyr::bind_rows(psp_db_phospho_int, 
                                             psp_db_phosphoscore)
-
-    # Bring to upper complexes
-    psp_db_phosphoscore <- psp_db_phosphoscore %>%
-      dplyr::mutate(ENTITY = ifelse(grepl("[^[:alnum:]]", ENTITY),
-                                   stringr::str_to_upper(ENTITY),
-                                   ENTITY))
-
-    if(organism == 'mouse'){
-      psp_db_phosphoscore <- psp_db_phosphoscore %>%
-        dplyr::mutate(ENTITY = ifelse(grepl("[^[:alnum:]]", ENTITY),
-                                      ENTITY,
-                                      stringr::str_to_title(ENTITY)))
-
-    }else{
-      psp_db_phosphoscore <- psp_db_phosphoscore %>%
-        dplyr::mutate(ENTITY = stringr::str_to_upper(ENTITY))
+    psp_db_phosphoscore <- psp_db_phosphoscore %>% dplyr::mutate(ENTITY = ifelse(grepl("[^[:alnum:]]", 
+                                                                                       ENTITY), stringr::str_to_upper(ENTITY), ENTITY))
+    if (organism == "mouse") {
+      psp_db_phosphoscore <- psp_db_phosphoscore %>% dplyr::mutate(ENTITY = ifelse(grepl("[^[:alnum:]]", 
+                                                                                         ENTITY), ENTITY, stringr::str_to_title(ENTITY)))
     }
-
-    if(aa_pos){
-      phosphosite_mech <- psp_db_phosphoscore %>%
-        dplyr::mutate(PHOSPHO_KEY_GN_SEQ = paste0(ENTITY, '-', RESIDUE),
-                      IDB,
-                      INTERACTION,
-                      MECHANISM = 'phosphorylation') %>%
-        dplyr::select(PHOSPHO_KEY_GN_SEQ, IDB, INTERACTION, MECHANISM) %>%
-        dplyr::distinct() %>%
-        dplyr::mutate_at('INTERACTION', as.character)
-    }else{
-      phosphosite_mech <- psp_db_phosphoscore %>%
-        dplyr::mutate(PHOSPHO_KEY_GN_SEQ = paste0(ENTITY, '-', SEQUENCE),
-                      IDB,
-                      INTERACTION,
-                      MECHANISM = 'phosphorylation') %>%
-        dplyr::select(PHOSPHO_KEY_GN_SEQ, IDB, INTERACTION, MECHANISM) %>%
-        dplyr::distinct() %>%
-        dplyr::mutate_at('INTERACTION', as.character)
+    else {
+      psp_db_phosphoscore <- psp_db_phosphoscore %>% dplyr::mutate(ENTITY = stringr::str_to_upper(ENTITY))
     }
+    if (aa_pos) {
+      phosphosite_mech <- psp_db_phosphoscore %>% dplyr::mutate(PHOSPHO_KEY_GN_SEQ = paste0(ENTITY, 
+                                                                                            "-", RESIDUE), IDB, INTERACTION, MECHANISM = "phosphorylation") %>% 
+        dplyr::select(PHOSPHO_KEY_GN_SEQ, IDB, INTERACTION, 
+                      MECHANISM) %>% dplyr::distinct() %>% dplyr::mutate_at("INTERACTION", 
+                                                                            as.character)
+    }
+    else {
+      phosphosite_mech <- psp_db_phosphoscore %>% dplyr::mutate(PHOSPHO_KEY_GN_SEQ = paste0(ENTITY, 
+                                                                                            "-", SEQUENCE), IDB, INTERACTION, MECHANISM = "phosphorylation") %>% 
+        dplyr::select(PHOSPHO_KEY_GN_SEQ, IDB, INTERACTION, 
+                      MECHANISM) %>% dplyr::distinct() %>% dplyr::mutate_at("INTERACTION", 
+                                                                            as.character)
+    }
+    phosphosite_mech$resource <- 'PsP' 
     phosphoscore_list[[length(phosphoscore_list) + 1]] <- phosphosite_mech
   }
-
-  # Dynamically bind the rows of all the entities
-  phos_mech <- do.call("bind_rows", phosphoscore_list) %>% dplyr::distinct()
-
-  # Add activation row
-  phos_mech$ACTIVATION <- ''
-  phos_mech$ACTIVATION[(phos_mech$MECHANISM == 'dephosphorylation' & phos_mech$INTERACTION == '-1') |
-                         (phos_mech$MECHANISM == 'phosphorylation' & phos_mech$INTERACTION == '1')] <- '1'
-  phos_mech$ACTIVATION[(phos_mech$MECHANISM == 'phosphorylation' & phos_mech$INTERACTION == '-1') |
-                         (phos_mech$MECHANISM == 'dephosphorylation' & phos_mech$INTERACTION == '1')] <- '-1'
-
-  # Select only phosphosites without controversial regulatory role in different contexts
-  good_phos_df <- phos_mech %>%
-    dplyr::distinct(PHOSPHO_KEY_GN_SEQ, ACTIVATION, .keep_all = TRUE) %>%
-    dplyr::count(PHOSPHO_KEY_GN_SEQ) %>%
-    dplyr::filter(n == 1) %>%
-    dplyr::select(PHOSPHO_KEY_GN_SEQ)
-
-  good_phos <- as.vector(unlist(good_phos_df))
-
-  phosphoscore_table_final <- phos_mech %>%
-    dplyr::filter(PHOSPHO_KEY_GN_SEQ %in% good_phos) %>%
-    dplyr::select(PHOSPHO_KEY_GN_SEQ, IDB, ACTIVATION) %>%
-    dplyr::rename(UNIPROT = IDB) %>%
+  phos_mech <- do.call("bind_rows", phosphoscore_list) %>% 
     dplyr::distinct()
+  phos_mech$ACTIVATION <- ""
+  phos_mech$ACTIVATION[(phos_mech$MECHANISM == "dephosphorylation" & 
+                          phos_mech$INTERACTION == "-1") | (phos_mech$MECHANISM == 
+                                                              "phosphorylation" & phos_mech$INTERACTION == "1")] <- "1"
+  phos_mech$ACTIVATION[(phos_mech$MECHANISM == "phosphorylation" & 
+                          phos_mech$INTERACTION == "-1") | (phos_mech$MECHANISM == 
+                                                              "dephosphorylation" & phos_mech$INTERACTION == "1")] <- "-1"
+  
 
+  
+  phos_mech_resolved <- phos_mech %>%
+    dplyr::group_by(PHOSPHO_KEY_GN_SEQ, ACTIVATION) %>%
+    dplyr::summarise(
+      n = dplyr::n(),
+      n_signor = sum(resource == "SIGNOR", na.rm = TRUE),
+      .groups = "drop"
+    ) %>%
+    dplyr::group_by(PHOSPHO_KEY_GN_SEQ) %>%
+    dplyr::mutate(
+      tot = sum(n),
+      freq = n / tot,
+      has_signor = any(n_signor > 0)
+    ) %>%
+    dplyr::arrange(
+      PHOSPHO_KEY_GN_SEQ,
+      dplyr::desc(n_signor > 0),
+      dplyr::desc(freq),
+      dplyr::desc(n)
+    ) %>%
+    dplyr::slice(1) %>%
+    dplyr::ungroup() %>%
+    dplyr::select(PHOSPHO_KEY_GN_SEQ, ACTIVATION, n, n_signor, tot, freq, has_signor) %>%
+    dplyr::inner_join(
+      phos_mech,
+      by = c("PHOSPHO_KEY_GN_SEQ", "ACTIVATION")
+    ) %>%
+    dplyr::group_by(PHOSPHO_KEY_GN_SEQ) %>%
+    dplyr::arrange(
+      dplyr::desc(resource == "SIGNOR"),
+      stringr::str_detect(IDB, "-"),
+      .by_group = TRUE
+    ) %>%
+    dplyr::slice(1) %>%
+    dplyr::ungroup()
+  
+  phosphoscore_table_final <- phos_mech_resolved %>% dplyr::select(PHOSPHO_KEY_GN_SEQ, IDB, 
+                                                                   ACTIVATION) %>% dplyr::rename(UNIPROT = IDB) %>% dplyr::distinct()
   return(phosphoscore_table_final)
 }

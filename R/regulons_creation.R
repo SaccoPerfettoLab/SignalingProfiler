@@ -24,62 +24,62 @@
 #' ksea_regulons <- get_signor_regulons(organism = "mouse", analysis = "ksea")
 #'
 get_signor_regulons <- function(organism, analysis){
-
-  if(analysis == 'tfea'){
-    signor_db <- signor_parsing(organism)
-    SIGNOR_tfs <- signor_db$interactions %>%
-      dplyr::filter(MECHANISM == 'transcriptional regulation')
-    SIGNOR_regulons <- SIGNOR_tfs %>%
-      dplyr::select(tf = ENTITYA, target = ENTITYB, mor = INTERACTION) %>%
-      dplyr::distinct() %>%
-      dplyr::mutate(confidence = 'A')
-
-  }else if(analysis == 'ksea'){
-    signor_db <- signor_parsing(organism, direct = TRUE)
-    SIGNOR_kin_phos <- signor_db$interactions %>%
-      dplyr::filter(grepl('phos', MECHANISM))
-
-    SIGNOR_ksea <- SIGNOR_kin_phos %>%
-      dplyr::select(ENTITYA, IDB, RESIDUE, SEQUENCE, mor = INTERACTION) %>%
-      dplyr::filter(!is.na(RESIDUE)) %>%
-      dplyr::mutate(RESIDUE = stringr::str_replace(RESIDUE, 'Thr', 'T'),
-                    RESIDUE = stringr::str_replace(RESIDUE, 'Tyr', 'Y'),
-                    RESIDUE = stringr::str_replace(RESIDUE, 'Ser', 'S'))
-
-    separated_tibble <- tidyr::separate(SIGNOR_ksea, RESIDUE,
-                                        into = c("AMINO", "POSITION"),
-                                        sep = "(?<=[A-Za-z])(?=[0-9])",
-                                        remove = FALSE)
-
-    SIGNOR_regulons <- separated_tibble %>%
-      dplyr::mutate(target = paste0(IDB, '-', AMINO, '-', POSITION)) %>%
-      dplyr::select(tf = ENTITYA, target, mor)
-  }else{
-    stop('Please provide a valid analysis type between "tfea" and "ksea"')
-  }
-
-  if(organism == 'mouse'){
-    # Put in start case only proteins (tf without strange characters)
-    SIGNOR_regulons <- SIGNOR_regulons %>%
-      dplyr::mutate(tf = ifelse(grepl("[^[:alnum:]]", SIGNOR_regulons$tf), tf, stringr::str_to_title(tf)))
-
-    if(analysis == 'tfea'){
-      SIGNOR_regulons <- SIGNOR_regulons %>%
-        dplyr::mutate(target = ifelse(grepl("[^[:alnum:]]", SIGNOR_regulons$target), target, stringr::str_to_title(target)))
+  
+    if (analysis == "tfea") {
+      signor_db <- signor_parsing(organism)
+      SIGNOR_tfs <- signor_db$interactions %>% dplyr::filter(MECHANISM == 
+                                                               "transcriptional regulation")
+      
+      SIGNOR_tfs$gene_name <- SIGNOR_tfs$ENTITYA
+      SIGNOR_tfs <- SignalingProfiler::molecular_function_annotation(SIGNOR_tfs, organism = organism)
+      SIGNOR_tfs <- SIGNOR_tfs%>%dplyr::filter(mf == 'tf')
+      SIGNOR_regulons <- SIGNOR_tfs %>% dplyr::select(tf = ENTITYA, 
+                                                      target = ENTITYB, mor = INTERACTION) %>% dplyr::distinct() %>% 
+        dplyr::mutate(confidence = "A")
     }
+    else if (analysis == "ksea") {
+      signor_db <- signor_parsing(organism, direct = TRUE)
+      SIGNOR_kin_phos <- signor_db$interactions %>% dplyr::filter(grepl("phos", 
+                                                                        MECHANISM))
+      
+      SIGNOR_kin_phos$gene_name <- SIGNOR_kin_phos$ENTITYA
+      SIGNOR_kin_phos <- SignalingProfiler::molecular_function_annotation(SIGNOR_kin_phos, organism = organism)
+      SIGNOR_kin_phos <- SIGNOR_kin_phos%>%dplyr::filter(mf %in% c('kin','phos'))
+      
+      SIGNOR_kin_phos$mor <- ifelse(SIGNOR_kin_phos$MECHANISM == "dephosphorylation", -1, 1)
+      
+      SIGNOR_ksea <- SIGNOR_kin_phos %>% dplyr::select(ENTITYA, 
+                                                       IDB, RESIDUE, SEQUENCE, mor = mor) %>% dplyr::filter(!is.na(RESIDUE)) %>% 
+        dplyr::mutate(RESIDUE = stringr::str_replace(RESIDUE, 
+                                                     "Thr", "T"), RESIDUE = stringr::str_replace(RESIDUE, 
+                                                                                                 "Tyr", "Y"), RESIDUE = stringr::str_replace(RESIDUE, 
+                                                                                                                                             "Ser", "S"))
+      separated_tibble <- tidyr::separate(SIGNOR_ksea, RESIDUE, 
+                                          into = c("AMINO", "POSITION"), sep = "(?<=[A-Za-z])(?=[0-9])", 
+                                          remove = FALSE)
+      SIGNOR_regulons <- separated_tibble %>% dplyr::mutate(target = paste0(IDB, 
+                                                                            "-", AMINO, "-", POSITION)) %>% dplyr::select(tf = ENTITYA, 
+                                                                                                                          target, mor)
+    }
+    else {
+      stop("Please provide a valid analysis type between \"tfea\" and \"ksea\"")
+    }
+    if (organism == "mouse") {
+      SIGNOR_regulons <- SIGNOR_regulons %>% dplyr::mutate(tf = ifelse(grepl("[^[:alnum:]]", 
+                                                                             SIGNOR_regulons$tf), tf, stringr::str_to_title(tf)))
+      if (analysis == "tfea") {
+        SIGNOR_regulons <- SIGNOR_regulons %>% dplyr::mutate(target = ifelse(grepl("[^[:alnum:]]", 
+                                                                                   SIGNOR_regulons$target), target, stringr::str_to_title(target)))
+      }
+    }
+    SIGNOR_regulons <- SIGNOR_regulons %>% dplyr::mutate(tf = stringr::str_replace_all(tf, 
+                                                                                       "[^[:alnum:]]", "_"))
+    if (analysis == "tfea") {
+      SIGNOR_regulons <- SIGNOR_regulons %>% dplyr::mutate(target = stringr::str_replace_all(target, 
+                                                                                             "[^[:alnum:]]", "_"))
+    }
+    return(SIGNOR_regulons)
   }
-
-  # Correct complexes removing special characters
-  SIGNOR_regulons <- SIGNOR_regulons %>%
-    dplyr::mutate(tf = stringr::str_replace_all(tf, "[^[:alnum:]]", '_'))
-
-  if(analysis == 'tfea'){
-    SIGNOR_regulons <- SIGNOR_regulons %>%
-      dplyr::mutate(target = stringr::str_replace_all(target, "[^[:alnum:]]", '_'))
-  }
-
-  return(SIGNOR_regulons)
-}
 
 
 #' Retrieve PhosphoSitePlus Regulons
@@ -107,45 +107,112 @@ get_signor_regulons <- function(organism, analysis){
 #'                       local = FALSE)
 #' }
 #'
-get_psp_regulons <- function(reg_site_path,
-                             kin_sub_path,
-                             organism,
-                             with_atlas = FALSE){
+# get_psp_regulons <- function (reg_site_path, kin_sub_path, organism, with_atlas = FALSE) 
+# {
+#   psp_db <- psp_parsing(reg_site_path = reg_site_path, kin_sub_path = kin_sub_path, 
+#                         organism = organism, with_atlas = with_atlas, local = FALSE)
+#   psp_ksea <- psp_db %>% dplyr::select(ENTITYA, IDB, RESIDUE, 
+#                                        SEQUENCE, mor = INTERACTION) %>% dplyr::filter(!is.na(RESIDUE)) %>% 
+#     dplyr::mutate(RESIDUE = stringr::str_replace(RESIDUE, 
+#                                                  "Thr", "T"), RESIDUE = stringr::str_replace(RESIDUE, 
+#                                                                                              "Tyr", "Y"), RESIDUE = stringr::str_replace(RESIDUE, 
+#                                                                                                                                          "Ser", "S"))
+#   
+#   psp_ksea$gene_name <- psp_ksea$ENTITYA
+#   psp_ksea <- SignalingProfiler::molecular_function_annotation(psp_ksea, organism = organism)
+#   psp_ksea <- psp_ksea%>%dplyr::filter(mf == 'kin')
+#   psp_ksea$mor <- 1 ### because PsP has only kinases
+#   separated_tibble <- tidyr::separate(psp_ksea, RESIDUE, into = c("AMINO", 
+#                                                                   "POSITION"), sep = "(?<=[A-Za-z])(?=[0-9])", remove = FALSE)
+#   psp_regulons <- separated_tibble %>% dplyr::mutate(target = paste0(IDB, 
+#                                                                      "-", AMINO, "-", POSITION)) %>% dplyr::select(tf = ENTITYA, 
+#                                                                                                                    target, mor)
+#   psp_regulons <- psp_regulons %>% dplyr::mutate(tf = stringr::str_replace_all(tf, 
+#                                                                                "[^[:alnum:]]", "_")) %>% dplyr::mutate(tf = ifelse(tf == 
+#                                                                                                                                      "BCR_ABL", "BCR_ABL1", tf))
+#   if (organism == "mouse") {
+#     psp_regulons <- psp_regulons %>% dplyr::mutate(tf = ifelse(grepl("[^[:alnum:]]", 
+#                                                                      psp_regulons$tf), tf, stringr::str_to_title(tf)))
+#   }
+#   return(psp_regulons)
+# }
+# 
 
-  psp_db <- psp_parsing(reg_site_path = reg_site_path,
-                        kin_sub_path = kin_sub_path,
-                        organism = organism,
-                        with_atlas = with_atlas,
-                        local = FALSE)
-
+get_psp_regulons <- function(reg_site_path, kin_sub_path, organism, with_atlas = FALSE) {
+  
+  psp_db <- psp_parsing(
+    reg_site_path = reg_site_path,
+    kin_sub_path = kin_sub_path,
+    organism = organism,
+    with_atlas = with_atlas,
+    local = FALSE
+  )
+  
+  psp_db <- as.data.frame(psp_db)
+  psp_db[] <- lapply(psp_db, function(col) {
+    if (inherits(col, "Rle")) {
+      col <- as.vector(col)
+    }
+    if (is.list(col)) {
+      col <- vapply(col, function(x) {
+        if (length(x) == 0 || all(is.na(x))) {
+          NA_character_
+        } else {
+          paste(as.character(x), collapse = ";")
+        }
+      }, character(1))
+    }
+    col
+  })
+  psp_db <- tibble::as_tibble(psp_db)
+  
   psp_ksea <- psp_db %>%
     dplyr::select(ENTITYA, IDB, RESIDUE, SEQUENCE, mor = INTERACTION) %>%
     dplyr::filter(!is.na(RESIDUE)) %>%
-    dplyr::mutate(RESIDUE = stringr::str_replace(RESIDUE, 'Thr', 'T'),
-                  RESIDUE = stringr::str_replace(RESIDUE, 'Tyr', 'Y'),
-                  RESIDUE = stringr::str_replace(RESIDUE, 'Ser', 'S'))
-
-  separated_tibble <- tidyr::separate(psp_ksea, RESIDUE,
-                                      into = c("AMINO", "POSITION"),
-                                      sep = "(?<=[A-Za-z])(?=[0-9])",
-                                      remove = FALSE)
-
+    dplyr::mutate(
+      RESIDUE = stringr::str_replace(RESIDUE, "Thr", "T"),
+      RESIDUE = stringr::str_replace(RESIDUE, "Tyr", "Y"),
+      RESIDUE = stringr::str_replace(RESIDUE, "Ser", "S")
+    )
+  
+  psp_ksea$gene_name <- psp_ksea$ENTITYA
+  psp_ksea <- SignalingProfiler::molecular_function_annotation(psp_ksea, organism = organism)
+  psp_ksea <- psp_ksea %>% dplyr::filter(mf == "kin")
+  psp_ksea$mor <- 1
+  
+  separated_tibble <- tidyr::separate(
+    psp_ksea,
+    RESIDUE,
+    into = c("AMINO", "POSITION"),
+    sep = "(?<=[A-Za-z])(?=[0-9])",
+    remove = FALSE
+  )
+  
   psp_regulons <- separated_tibble %>%
-    dplyr::mutate(target = paste0(IDB, '-', AMINO, '-', POSITION)) %>%
-    dplyr::select(tf = ENTITYA, target, mor)
-
-  # Correct complexes removing special characters
+    dplyr::mutate(target = paste0(IDB, "-", AMINO, "-", POSITION)) %>%
+    dplyr::select(tf = ENTITYA, target, mor) %>%
+    dplyr::mutate(
+      tf = as.character(tf),
+      target = as.character(target),
+      mor = as.numeric(mor)
+    )
+  
   psp_regulons <- psp_regulons %>%
-    dplyr::mutate(tf = stringr::str_replace_all(tf, "[^[:alnum:]]", '_')) %>%
-    dplyr::mutate(tf = ifelse(tf == 'BCR_ABL', 'BCR_ABL1', tf))
-
-  if(organism == 'mouse'){
+    dplyr::mutate(
+      tf = stringr::str_replace_all(tf, "[^[:alnum:]]", "_"),
+      tf = ifelse(tf == "BCR_ABL", "BCR_ABL1", tf)
+    )
+  
+  if (organism == "mouse") {
     psp_regulons <- psp_regulons %>%
-      dplyr::mutate(tf = ifelse(grepl("[^[:alnum:]]", psp_regulons$tf), tf, stringr::str_to_title(tf)))
+      dplyr::mutate(
+        tf = ifelse(grepl("[^[:alnum:]]", tf), tf, stringr::str_to_title(tf))
+      )
   }
-
+  
   return(psp_regulons)
 }
+
 
 #' Retrieve Kinase-Substrate Interaction Data from OmniPath
 #'
@@ -176,50 +243,53 @@ get_psp_regulons <- function(reg_site_path,
 #' # Retrieve interactions for mouse using specific resources
 #' omnipath_mouse <- get_omnipath(organism = "mouse", resources = c("SIGNOR", "DEPOD"))
 #
-get_omnipath <- function(organism,
-                         resources = c('PhosphoSite', 'PhosphoSite_ProtMapper',
-                                       'SIGNOR', 'SIGNOR_ProtMapper',
-                                       'Reactome_ProtMapper', 'phosphoELM',
-                                       'HPRD', 'DEPOD')){
 
-  if(organism == 'human'){
+
+get_omnipath <- function (organism, resources = c("PhosphoSite", "PhosphoSite_ProtMapper", 
+                                                  "SIGNOR", "SIGNOR_ProtMapper", "Reactome_ProtMapper", "phosphoELM", 
+                                                  "HPRD", "DEPOD")) 
+{
+  if (organism == "human") {
     ID = 9606
-  }else if (organism == 'mouse'){
+  }
+  else if (organism == "mouse") {
     ID = 10090
-  }else{
-    stop('Please provide a valid organism name between "human" and "mouse"')
   }
-
-  phos_df <- read.table(paste0('https://omnipathdb.org/ptms?genesymbols=1&types=phosphorylation&organisms=', ID, '&fields=sources,references'),header = TRUE,fill = TRUE)
-  dephos_df <- read.table(paste0('https://omnipathdb.org/ptms?genesymbols=1&types=dephosphorylation&organisms=', ID, '&fields=sources,references'),header = TRUE, fill = TRUE)
-
+  else {
+    stop("Please provide a valid organism name between \"human\" and \"mouse\"")
+  }
+  phos_df <- read.table(paste0("https://omnipathdb.org/ptms?genesymbols=1&types=phosphorylation&organisms=", 
+                               ID, "&fields=sources,references"), header = TRUE, fill = TRUE)
+  phos_df$gene_name <- phos_df$enzyme_genesymbol
+  phos_df <- SignalingProfiler::molecular_function_annotation(phos_df, organism = organism)
+  phos_df <- phos_df%>%dplyr::filter(mf == 'kin')
+  
+  dephos_df <- read.table(paste0("https://omnipathdb.org/ptms?genesymbols=1&types=dephosphorylation&organisms=", 
+                                 ID, "&fields=sources,references"), header = TRUE, fill = TRUE)
+  dephos_df$gene_name <- dephos_df$enzyme_genesymbol
+  dephos_df <- SignalingProfiler::molecular_function_annotation(dephos_df, organism = organism)
+  dephos_df <- dephos_df%>%dplyr::filter(mf == 'phos')
   mod_df <- rbind(phos_df, dephos_df)
-
-  if(is.null(resources)){
-    message('Using all OmniPath resources')
+  if (is.null(resources)) {
+    message("Using all OmniPath resources")
     mod_df_filt <- mod_df
-  }else{
-    mod_df_filt <- mod_df %>%
-      tidyr::separate_rows(sources, sep = ';') %>%
-      dplyr::filter(sources %in% resources)
   }
-
-  mod_df_filt <- mod_df_filt %>% dplyr::select(-c(sources, references)) %>% dplyr::distinct()
-  df_regulons <- tibble::tibble(
-    tf = mod_df_filt$enzyme_genesymbol,
-    target = paste0(mod_df_filt$substrate,
-                    '-',mod_df_filt$residue_type,
-                    '-',mod_df_filt$residue_offset), # targets
-    mor = mod_df_filt$modification)
-
-  df_regulons$mor[df_regulons$mor=='phosphorylation'] <- 1
-  df_regulons$mor[df_regulons$mor=='dephosphorylation'] <- -1
-
-  df_regulons<- df_regulons %>%
-    dplyr::mutate(mor = as.numeric(mor), tf = tf)
-
+  else {
+    mod_df_filt <- mod_df %>% tidyr::separate_rows(sources, 
+                                                   sep = ";") %>% dplyr::filter(sources %in% resources)
+  }
+  mod_df_filt <- mod_df_filt %>% dplyr::select(-c(sources, 
+                                                  references)) %>% dplyr::distinct()
+  df_regulons <- tibble::tibble(tf = mod_df_filt$enzyme_genesymbol, 
+                                target = paste0(mod_df_filt$substrate, "-", mod_df_filt$residue_type, 
+                                                "-", mod_df_filt$residue_offset), mor = mod_df_filt$modification)
+  df_regulons$mor[df_regulons$mor == "phosphorylation"] <- 1
+  df_regulons$mor[df_regulons$mor == "dephosphorylation"] <- -1
+  df_regulons <- df_regulons %>% dplyr::mutate(mor = as.numeric(mor), 
+                                               tf = tf)
   return(df_regulons)
 }
+
 
 #' Generate Transcription Factor Enrichment Analysis (TFEA) Regulons
 #'
@@ -365,9 +435,21 @@ create_ksea_regulons <- function(resources = c('SIGNOR', 'PsP', 'Omnipath'),
   }
 
   # Dynamically bind the rows of all the entities
-  regulons <- do.call("bind_rows", regulons_list) %>%
-    dplyr::distinct(tf, target, mor, .keep_all = TRUE)
+  # regulons <- do.call("bind_rows", regulons_list) %>%
+  #   dplyr::distinct(tf, target, mor, .keep_all = TRUE)
 
+  regulons <- regulons_list %>%
+    lapply(function(df) {
+      df %>%
+        dplyr::mutate(tf = as.character(tf))
+    }) %>%
+    dplyr::bind_rows() %>%
+    dplyr::distinct(tf, target, mor, .keep_all = TRUE)
+  
+  
+  
+  
+  
   return(regulons)
 }
 
