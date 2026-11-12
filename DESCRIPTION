@@ -50,7 +50,6 @@ Imports:
     purrr,
     readr,
     reticulate,
-    RVenn,
     stringr,
     tibble,
     tidyr,
